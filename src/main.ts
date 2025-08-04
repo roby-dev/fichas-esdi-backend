@@ -47,8 +47,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
 
-  await app.listen(port, '0.0.0.0', () => {
-    console.log(`Escuchando en el puerto ${port}`);
-  });
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 App escuchando en http://0.0.0.0:${port}`);
 }
 bootstrap();
