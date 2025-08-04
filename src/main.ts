@@ -8,11 +8,10 @@ import { HttpExceptionFilter } from './infrastructure/filters/http-exception.fil
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  const port = process.env.PORT || 4000;
 
-  /// 🎯 Configurar el filtro de excepciones global
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // 🎯 Configurar ValidationPipe global
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -48,6 +47,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port, () => {
+    console.log(`Escuchando en el puerto ${port}`)
+  });
 }
 bootstrap();
