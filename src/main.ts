@@ -8,7 +8,7 @@ import { HttpExceptionFilter } from './infrastructure/filters/http-exception.fil
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const port = process.env.PORT || 4000;
+  const port = Number(process.env.PORT || 3000);
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
@@ -47,7 +47,15 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
 
-  await app.listen(port, '0.0.0.0');
-  console.log(`🚀 App escuchando en http://0.0.0.0:${port}`);
+  const env = configService.get<string>('NODE_ENV', 'development');
+
+  if (env === 'development') {
+    await app.listen(port, () => {
+      console.log(`🚀 App escuchando en puerto ${port}`);
+    });
+  } else {
+    await app.listen(port, '0.0.0.0');
+    console.log(`🚀 App escuchando en http://0.0.0.0:${port}`);
+  }
 }
 bootstrap();
