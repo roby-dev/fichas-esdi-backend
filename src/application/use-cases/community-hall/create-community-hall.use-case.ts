@@ -46,7 +46,12 @@ export class CreateCommunityHallUseCase {
       );
     }
 
-    const entity = CommunityHall.create(dto.name, dto.managementCommitteeId);
+    const entity = CommunityHall.create(
+      dto.localId,
+      dto.name,
+      dto.managementCommitteeId,
+      committee
+    );
     const saved = await this.repository.save(entity);
 
     return CommunityHallResponseDto.fromDomain(saved);

@@ -19,7 +19,7 @@ export class UserMongoRepository implements UserRepository {
         email: doc.email,
         passwordHash: doc.passwordHash,
         roles: doc.roles,
-        id: doc.id,
+        id: doc._id.toString(),
       }),
     );
   }
@@ -31,7 +31,7 @@ export class UserMongoRepository implements UserRepository {
           email: doc.email,
           passwordHash: doc.passwordHash,
           roles: doc.roles,
-          id: doc.id,
+          id: doc._id.toString(),
         })
       : null;
   }
@@ -43,7 +43,7 @@ export class UserMongoRepository implements UserRepository {
           email: doc.email,
           passwordHash: doc.passwordHash,
           roles: doc.roles,
-          id: doc.id,
+          id: doc._id.toString(),
         })
       : null;
   }
@@ -60,7 +60,7 @@ export class UserMongoRepository implements UserRepository {
       email: doc.email,
       passwordHash: doc.passwordHash,
       roles: doc.roles,
-      id: doc.id,
+      id: doc._id.toString(),
     });
   }
 
@@ -89,7 +89,7 @@ export class UserMongoRepository implements UserRepository {
       email: doc.email,
       passwordHash: doc.passwordHash,
       roles: doc.roles,
-      id: doc.id,
+      id: doc._id.toString(),
     });
   }
 }

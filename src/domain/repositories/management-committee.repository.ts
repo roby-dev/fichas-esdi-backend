@@ -7,4 +7,9 @@ export interface ManagementCommitteeRepository {
   update(person: ManagementCommittee): Promise<ManagementCommittee>;
   findByName(name: string, userId: string): Promise<ManagementCommittee | null>;
   delete(id: string): Promise<void>;
+  findAllByUserId(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<ManagementCommittee[]>;
 }

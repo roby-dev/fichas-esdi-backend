@@ -13,7 +13,7 @@ export class FindCommunityHallByIdUseCase {
   async execute(id: string): Promise<CommunityHallResponseDto> {
     const entity = await this.repository.findById(id);
     if (!entity) {
-      throw new NotFoundException(`No existe un centro poblado con id ${id}`);
+      throw new NotFoundException(`No existe un local comunal con id ${id}`);
     }
 
     return CommunityHallResponseDto.fromDomain(entity);

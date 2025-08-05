@@ -4,6 +4,7 @@ import { LoginDto } from 'src/application/dtos/auth/login.dto';
 import { AuthResponseDto } from 'src/application/dtos/auth/auth-response.dto';
 import { LoginUseCase } from 'src/application/use-cases/auth/login.use-case';
 import { RefreshTokenUseCase } from 'src/application/use-cases/auth/refresh-token.use-case';
+import { RefreshDto } from 'src/application/dtos/auth/refres.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -25,9 +26,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Renovar token de acceso' })
   @ApiResponse({ status: 200, type: AuthResponseDto })
-  async refreshToken(
-    @Body('refreshToken') refreshToken: string,
-  ): Promise<AuthResponseDto> {
-    return this.refreshTokenUseCase.execute(refreshToken);
+  async refreshToken(@Body() dto: RefreshDto): Promise<AuthResponseDto> {
+    return this.refreshTokenUseCase.execute(dto.refreshToken);
   }
 }

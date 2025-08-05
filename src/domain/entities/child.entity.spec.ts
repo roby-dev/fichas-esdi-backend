@@ -1,7 +1,16 @@
 import { Child } from './child.entity';
 import { CommunityHall } from './community-hall.entity';
+import { User } from './user.entity';
 
 describe('Child Entity - Validations', () => {
+
+  const user = new User(
+    'rgersonzs95@gmail.com',
+    'asdsadsdadsad',
+    [],
+    '12345678'
+  )
+
   const baseHall = new CommunityHall(
     'HALL A',
     'committee-id-123',
@@ -19,6 +28,7 @@ describe('Child Entity - Validations', () => {
       birthday,
       admissionDate,
       baseHall.id!,
+      user.id!,
       baseHall,
     );
   };

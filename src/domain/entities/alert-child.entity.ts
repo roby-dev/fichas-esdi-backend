@@ -1,13 +1,15 @@
-import { addUtcDays, nowUtc } from '../../common/utils/functions';
+import { nowUtc } from '../../common/utils/functions';
 import { CommunityHall } from './community-hall.entity';
+import { AlertSignal, AlertSignalInterface } from './alert-signal.entity';
 
-export class Child {
+export class AlertChild {
   constructor(
     private readonly _documentNumber: string,
-    private readonly _firstName: string,
-    private readonly _lastName: string,
-    private readonly _birthday: Date,
+    private readonly _fullName: string,
+    private readonly _gender: string,
+    private readonly _childCode: string,
     private readonly _admissionDate: Date,
+    private readonly _birthday: Date,
     private readonly _communityHallId: string,
     private readonly _userId: string,
     private readonly _id?: string,
@@ -18,20 +20,24 @@ export class Child {
     return this._documentNumber;
   }
 
-  get firstName(): string {
-    return this._firstName;
+  get fullName(): string {
+    return this._fullName;
   }
 
-  get lastName(): string {
-    return this._lastName;
+  get gender(): string {
+    return this._gender;
   }
 
-  get birthday(): Date {
-    return this._birthday;
+  get childCode(): string {
+    return this._childCode;
   }
 
   get admissionDate(): Date {
     return this._admissionDate;
+  }
+
+  get birthday(): Date {
+    return this._birthday;
   }
 
   get communityHallId(): string {
@@ -50,58 +56,41 @@ export class Child {
     return this._communityHall;
   }
 
-  get admissionValidFrom(): Date {
-    return addUtcDays(this._admissionDate, 19);
-  }
-
-  get admissionValidUntil(): Date {
-    return addUtcDays(this._admissionDate, 40);
-  }
-
-  get graduationDate(): Date {
-    const year = this._birthday.getUTCFullYear();
-    const month = this._birthday.getUTCMonth() + 35;
-    const day = this._birthday.getUTCDate();
-
-    const graduation = new Date(Date.UTC(year, month, 1));
-
-    const lastDayOfMonth = new Date(
-      Date.UTC(graduation.getUTCFullYear(), graduation.getUTCMonth() + 1, 0),
-    ).getUTCDate();
-
-    graduation.setUTCDate(day > lastDayOfMonth ? lastDayOfMonth : day);
-
-    return graduation;
-  }
-
-  get isCurrentlyAdmitted(): boolean {
+  get ageInMonths(): number {
     const today = nowUtc();
-    return (
-      today >= this.admissionValidFrom && today <= this.admissionValidUntil
-    );
+    const years = today.getUTCFullYear() - this._birthday.getUTCFullYear();
+    const months = today.getUTCMonth() - this._birthday.getUTCMonth();
+    const totalMonths = years * 12 + months;
+
+    if (today.getUTCDate() < this._birthday.getUTCDate()) {
+      return totalMonths - 1;
+    }
+
+    return totalMonths;
   }
 
-  get isGraduated(): boolean {
-    const today = nowUtc();
-    return today >= this.graduationDate;
+  get alertSignals(): AlertSignalInterface {
+    return new AlertSignal(this._birthday).alertSignals;
   }
 
   static create(
     documentNumber: string,
-    firstName: string,
-    lastName: string,
-    birthday: Date,
+    fullName: string,
+    gender: string,
+    childCode: string,
     admissionDate: Date,
+    birthday: Date,
     communityHallId: string,
     userId: string,
     communityHall?: CommunityHall,
-  ): Child {
-    return new Child(
+  ): AlertChild {
+    return new AlertChild(
       documentNumber,
-      firstName,
-      lastName,
-      birthday,
+      fullName,
+      gender,
+      childCode,
       admissionDate,
+      birthday,
       communityHallId,
       userId,
       undefined,
@@ -112,20 +101,22 @@ export class Child {
   static fromPrimitives(data: {
     id?: string;
     documentNumber: string;
-    firstName: string;
-    lastName: string;
-    birthday: Date;
+    fullName: string;
+    gender: string;
+    childCode: string;
     admissionDate: Date;
+    birthday: Date;
     communityHallId: string;
     userId: string;
     communityHall?: CommunityHall;
-  }): Child {
-    return new Child(
+  }): AlertChild {
+    return new AlertChild(
       data.documentNumber,
-      data.firstName,
-      data.lastName,
-      data.birthday,
+      data.fullName,
+      data.gender,
+      data.childCode,
       data.admissionDate,
+      data.birthday,
       data.communityHallId,
       data.userId,
       data.id,
@@ -136,10 +127,11 @@ export class Child {
   toPrimitives(): {
     id?: string;
     documentNumber: string;
-    firstName: string;
-    lastName: string;
-    birthday: Date;
+    fullName: string;
+    gender: string;
+    childCode: string;
     admissionDate: Date;
+    birthday: Date;
     communityHallId: string;
     userId: string;
     communityHall?: ReturnType<CommunityHall['toPrimitives']>;
@@ -147,12 +139,13 @@ export class Child {
     return {
       id: this._id,
       documentNumber: this._documentNumber,
-      firstName: this._firstName,
-      lastName: this._lastName,
-      birthday: this._birthday,
+      fullName: this._fullName,
+      gender: this._gender,
+      childCode: this._childCode,
       admissionDate: this._admissionDate,
+      birthday: this._birthday,
       communityHallId: this._communityHallId,
-      userId: this.userId,
+      userId: this._userId,
       communityHall: this._communityHall?.toPrimitives(),
     };
   }

@@ -9,9 +9,24 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class CreateCommunityHallDto {
+   @ApiProperty({
+    description: 'Código del local comunal',
+    example: '17229',
+    minLength: 1,
+    maxLength: 100,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1, { message: 'El código debe tener al menos 1 caracteres' })
+  @MaxLength(100, { message: 'El código no debe exceder los 100 caracteres' })
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  localId: string;
+
   @ApiProperty({
     description: 'Nombre del local comunal',
-    example: 'Local Comunal Las Palmeras',
+    example: 'LOCAL COMUNAL - LA JOYA',
     minLength: 3,
     maxLength: 100,
   })

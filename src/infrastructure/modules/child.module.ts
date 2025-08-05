@@ -6,9 +6,11 @@ import { DeleteChildUseCase } from 'src/application/use-cases/child/delete-child
 import { FindChildByIdUseCase } from 'src/application/use-cases/child/find-child-by-id.use-case';
 import { FindAllChildrenUseCase } from 'src/application/use-cases/child/find-all-children.use-case';
 import { ChildController } from '../controllers/child.controller';
+import { ContextModule } from 'src/common/context/context.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [ContextModule, AuthModule, DatabaseModule],
   controllers: [ChildController],
   providers: [
     CreateChildUseCase,

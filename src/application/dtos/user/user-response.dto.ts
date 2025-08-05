@@ -6,11 +6,11 @@ export class UserResponseDto {
   @ApiProperty() email: string;
   @ApiProperty({ isArray: true }) roles: string[];
 
-  static fromDomain(user: User) {
-    const dto = new UserResponseDto();
-    dto.id = user.id!;
-    dto.email = user.email;
-    dto.roles = user.roles;
-    return dto;
+  static fromDomain(user: User): UserResponseDto {
+    return {
+      id: user.id!,
+      email: user.email,
+      roles: user.roles,
+    };
   }
 }

@@ -20,6 +20,7 @@ export class ChildMongoRepository implements ChildRepository {
       birthday: child.birthday,
       admissionDate: child.admissionDate,
       communityHallId: child.communityHallId,
+      userId: child.userId,
     });
 
     return Child.fromPrimitives({
@@ -30,6 +31,7 @@ export class ChildMongoRepository implements ChildRepository {
       birthday: created.birthday,
       admissionDate: created.admissionDate,
       communityHallId: created.communityHallId.toString(),
+      userId: created.userId.toString(),
     });
   }
 
@@ -59,6 +61,7 @@ export class ChildMongoRepository implements ChildRepository {
       birthday: updated.birthday,
       admissionDate: updated.admissionDate,
       communityHallId: updated.communityHallId.toString(),
+      userId: updated.userId.toString(),
     });
   }
 
@@ -74,6 +77,7 @@ export class ChildMongoRepository implements ChildRepository {
       birthday: doc.birthday,
       admissionDate: doc.admissionDate,
       communityHallId: doc.communityHallId.toString(),
+      userId: doc.userId.toString(),
     });
   }
 
@@ -89,6 +93,7 @@ export class ChildMongoRepository implements ChildRepository {
       birthday: doc.birthday,
       admissionDate: doc.admissionDate,
       communityHallId: doc.communityHallId.toString(),
+      userId: doc.userId.toString(),
     });
   }
 
@@ -103,11 +108,58 @@ export class ChildMongoRepository implements ChildRepository {
         birthday: doc.birthday,
         admissionDate: doc.admissionDate,
         communityHallId: doc.communityHallId.toString(),
+        userId: doc.userId.toString(),
       }),
     );
   }
 
   async delete(id: string): Promise<void> {
     await this.model.findByIdAndDelete(id);
+  }
+
+  async findByDocumentNumberAndCommunnityHallId(
+    documentNumber: string,
+    communityHallId: string,
+  ): Promise<Child | null> {
+    const doc = await this.model
+      .findOne({ documentNumber, communityHallId })
+      .lean();
+    if (!doc) return null;
+
+    return Child.fromPrimitives({
+      id: doc._id.toString(),
+      documentNumber: doc.documentNumber,
+      firstName: doc.firstName,
+      lastName: doc.lastName,
+      birthday: doc.birthday,
+      admissionDate: doc.admissionDate,
+      communityHallId: doc.communityHallId.toString(),
+      userId: doc.userId.toString(),
+    });
+  }
+
+  async findAlllByUser(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<Child[]> {
+    const docs = await this.model
+      .find({ userId })
+      .skip(offset)
+      .limit(limit)
+      .lean();
+      
+    return docs.map((doc) =>
+      Child.fromPrimitives({
+        id: doc._id.toString(),
+        documentNumber: doc.documentNumber,
+        firstName: doc.firstName,
+        lastName: doc.lastName,
+        birthday: doc.birthday,
+        admissionDate: doc.admissionDate,
+        communityHallId: doc.communityHallId.toString(),
+        userId: doc.userId.toString(),
+      }),
+    );
   }
 }

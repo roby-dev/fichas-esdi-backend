@@ -20,12 +20,14 @@ export class ManagementCommitteeMongoRepository
   async save(entity: ManagementCommittee): Promise<ManagementCommittee> {
     const data = entity.toPrimitives();
     const created = await this.model.create({
+      committeeId: data.committeeId,
       name: data.name,
       userId: data.userId,
     });
 
     return ManagementCommittee.fromPrimitives({
       id: created._id.toString(),
+      committeeId: created.committeeId,
       userId: created.userId.toString(),
       name: created.name,
     });
@@ -37,6 +39,7 @@ export class ManagementCommitteeMongoRepository
 
     return ManagementCommittee.fromPrimitives({
       id: doc._id.toString(),
+      committeeId: doc.committeeId,
       userId: doc.userId.toString(),
       name: doc.name,
     });
@@ -45,7 +48,8 @@ export class ManagementCommitteeMongoRepository
   async findAll(limit = 10, offset = 0): Promise<ManagementCommittee[]> {
     const docs = await this.model.find().skip(offset).limit(limit).lean();
     return docs.map(
-      (doc) => new ManagementCommittee(doc.name, doc._id.toString()),
+      (doc) =>
+        new ManagementCommittee(doc.committeeId, doc.name, doc._id.toString()),
     );
   }
 
@@ -58,7 +62,11 @@ export class ManagementCommitteeMongoRepository
       throw new Error(`ManagementCommittee with id ${entity.id} not found`);
     }
 
-    return new ManagementCommittee(updated.name, updated._id.toString());
+    return new ManagementCommittee(
+      updated.committeeId,
+      updated.name,
+      updated._id.toString(),
+    );
   }
 
   async findByName(
@@ -71,6 +79,7 @@ export class ManagementCommitteeMongoRepository
     if (!managementCommittee) return null;
 
     return ManagementCommittee.fromPrimitives({
+      committeeId: managementCommittee.committeeId,
       name: managementCommittee.name,
       userId: managementCommittee.userId.toString(),
       id: managementCommittee._id.toString(),
@@ -79,5 +88,25 @@ export class ManagementCommitteeMongoRepository
 
   async delete(id: string): Promise<void> {
     await this.model.findByIdAndDelete(id);
+  }
+
+  async findAllByUserId(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<ManagementCommittee[]> {
+    const docs = await this.model
+      .find({ userId })
+      .skip(offset)
+      .limit(limit)
+      .lean();
+    return docs.map((doc) =>
+      ManagementCommittee.fromPrimitives({
+        committeeId: doc.committeeId,
+        name: doc.name,
+        userId: doc.userId.toString(),
+        id: doc._id.toString(),
+      }),
+    );
   }
 }

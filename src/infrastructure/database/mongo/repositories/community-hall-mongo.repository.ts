@@ -2,53 +2,73 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
-  CommunityHall as CommunityCenterSchema,
+  CommunityHall as CommunityHallSchema,
   CommunityHallDocument,
 } from '../schemas/community-hall.schema';
 import { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
+import { ManagementCommittee } from 'src/domain/entities/management-committe.entity';
 
 @Injectable()
-export class CommunityHallMongoRepository
-  implements CommunityHallRepository
-{
+export class CommunityHallMongoRepository implements CommunityHallRepository {
   constructor(
-    @InjectModel(CommunityCenterSchema.name)
+    @InjectModel(CommunityHallSchema.name)
     private readonly model: Model<CommunityHallDocument>,
   ) {}
 
   async save(entity: CommunityHall): Promise<CommunityHall> {
     const data = entity.toPrimitives();
     const created = await this.model.create({
+      localId: data.localId,
       name: data.name,
       managementCommitteeId: data.managementCommitteeId,
     });
 
     return CommunityHall.fromPrimitives({
+      localId: created.localId,
       name: created.name,
-      managementCommitteeId: created.managementCommitteeId.toString(),
+      managementCommitteeId: created.managementCommitteeId._id.toString(),
       id: created._id.toString(),
+      managementCommittee: entity.managementCommittee,
     });
   }
 
   async findById(id: string): Promise<CommunityHall | null> {
-    const doc = await this.model.findById(id).lean();
+    const doc = await this.model
+      .findById(id)
+      .populate('managementCommitteeId')
+      .lean();
     if (!doc) return null;
 
     return CommunityHall.fromPrimitives({
+      localId: doc.localId,
       name: doc.name,
-      managementCommitteeId: doc.managementCommitteeId.toString(),
+      managementCommitteeId: doc.managementCommitteeId._id.toString(),
       id: doc._id.toString(),
+      managementCommittee:
+        typeof doc.managementCommitteeId === 'object'
+          ? this.convertToManagementCommittee(doc.managementCommitteeId)
+          : undefined,
     });
   }
 
   async findAll(limit = 10, offset = 0): Promise<CommunityHall[]> {
-    const docs = await this.model.find().skip(offset).limit(limit).lean();
+    const docs = await this.model
+      .find()
+      .skip(offset)
+      .limit(limit)
+      .populate('managementCommitteeId')
+      .lean();
     return docs.map((doc) =>
       CommunityHall.fromPrimitives({
+        localId: doc.localId,
         name: doc.name,
-        managementCommitteeId: doc.managementCommitteeId.toString(),
+        managementCommitteeId: doc.managementCommitteeId._id.toString(),
         id: doc._id.toString(),
+        managementCommittee:
+          typeof doc.managementCommitteeId === 'object'
+            ? this.convertToManagementCommittee(doc.managementCommitteeId)
+            : undefined,
       }),
     );
   }
@@ -58,6 +78,7 @@ export class CommunityHallMongoRepository
       .findByIdAndUpdate(
         entity.id,
         {
+          localId: entity.localId,
           name: entity.name,
           managementCommitteeId: entity.managementCommitteeId,
         },
@@ -70,8 +91,9 @@ export class CommunityHallMongoRepository
     }
 
     return CommunityHall.fromPrimitives({
+      localId: doc.localId,
       name: doc.name,
-      managementCommitteeId: doc.managementCommitteeId.toString(),
+      managementCommitteeId: doc.managementCommitteeId._id.toString(),
       id: doc._id.toString(),
     });
   }
@@ -86,13 +108,54 @@ export class CommunityHallMongoRepository
   ): Promise<CommunityHall | null> {
     const doc = await this.model
       .findOne({ name, managementCommitteeId })
+      .populate('managementCommitteeId')
       .lean();
     if (!doc) return null;
 
     return CommunityHall.fromPrimitives({
+      localId: doc.localId,
       name: doc.name,
-      managementCommitteeId: doc.managementCommitteeId.toString(),
+      managementCommitteeId: doc.managementCommitteeId._id.toString(),
       id: doc._id.toString(),
+      managementCommittee:
+        typeof doc.managementCommitteeId === 'object'
+          ? this.convertToManagementCommittee(doc.managementCommitteeId)
+          : undefined,
+    });
+  }
+
+  async findAllByCommitteeId(
+    managementCommitteeId: string,
+    limit = 10,
+    offset = 0,
+  ): Promise<CommunityHall[]> {
+    const docs = await this.model
+      .find({ managementCommitteeId: managementCommitteeId })
+      .skip(offset)
+      .limit(limit)
+      .populate('managementCommitteeId')
+      .lean();
+
+    return docs.map((doc) =>
+      CommunityHall.fromPrimitives({
+        localId: doc.localId,
+        name: doc.name,
+        managementCommitteeId: doc.managementCommitteeId._id.toString(),
+        id: doc._id.toString(),
+        managementCommittee:
+          typeof doc.managementCommitteeId === 'object'
+            ? this.convertToManagementCommittee(doc.managementCommitteeId)
+            : undefined,
+      }),
+    );
+  }
+
+  private convertToManagementCommittee(raw: any): ManagementCommittee {
+    return ManagementCommittee.fromPrimitives({
+      id: raw._id.toString(),
+      committeeId: raw.committeeId,
+      userId: raw.userId.toString(),
+      name: raw.name,
     });
   }
 }

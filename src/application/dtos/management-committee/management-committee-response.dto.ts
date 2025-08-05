@@ -5,15 +5,19 @@ export class ManagementCommitteeResponseDto {
   @ApiProperty({ example: '64ee123abcde4567f8901234' })
   id: string;
 
-  @ApiProperty({ example: 'Comité de Gestión El Milagro' })
+  @ApiProperty({ example: '737' })
+  committeeId: string;
+
+  @ApiProperty({ example: 'LAS BUGANVILLAS' })
   name: string;
 
   static fromDomain(
     managementCommittee: ManagementCommittee,
   ): ManagementCommitteeResponseDto {
-    const dto = new ManagementCommitteeResponseDto();
-    dto.id = managementCommittee.id!;
-    dto.name = managementCommittee.name;
-    return dto;
+    return {
+      id: managementCommittee.id!,
+      committeeId: managementCommittee.committeeId,
+      name: managementCommittee.name,
+    };
   }
 }

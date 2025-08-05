@@ -28,6 +28,7 @@ export class CreateManagementCommitteeUseCase {
     }
 
     const entity = ManagementCommittee.create(
+      createManagementCommitteeDto.committeeId,
       createManagementCommitteeDto.name,
       userId,
     );

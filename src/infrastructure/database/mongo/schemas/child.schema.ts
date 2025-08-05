@@ -9,7 +9,7 @@ export type ChildDocument = HydratedDocument<Child>;
   versionKey: false,
 })
 export class Child {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   documentNumber: string;
 
   @Prop({ required: true })
@@ -30,6 +30,13 @@ export class Child {
     required: true,
   })
   communityHallId: Types.ObjectId;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'User',
+    required: true,
+  })
+  userId: Types.ObjectId;
 }
 
 export const ChildSchema = SchemaFactory.createForClass(Child);

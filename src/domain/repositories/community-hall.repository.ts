@@ -10,4 +10,9 @@ export interface CommunityHallRepository {
     name: string,
     managementCommitteeId: string,
   ): Promise<CommunityHall | null>;
+  findAllByCommitteeId(
+    managementCommitteeId: string,
+    limit: number,
+    offset: number,
+  ): Promise<CommunityHall[]>;
 }

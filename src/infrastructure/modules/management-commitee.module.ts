@@ -5,9 +5,10 @@ import { FindManagementCommitteeByIdUseCase } from '../../application/use-cases/
 import { FindAllManagementCommitteesUseCase } from '../../application/use-cases/management-committee/find-all-management-committees.use-case';
 import { DatabaseModule } from 'src/infrastructure/database/database.module';
 import { AuthModule } from './auth.module';
+import { ContextModule } from 'src/common/context/context.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [ContextModule, DatabaseModule, AuthModule],
   controllers: [ManagementCommitteeController],
   providers: [
     CreateManagementCommitteeUseCase,

@@ -7,4 +7,9 @@ export interface ChildRepository {
   findAll(limit?: number, offset?: number): Promise<Child[]>;
   delete(id: string): Promise<void>;
   findByDocumentNumber(documentNumber: string): Promise<Child | null>;
+  findByDocumentNumberAndCommunnityHallId(
+    name: string,
+    communityHallId: string,
+  ): Promise<Child | null>;
+  findAlllByUser(userId:string, limit?: number, offset?: number): Promise<Child[]>;
 }

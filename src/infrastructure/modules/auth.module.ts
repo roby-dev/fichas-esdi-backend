@@ -8,9 +8,11 @@ import { AuthController } from '../controllers/auth.controller';
 import { MongoModule } from '../database/mongo/mongo.module';
 import { RefreshTokenUseCase } from 'src/application/use-cases/auth/refresh-token.use-case';
 import { AuthGuard } from '../guards/jwt-auth.guard';
+import { ContextModule } from 'src/common/context/context.module';
 
 @Module({
   imports: [
+    ContextModule,
     ConfigModule,
     MongoModule,
     JwtModule.registerAsync({

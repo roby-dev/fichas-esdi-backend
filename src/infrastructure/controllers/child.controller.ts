@@ -9,8 +9,14 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateChildDto } from 'src/application/dtos/child/create-child.dto';
 import { UpdateChildDto } from 'src/application/dtos/child/update-child.dto';
 import { ChildResponseDto } from 'src/application/dtos/child/child-response.dto';
@@ -20,9 +26,12 @@ import { FindAllChildrenUseCase } from 'src/application/use-cases/child/find-all
 import { UpdateChildUseCase } from 'src/application/use-cases/child/update-child.use-case';
 import { DeleteChildUseCase } from 'src/application/use-cases/child/delete-child.use-case';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
+import { AuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('children')
 @Controller('children')
+@ApiBearerAuth('access-token')
+@UseGuards(AuthGuard)
 export class ChildController {
   constructor(
     private readonly createChildUseCase: CreateChildUseCase,

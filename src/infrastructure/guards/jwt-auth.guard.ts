@@ -1,33 +1,39 @@
+// src/infra/http/guards/jwt-auth.guard.ts
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
+  Scope,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import type { Request } from 'express';
+import { REQUEST } from '@nestjs/core';
+import { RequestUserContext } from 'src/common/context/user-context.service';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(REQUEST) private readonly request: Request,
+    private readonly userContext: RequestUserContext,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException('Token no proporcionado');
-    }
+    const token = this.extractTokenFromHeader(this.request);
+    if (!token) throw new UnauthorizedException('Token no proporcionado');
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
-      request['user'] = payload;
-    } catch (err) {
+
+      this.request['user'] = payload;
+      this.userContext.setUserId(payload.sub); // ✅ setea el contexto aquí
+    } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }
 

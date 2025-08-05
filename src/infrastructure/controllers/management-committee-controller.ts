@@ -43,6 +43,8 @@ export class ManagementCommitteeController {
   }
 
   @Get(':id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener comité de gestión por ID' })
   @ApiResponse({ status: 200, type: ManagementCommitteeResponseDto })
   async findOne(
@@ -52,6 +54,8 @@ export class ManagementCommitteeController {
   }
 
   @Get()
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Listar todos los comités de gestión' })
   @ApiResponse({ status: 200, type: [ManagementCommitteeResponseDto] })
   async findAll(

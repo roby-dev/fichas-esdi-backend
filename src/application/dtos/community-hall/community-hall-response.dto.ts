@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
+import { ManagementCommitteeResponseDto } from '../management-committee/management-committee-response.dto';
+import { ManagementCommittee } from 'src/domain/entities/management-committe.entity';
 
 export class CommunityHallResponseDto {
   @ApiProperty()
   id: string;
+
+  @ApiProperty()
+  localId: string;
 
   @ApiProperty()
   name: string;
@@ -11,11 +16,18 @@ export class CommunityHallResponseDto {
   @ApiProperty()
   managementCommitteeId: string;
 
+  @ApiProperty()
+  managementCommittee: ManagementCommitteeResponseDto;
+
   static fromDomain(entity: CommunityHall): CommunityHallResponseDto {
     return {
       id: entity.id!,
+      localId: entity.localId,
       name: entity.name,
       managementCommitteeId: entity.managementCommitteeId,
+      managementCommittee: ManagementCommitteeResponseDto.fromDomain(
+        entity.managementCommittee!,
+      ),
     };
   }
 }
