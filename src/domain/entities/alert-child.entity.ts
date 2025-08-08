@@ -83,6 +83,7 @@ export class AlertChild {
     communityHallId: string,
     userId: string,
     communityHall?: CommunityHall,
+    id?: string,
   ): AlertChild {
     return new AlertChild(
       documentNumber,
@@ -93,7 +94,7 @@ export class AlertChild {
       birthday,
       communityHallId,
       userId,
-      undefined,
+      id,
       communityHall,
     );
   }

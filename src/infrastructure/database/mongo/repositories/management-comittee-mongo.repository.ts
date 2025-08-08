@@ -92,8 +92,8 @@ export class ManagementCommitteeMongoRepository
 
   async findAllByUserId(
     userId: string,
-    limit: number,
-    offset: number,
+    limit: number = 10,
+    offset: number = 0,
   ): Promise<ManagementCommittee[]> {
     const docs = await this.model
       .find({ userId })

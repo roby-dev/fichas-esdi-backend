@@ -12,19 +12,22 @@ import {
 } from './schemas/management-committee.schema';
 import { Child, ChildSchema } from './schemas/child.schema';
 import { User, UserSchema } from './schemas/user.schema';
+import { AlertChild, AlertChildSchema } from './schemas/alert-child.schema';
+
 import {
+  ALERT_CHILD_REPOSITORY,
   CHILD_REPOSITORY,
   COMMUNITY_HALL_REPOSITORY,
   MANAGEMENT_COMMITTEE_REPOSITORY,
   PERSON_REPOSITORY,
   USER_REPOSITORY,
 } from 'src/domain/constants/tokens';
-
 import { MongoPersonRepository } from './repositories/mongo-person.repository';
 import { CommunityHallMongoRepository } from './repositories/community-hall-mongo.repository';
 import { ManagementCommitteeMongoRepository } from './repositories/management-comittee-mongo.repository';
 import { ChildMongoRepository } from './repositories/child-mongo.repository';
 import { UserMongoRepository } from './repositories/user-mongo.repository';
+import { AlertChildMongoRepository as AlertChildMongoRepository } from './repositories/alert-child-monto.repository';
 
 @Module({
   imports: [
@@ -34,6 +37,7 @@ import { UserMongoRepository } from './repositories/user-mongo.repository';
       { name: ManagementCommittee.name, schema: ManagementCommitteeSchema },
       { name: Child.name, schema: ChildSchema },
       { name: User.name, schema: UserSchema },
+      { name: AlertChild.name, schema: AlertChildSchema },
     ]),
   ],
   providers: [
@@ -56,14 +60,19 @@ import { UserMongoRepository } from './repositories/user-mongo.repository';
     {
       provide: USER_REPOSITORY,
       useClass: UserMongoRepository,
-    },   
+    },
+    {
+      provide: ALERT_CHILD_REPOSITORY,
+      useClass: AlertChildMongoRepository,
+    },
   ],
   exports: [
     PERSON_REPOSITORY,
     COMMUNITY_HALL_REPOSITORY,
     MANAGEMENT_COMMITTEE_REPOSITORY,
     CHILD_REPOSITORY,
-    USER_REPOSITORY
+    USER_REPOSITORY,
+    ALERT_CHILD_REPOSITORY,
   ],
 })
 export class MongoModule {}

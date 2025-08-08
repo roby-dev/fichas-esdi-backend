@@ -5,6 +5,7 @@ import { CommunityHallmodule } from './infrastructure/modules/community-hall.mod
 import { ChildModule } from './infrastructure/modules/child.module';
 import { AuthModule } from './infrastructure/modules/auth.module';
 import { UserModule } from './infrastructure/modules/user.module';
+import { AlertChildModule } from './infrastructure/modules/alert-child.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserModule } from './infrastructure/modules/user.module';
     ChildModule,
     AuthModule,
     UserModule,
+    AlertChildModule,
   ],
 })
 export class AppModule {}

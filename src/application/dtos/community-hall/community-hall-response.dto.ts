@@ -17,17 +17,18 @@ export class CommunityHallResponseDto {
   managementCommitteeId: string;
 
   @ApiProperty()
-  managementCommittee: ManagementCommitteeResponseDto;
+  managementCommittee: ManagementCommitteeResponseDto | undefined;
 
   static fromDomain(entity: CommunityHall): CommunityHallResponseDto {
+    console.log(entity);
     return {
       id: entity.id!,
       localId: entity.localId,
       name: entity.name,
       managementCommitteeId: entity.managementCommitteeId,
-      managementCommittee: ManagementCommitteeResponseDto.fromDomain(
-        entity.managementCommittee!,
-      ),
+      managementCommittee: entity.managementCommittee
+        ? ManagementCommitteeResponseDto.fromDomain(entity.managementCommittee)
+        : undefined,
     };
   }
 }

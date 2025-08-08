@@ -54,6 +54,7 @@ export class CreateCommunityHallUseCase {
     );
     const saved = await this.repository.save(entity);
 
+    console.log(entity);
     return CommunityHallResponseDto.fromDomain(saved);
   }
 }

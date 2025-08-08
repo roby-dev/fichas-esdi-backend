@@ -24,10 +24,12 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
       managementCommitteeId: data.managementCommitteeId,
     });
 
+    console.log(created);
+
     return CommunityHall.fromPrimitives({
       localId: created.localId,
       name: created.name,
-      managementCommitteeId: created.managementCommitteeId._id.toString(),
+      managementCommitteeId: created.managementCommitteeId.toString(),
       id: created._id.toString(),
       managementCommittee: entity.managementCommittee,
     });
