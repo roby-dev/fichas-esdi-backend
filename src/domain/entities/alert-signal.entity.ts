@@ -34,7 +34,7 @@ export class AlertSignal {
     const newDate = new Date(Date.UTC(year, newMonth, 1));
 
     const lastDay = new Date(
-      Date.UTC(newDate.getUTCFullYear(), newDate.getUTCMonth() + 1, 0)
+      Date.UTC(newDate.getUTCFullYear(), newDate.getUTCMonth() + 1, 0),
     ).getUTCDate();
 
     newDate.setUTCDate(Math.min(day, lastDay));

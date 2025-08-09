@@ -29,7 +29,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
         childCode: doc.childCode,
         admissionDate: doc.admissionDate,
         birthday: doc.birthday,
-        communityHallId: doc.communityHallId.toString(),
+        managementCommitteName: doc.managementCommitteName,
+        managementCommitteCode: doc.managementCommitteCode,
+        communityHallName: doc.communityHallName,
+        communityHallId: doc.communityHallId,
         userId: doc.userId.toString(),
       }),
     );
@@ -44,7 +47,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
       childCode: primitives.childCode,
       admissionDate: primitives.admissionDate,
       birthday: primitives.birthday,
-      communityHallId: new Types.ObjectId(primitives.communityHallId),
+      managementCommitteName: primitives.managementCommitteName,
+      managementCommitteCode: primitives.managementCommitteCode,
+      communityHallName: primitives.communityHallName,
+      communityHallId: primitives.communityHallId,
       userId: new Types.ObjectId(primitives.userId),
     });
 
@@ -56,7 +62,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
       childCode: created.childCode,
       admissionDate: created.admissionDate,
       birthday: created.birthday,
-      communityHallId: created.communityHallId._id.toString(),
+      managementCommitteName: created.managementCommitteName,
+      managementCommitteCode: created.managementCommitteCode,
+      communityHallName: created.communityHallName,
+      communityHallId: created.communityHallId,
       userId: created.userId._id.toString(),
     });
   }
@@ -71,7 +80,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
         childCode: p.childCode,
         admissionDate: p.admissionDate,
         birthday: p.birthday,
-        communityHallId: new Types.ObjectId(p.communityHallId),
+        managementCommitteName: p.managementCommitteName,
+        managementCommitteCode: p.managementCommitteCode,
+        communityHallName: p.communityHallName,
+        communityHallId: p.communityHallId,
         userId: new Types.ObjectId(p.userId),
       };
     });
@@ -87,7 +99,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
         childCode: doc.childCode,
         admissionDate: doc.admissionDate,
         birthday: doc.birthday,
-        communityHallId: doc.communityHallId.toString(),
+        managementCommitteName: doc.managementCommitteName,
+        managementCommitteCode: doc.managementCommitteCode,
+        communityHallName: doc.communityHallName,
+        communityHallId: doc.communityHallId,
         userId: doc.userId.toString(),
       }),
     );
@@ -105,7 +120,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
         childCode: doc.childCode,
         admissionDate: doc.admissionDate,
         birthday: doc.birthday,
-        communityHallId: doc.communityHallId.toString(),
+        managementCommitteName: doc.managementCommitteName,
+        managementCommitteCode: doc.managementCommitteCode,
+        communityHallName: doc.communityHallName,
+        communityHallId: doc.communityHallId,
         userId: doc.userId.toString(),
       }),
     );
@@ -123,7 +141,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
       childCode: doc.childCode,
       admissionDate: doc.admissionDate,
       birthday: doc.birthday,
-      communityHallId: doc.communityHallId.toString(),
+      managementCommitteName: doc.managementCommitteName,
+      managementCommitteCode: doc.managementCommitteCode,
+      communityHallName: doc.communityHallName,
+      communityHallId: doc.communityHallId,
       userId: doc.userId.toString(),
     });
   }
@@ -144,7 +165,10 @@ export class AlertChildMongoRepository implements AlertChildRepository {
           childCode: primitives.childCode,
           admissionDate: primitives.admissionDate,
           birthday: primitives.birthday,
-          communityHallId: new Types.ObjectId(primitives.communityHallId),
+          managementCommitteName: primitives.managementCommitteName,
+          managementCommitteCode: primitives.managementCommitteCode,
+          communityHallName: primitives.communityHallName,
+          communityHallId: primitives.communityHallId,
           userId: new Types.ObjectId(primitives.userId),
         },
         { new: true },
@@ -163,55 +187,62 @@ export class AlertChildMongoRepository implements AlertChildRepository {
       childCode: updated.childCode,
       admissionDate: updated.admissionDate,
       birthday: updated.birthday,
-      communityHallId: updated.communityHallId.toString(),
+      managementCommitteName: updated.managementCommitteName,
+      managementCommitteCode: updated.managementCommitteCode,
+      communityHallName: updated.communityHallName,
+      communityHallId: updated.communityHallId,
       userId: updated.userId.toString(),
     });
   }
 
   async bulkUpdate(alertChildren: AlertChild[]): Promise<AlertChild[]> {
-    const updated: AlertChild[] = [];
-
-    for (const child of alertChildren) {
-      const primitives = child.toPrimitives();
-
-      const doc = await this.model
-        .findOneAndUpdate(
-          {
-            documentNumber: primitives.documentNumber,
-            communityHallId: new Types.ObjectId(primitives.communityHallId),
-            userId: new Types.ObjectId(primitives.userId),
-          },
-          {
-            documentNumber: primitives.documentNumber,
-            fullName: primitives.fullName,
-            gender: primitives.gender,
-            childCode: primitives.childCode,
-            admissionDate: primitives.admissionDate,
-            birthday: primitives.birthday,
-            communityHallId: new Types.ObjectId(primitives.communityHallId),
-            userId: new Types.ObjectId(primitives.userId),
-          },
-          { new: true },
-        )
-        .lean();
-
-      if (doc) {
-        updated.push(
-          AlertChild.fromPrimitives({
-            id: doc._id.toString(),
-            documentNumber: doc.documentNumber,
-            fullName: doc.fullName,
-            gender: doc.gender,
-            childCode: doc.childCode,
-            admissionDate: doc.admissionDate,
-            birthday: doc.birthday,
-            communityHallId: doc.communityHallId.toString(),
-            userId: doc.userId.toString(),
-          }),
-        );
+    const ops = alertChildren.map((child) => {
+      if (!child.id) {
+        throw new Error('Cannot bulk update without ID');
       }
-    }
+      const p = child.toPrimitives();
+      return {
+        updateOne: {
+          filter: { _id: new Types.ObjectId(p.id) },
+          update: {
+            $set: {
+              documentNumber: p.documentNumber,
+              fullName: p.fullName,
+              gender: p.gender,
+              childCode: p.childCode,
+              admissionDate: p.admissionDate,
+              birthday: p.birthday,
+              managementCommitteName: p.managementCommitteName,
+              managementCommitteCode: p.managementCommitteCode,
+              communityHallName: p.communityHallName,
+              communityHallId: p.communityHallId,
+              userId: new Types.ObjectId(p.userId),
+            },
+          },
+        },
+      };
+    });
 
-    return updated;
+    await this.model.bulkWrite(ops, { ordered: false });
+
+    const ids = alertChildren.map((c) => new Types.ObjectId(c.id!));
+    const updatedDocs = await this.model.find({ _id: { $in: ids } }).lean();
+
+    return updatedDocs.map((doc) =>
+      AlertChild.fromPrimitives({
+        id: doc._id.toString(),
+        documentNumber: doc.documentNumber,
+        fullName: doc.fullName,
+        gender: doc.gender,
+        childCode: doc.childCode,
+        admissionDate: doc.admissionDate,
+        birthday: doc.birthday,
+        managementCommitteName: doc.managementCommitteName,
+        managementCommitteCode: doc.managementCommitteCode,
+        communityHallName: doc.communityHallName,
+        communityHallId: doc.communityHallId,
+        userId: doc.userId.toString(),
+      }),
+    );
   }
 }

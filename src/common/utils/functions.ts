@@ -31,3 +31,19 @@ export function parseDdMmYyyyToUtcDate(dateStr: string): Date {
   const [day, month, year] = dateStr.split('/').map(Number);
   return new Date(Date.UTC(year, month - 1, day));
 }
+
+export function isSameUtcDate(d1: Date, d2: Date): boolean {
+  return (
+    d1.getUTCFullYear() === d2.getUTCFullYear() &&
+    d1.getUTCMonth() === d2.getUTCMonth() &&
+    d1.getUTCDate() === d2.getUTCDate()
+  );
+}
+
+export function isAfterOrSameUtc(d1: Date, d2: Date): boolean {
+  return isSameUtcDate(d1, d2) || d1.getTime() > d2.getTime();
+}
+
+export function isBeforeOrSameUtc(d1: Date, d2: Date): boolean {
+  return isSameUtcDate(d1, d2) || d1.getTime() < d2.getTime();
+}

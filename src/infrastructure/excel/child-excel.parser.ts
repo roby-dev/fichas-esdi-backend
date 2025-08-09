@@ -7,7 +7,7 @@ import { ChildExcelRow } from 'src/application/interfaces/child-excel-row.interf
 export class XlsxChildExcelReader implements ChildExcelReader {
   async read(
     file: Express.Multer.File,
-    allowedCommitteeIds: string[],
+    committeeId: string,
   ): Promise<ChildExcelRow[]> {
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
@@ -36,7 +36,7 @@ export class XlsxChildExcelReader implements ChildExcelReader {
     const headerMap: Record<string, keyof ChildExcelRow> = {
       'CUI del CG': 'managementCommitteCode',
       'Nombre de Comité de Gestión': 'managementCommitteName',
-      LOCAL_ID: 'localId',
+      LOCAL_ID: 'communityHallId',
       'Nombre del Local': 'communityHallName',
       'Código de Usuario': 'childCode',
       'Apellido Paterno del Usuario': 'fatherLastName',
@@ -51,7 +51,7 @@ export class XlsxChildExcelReader implements ChildExcelReader {
     const cuiColIndex = headers.indexOf('CUI del CG');
     const dataRows = rows.slice(headerRowIndex + 1).filter((row) => {
       const cuiValue = row[cuiColIndex];
-      return allowedCommitteeIds.includes(String(cuiValue).trim());
+      return (String(cuiValue).trim()) === committeeId;
     });
 
     return dataRows.map((row) => {
@@ -62,13 +62,7 @@ export class XlsxChildExcelReader implements ChildExcelReader {
         let value =
           colIndex !== -1 && row[colIndex] !== undefined ? row[colIndex] : null;
 
-        if (
-          targetProp === 'managementCommitteCode' ||
-          targetProp === 'localId' ||
-          targetProp === 'childCode'
-        ) {
-          value = Number(value);
-        } else if (targetProp === 'gender' && typeof value === 'string') {
+        if (targetProp === 'gender' && typeof value === 'string') {
           value = value.trim().toUpperCase() === 'M' ? 'M' : 'F';
         } else if (typeof value === 'string') {
           value = value.trim();

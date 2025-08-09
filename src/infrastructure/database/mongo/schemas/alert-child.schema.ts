@@ -27,12 +27,17 @@ export class AlertChild {
   @Prop({ required: true })
   birthday: Date;
 
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'CommunityHall',
-    required: true,
-  })
-  communityHallId: Types.ObjectId;
+  @Prop({ required: true })
+  managementCommitteName: string;
+
+  @Prop({ required: true })
+  managementCommitteCode: string;
+
+  @Prop({ required: true })
+  communityHallName: string;
+
+  @Prop({ required: true })
+  communityHallId: string;
 
   @Prop({
     type: Types.ObjectId,

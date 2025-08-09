@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AlertChildResponseDto } from './alert-child-response.dto';
 
 export class BulkUpdateResponseDto {
   @ApiProperty({
@@ -12,4 +13,10 @@ export class BulkUpdateResponseDto {
     description: 'Human-readable message describing the result',
   })
   message: string;
+
+  @ApiProperty({
+    example: [],
+    description: 'Data updated/created',
+  })
+  data: AlertChildResponseDto[];
 }
