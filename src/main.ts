@@ -22,13 +22,7 @@ async function bootstrap() {
 
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
   app.setGlobalPrefix(apiPrefix);
-  app.enableCors({
-    origin: configService
-      .get<string>('CORS_ORIGIN', 'http://localhost:3000')
-      .split(','),
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: true,
-  });
+  app.enableCors();
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Fichas ESDI API')
