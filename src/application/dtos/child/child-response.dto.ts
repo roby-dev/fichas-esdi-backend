@@ -1,6 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Child } from 'src/domain/entities/child.entity';
 import { CommunityHallResponseDto } from '../community-hall/community-hall-response.dto';
+import {
+  formatAdmissionAvailability,
+  formatGraduationAvailability,
+} from 'src/common/utils/functions';
 
 export class ChildResponseDto {
   @ApiProperty() id: string;
@@ -16,6 +20,10 @@ export class ChildResponseDto {
   @ApiProperty() graduationDate: Date;
   @ApiProperty() isCurrentlyAdmitted: boolean;
   @ApiProperty() isGraduated: boolean;
+  @ApiProperty() ageInMonths: number;
+
+  @ApiProperty() admissionFormatted: string;
+  @ApiProperty() graduationFormatted: string;
 
   @ApiProperty() communityHall: CommunityHallResponseDto | undefined;
 
@@ -36,9 +44,15 @@ export class ChildResponseDto {
       graduationDate: entity.graduationDate,
       isCurrentlyAdmitted: entity.isCurrentlyAdmitted,
       isGraduated: entity.isGraduated,
+      ageInMonths: entity.ageInMonths,
       communityHall: entity.communityHall
         ? CommunityHallResponseDto.fromDomain(entity.communityHall)
         : undefined,
+      admissionFormatted: formatAdmissionAvailability(
+        entity.admissionValidFrom,
+        entity.admissionValidUntil,
+      ),
+      graduationFormatted: formatGraduationAvailability(entity.graduationDate),
     };
   }
 }

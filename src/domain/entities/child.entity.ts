@@ -86,6 +86,19 @@ export class Child {
     return today >= this.graduationDate;
   }
 
+  get ageInMonths(): number {
+    const today = nowUtc();
+    const years = today.getUTCFullYear() - this._birthday.getUTCFullYear();
+    const months = today.getUTCMonth() - this._birthday.getUTCMonth();
+    const totalMonths = years * 12 + months;
+
+    if (today.getUTCDate() < this._birthday.getUTCDate()) {
+      return totalMonths - 1;
+    }
+
+    return totalMonths;
+  }
+
   static create(
     documentNumber: string,
     firstName: string,
