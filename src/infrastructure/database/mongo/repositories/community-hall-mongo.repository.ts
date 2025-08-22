@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   CommunityHall as CommunityHallSchema,
   CommunityHallDocument,
@@ -21,15 +21,13 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     const created = await this.model.create({
       localId: data.localId,
       name: data.name,
-      managementCommitteeId: data.managementCommitteeId,
+      managementCommitteeId: new Types.ObjectId(data.managementCommitteeId),
     });
-
-    console.log(created);
 
     return CommunityHall.fromPrimitives({
       localId: created.localId,
       name: created.name,
-      managementCommitteeId: created.managementCommitteeId.toString(),
+      managementCommitteeId: created.managementCommitteeId._id.toString(),
       id: created._id.toString(),
       managementCommittee: entity.managementCommittee,
     });
@@ -109,7 +107,10 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     managementCommitteeId: string,
   ): Promise<CommunityHall | null> {
     const doc = await this.model
-      .findOne({ name, managementCommitteeId })
+      .findOne({
+        name,
+        managementCommitteeId: new Types.ObjectId(managementCommitteeId),
+      })
       .populate('managementCommitteeId')
       .lean();
     if (!doc) return null;
@@ -132,7 +133,9 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     offset = 0,
   ): Promise<CommunityHall[]> {
     const docs = await this.model
-      .find({ managementCommitteeId: managementCommitteeId })
+      .find({
+        managementCommitteeId: new Types.ObjectId(managementCommitteeId),
+      })
       .skip(offset)
       .limit(limit)
       .populate('managementCommitteeId')

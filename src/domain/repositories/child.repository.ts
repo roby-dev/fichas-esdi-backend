@@ -11,5 +11,10 @@ export interface ChildRepository {
     name: string,
     communityHallId: string,
   ): Promise<Child | null>;
-  findAlllByUser(userId:string, limit?: number, offset?: number): Promise<Child[]>;
+  findAlllByUser(
+    userId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<Child[]>;
+  findAllByCommittee(committeeId: string): Promise<Child[]>;
 }

@@ -8,6 +8,7 @@ import { FindAllChildrenUseCase } from 'src/application/use-cases/child/find-all
 import { ChildController } from '../controllers/child.controller';
 import { ContextModule } from 'src/common/context/context.module';
 import { AuthModule } from './auth.module';
+import { FindAllChildrenByCommitteeUseCase } from 'src/application/use-cases/child/find-all-children-by-committee.use-case';
 
 @Module({
   imports: [ContextModule, AuthModule, DatabaseModule],
@@ -18,6 +19,7 @@ import { AuthModule } from './auth.module';
     DeleteChildUseCase,
     FindChildByIdUseCase,
     FindAllChildrenUseCase,
+    FindAllChildrenByCommitteeUseCase,
   ],
 })
 export class ChildModule {}

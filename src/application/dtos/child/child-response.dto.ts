@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Child } from 'src/domain/entities/child.entity';
+import { CommunityHallResponseDto } from '../community-hall/community-hall-response.dto';
 
 export class ChildResponseDto {
   @ApiProperty() id: string;
@@ -9,7 +10,6 @@ export class ChildResponseDto {
   @ApiProperty() birthday: Date;
   @ApiProperty() admissionDate: Date;
   @ApiProperty() communityHallId: string;
-  @ApiProperty() communityHallName?: string;
 
   @ApiProperty() admissionValidFrom: Date;
   @ApiProperty() admissionValidUntil: Date;
@@ -17,25 +17,28 @@ export class ChildResponseDto {
   @ApiProperty() isCurrentlyAdmitted: boolean;
   @ApiProperty() isGraduated: boolean;
 
+  @ApiProperty() communityHall: CommunityHallResponseDto | undefined;
+
   static fromDomain(entity: Child): ChildResponseDto {
     const dto = new ChildResponseDto();
     const primitives = entity.toPrimitives();
 
-    dto.id = primitives.id!;
-    dto.documentNumber = primitives.documentNumber;
-    dto.firstName = primitives.firstName;
-    dto.lastName = primitives.lastName;
-    dto.birthday = primitives.birthday;
-    dto.admissionDate = primitives.admissionDate;
-    dto.communityHallId = primitives.communityHallId;
-    dto.communityHallName = primitives.communityHall?.name;
-
-    dto.admissionValidFrom = entity.admissionValidFrom;
-    dto.admissionValidUntil = entity.admissionValidUntil;
-    dto.graduationDate = entity.graduationDate;
-    dto.isCurrentlyAdmitted = entity.isCurrentlyAdmitted;
-    dto.isGraduated = entity.isGraduated;
-
-    return dto;
+    return {
+      id: primitives.id!,
+      documentNumber: primitives.documentNumber,
+      firstName: primitives.firstName,
+      lastName: primitives.lastName,
+      birthday: primitives.birthday,
+      admissionDate: primitives.admissionDate,
+      communityHallId: primitives.communityHallId,
+      admissionValidFrom: entity.admissionValidFrom,
+      admissionValidUntil: entity.admissionValidUntil,
+      graduationDate: entity.graduationDate,
+      isCurrentlyAdmitted: entity.isCurrentlyAdmitted,
+      isGraduated: entity.isGraduated,
+      communityHall: entity.communityHall
+        ? CommunityHallResponseDto.fromDomain(entity.communityHall)
+        : undefined,
+    };
   }
 }

@@ -1,3 +1,4 @@
+import { FindAllChildrenByCommitteeUseCase } from 'src/application/use-cases/child/find-all-children-by-committee.use-case';
 import {
   Body,
   Controller,
@@ -39,6 +40,7 @@ export class ChildController {
     private readonly findAllChildrenUseCase: FindAllChildrenUseCase,
     private readonly updateChildUseCase: UpdateChildUseCase,
     private readonly deleteChildUseCase: DeleteChildUseCase,
+    private readonly findAllChildrenByCommitteeUseCase: FindAllChildrenByCommitteeUseCase,
   ) {}
 
   @Post()
@@ -83,5 +85,14 @@ export class ChildController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', ValidateObjectIdPipe) id: string): Promise<void> {
     await this.deleteChildUseCase.execute(id);
+  }
+
+  @Get('by-committee/:id')
+  @ApiOperation({ summary: 'Obtener todos los niños por ID de comité' })
+  @ApiResponse({ status: 200, type: [ChildResponseDto] })
+  async findAllByCommittee(
+    @Param('id', ValidateObjectIdPipe) id: string,
+  ): Promise<ChildResponseDto[]> {
+    return this.findAllChildrenByCommitteeUseCase.execute(id);
   }
 }

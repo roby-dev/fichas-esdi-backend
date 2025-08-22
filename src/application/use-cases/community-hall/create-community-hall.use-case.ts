@@ -53,8 +53,6 @@ export class CreateCommunityHallUseCase {
       committee
     );
     const saved = await this.repository.save(entity);
-
-    console.log(entity);
     return CommunityHallResponseDto.fromDomain(saved);
   }
 }

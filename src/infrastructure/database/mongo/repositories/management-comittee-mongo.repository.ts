@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ManagementCommittee } from 'src/domain/entities/management-committe.entity';
 import {
   ManagementCommittee as ManagementCommitteeSchema,
@@ -22,13 +22,13 @@ export class ManagementCommitteeMongoRepository
     const created = await this.model.create({
       committeeId: data.committeeId,
       name: data.name,
-      userId: data.userId,
+      userId: new Types.ObjectId(data.userId),
     });
 
     return ManagementCommittee.fromPrimitives({
       id: created._id.toString(),
       committeeId: created.committeeId,
-      userId: created.userId.toString(),
+      userId: created.userId._id.toString(),
       name: created.name,
     });
   }
@@ -40,7 +40,7 @@ export class ManagementCommitteeMongoRepository
     return ManagementCommittee.fromPrimitives({
       id: doc._id.toString(),
       committeeId: doc.committeeId,
-      userId: doc.userId.toString(),
+      userId: doc.userId._id.toString(),
       name: doc.name,
     });
   }
@@ -81,7 +81,7 @@ export class ManagementCommitteeMongoRepository
     return ManagementCommittee.fromPrimitives({
       committeeId: managementCommittee.committeeId,
       name: managementCommittee.name,
-      userId: managementCommittee.userId.toString(),
+      userId: managementCommittee.userId._id.toString(),
       id: managementCommittee._id.toString(),
     });
   }
@@ -96,7 +96,7 @@ export class ManagementCommitteeMongoRepository
     offset: number = 0,
   ): Promise<ManagementCommittee[]> {
     const docs = await this.model
-      .find({ userId })
+      .find({ userId: new Types.ObjectId(userId) })
       .skip(offset)
       .limit(limit)
       .lean();
@@ -104,7 +104,7 @@ export class ManagementCommitteeMongoRepository
       ManagementCommittee.fromPrimitives({
         committeeId: doc.committeeId,
         name: doc.name,
-        userId: doc.userId.toString(),
+        userId: doc.userId._id.toString(),
         id: doc._id.toString(),
       }),
     );
