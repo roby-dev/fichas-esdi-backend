@@ -9,10 +9,10 @@ export type ManagementCommitteeDocument = HydratedDocument<ManagementCommittee>;
   versionKey: false,
 })
 export class ManagementCommittee {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   committeeId: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
