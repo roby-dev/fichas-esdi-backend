@@ -12,8 +12,8 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-      exclude: ['/api*'],
+      rootPath: join(__dirname, '..', 'dist/public'),
+      exclude: ['/api'], 
     }),
     PersonModule,
     ManagementCommitteeModule,
