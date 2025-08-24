@@ -1,0 +1,42 @@
+import { IsNotEmpty, IsString, MinLength, MaxLength, IsMongoId } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+
+export class CreateManagementCommitteeForUserDto {
+  @ApiProperty({
+    example: '688f81da182ea76a2df99b07',
+    description: 'ID del usuario al que se le asignará el comité de gestión',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  userId: string;
+
+  @ApiProperty({
+    description: 'Código del comité de gestión',
+    example: '737',
+    minLength: 1,
+    maxLength: 100,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1, { message: 'El código debe tener al menos 1 caracteres' })
+  @MaxLength(100, { message: 'El código no debe exceder los 100 caracteres' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  committeeId: string;
+
+  @ApiProperty({
+    description: 'Nombre del comité de gestión',
+    example: 'LAS BUGANVILAS',
+    minLength: 3,
+    maxLength: 100,
+  })
+  @IsString({ message: 'El nombre debe ser un texto válido' })
+  @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
+  @MinLength(3, { message: 'El nombre debe tener al menos 3 caracteres' })
+  @MaxLength(100, { message: 'El nombre no debe exceder los 100 caracteres' })
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value?.trim().toUpperCase() : value,
+  )
+  name: string;
+}

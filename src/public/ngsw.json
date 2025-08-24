@@ -1,0 +1,115 @@
+{
+  "configVersion": 1,
+  "timestamp": 1755995310626,
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/chunk-2NFLSA4Y.js",
+        "/chunk-2ZCYA2ZW.js",
+        "/chunk-3YNTNXFH.js",
+        "/chunk-65LCCGJI.js",
+        "/chunk-6KNBS3QD.js",
+        "/chunk-C7IKX3R3.js",
+        "/chunk-DISYENME.js",
+        "/chunk-EOTY75VD.js",
+        "/chunk-GFS7TQFZ.js",
+        "/chunk-LETT5Q4Y.js",
+        "/chunk-MAP6CM4N.js",
+        "/chunk-MNZRA6I4.js",
+        "/chunk-MYIA7GLA.js",
+        "/chunk-O23KAMPK.js",
+        "/chunk-OSBDGBC6.js",
+        "/chunk-PHDMOUI6.js",
+        "/chunk-PM5OBTPH.js",
+        "/chunk-SS45ZCUX.js",
+        "/chunk-UFO7NE4L.js",
+        "/chunk-UHT4HGR7.js",
+        "/chunk-UV2D7LCB.js",
+        "/chunk-XKCY5E5P.js",
+        "/chunk-ZW2OU5FP.js",
+        "/index.html",
+        "/main-SYUDQ5C3.js",
+        "/manifest.webmanifest",
+        "/styles-NAW7WCQF.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/assets/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf",
+        "/assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf",
+        "/assets/icons/icon-192x192.png",
+        "/assets/icons/icon-512x512.png",
+        "/media/Montserrat-VariableFont_wght-KEGAHBID.ttf"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/assets/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf": "7ba6660400f0cb201da6facd9cddb768a182c968",
+    "/assets/fonts/montserrat/Montserrat-VariableFont_wght.ttf": "e3f5228e62455228b55694f1cb5ac40f9682a86b",
+    "/assets/icons/icon-192x192.png": "29c5587ee658c03a5929bdacf966767405aab5a6",
+    "/assets/icons/icon-512x512.png": "61979f0a2193b2a5f76493aca1063799cddc0f62",
+    "/chunk-2NFLSA4Y.js": "a26cd3e959939fe26b8cfc160ad681ba7b6b4468",
+    "/chunk-2ZCYA2ZW.js": "f62b7b59ec2dec4813cd3850dbe5a2a621314b9d",
+    "/chunk-3YNTNXFH.js": "78f3fa870c96032fa9571abbd8e18f063070077e",
+    "/chunk-65LCCGJI.js": "c7278e6b2cf0a520f1fb4be553def31c5f6cf53b",
+    "/chunk-6KNBS3QD.js": "5487e5fa0ebac579f1374e3d0d757e21d224f44e",
+    "/chunk-C7IKX3R3.js": "38fac89109efe24bb4bf22fcea754bafbdd16d87",
+    "/chunk-DISYENME.js": "61605fe22c304412a142fd19461f44aabcaf6422",
+    "/chunk-EOTY75VD.js": "414a88ec9de507f497a527216435735be74a2668",
+    "/chunk-GFS7TQFZ.js": "b99d50a87f12efc0a04647313b67ddd2abd26d06",
+    "/chunk-LETT5Q4Y.js": "b905d2f495200ffd3867e6762f79e4b203a2c520",
+    "/chunk-MAP6CM4N.js": "0e60f9a9dcd8ce73091580e549c9bba1942580d4",
+    "/chunk-MNZRA6I4.js": "4e92d5df846dbacb928249b53209ba80550d4d03",
+    "/chunk-MYIA7GLA.js": "bdc4539b57153098aa87b03948bd3a60b65ffa8c",
+    "/chunk-O23KAMPK.js": "4243daa87b5bd8805b3d2620bee213a91d427274",
+    "/chunk-OSBDGBC6.js": "4baa0c7ffce6a72ddc0854208c57296128e75e1d",
+    "/chunk-PHDMOUI6.js": "4c556823661b169addf513958c34a602eebe71e6",
+    "/chunk-PM5OBTPH.js": "8cbbe25febd1f4c0a945be033d14952797063bd2",
+    "/chunk-SS45ZCUX.js": "e117bb2b64a758f43a1da274e56799632ff77963",
+    "/chunk-UFO7NE4L.js": "a3f86bef238d2c2c9c5df5d56f7829b4e174f09c",
+    "/chunk-UHT4HGR7.js": "dcec18de490c2b7d4844cd1e8320299aac4465a7",
+    "/chunk-UV2D7LCB.js": "979f5ff93c09fe5194bce322e01bee95a50b94d4",
+    "/chunk-XKCY5E5P.js": "b1516623d096f5a7b644a284338b2ecf07b3ee9b",
+    "/chunk-ZW2OU5FP.js": "1c354fa232acb7c449bd20d4f7a32b0b70a1d34e",
+    "/index.html": "567567005f175d3ce3158d41991e141eaa23d292",
+    "/main-SYUDQ5C3.js": "bf72819d7b1d51d10542a58bfe7907b3d71bd1a6",
+    "/manifest.webmanifest": "fff4ef5f2887f9acd8e96d15bdd3ef40f5a519e0",
+    "/media/Montserrat-VariableFont_wght-KEGAHBID.ttf": "e3f5228e62455228b55694f1cb5ac40f9682a86b",
+    "/styles-NAW7WCQF.css": "80d53684e3e7437622333157bb863ddd49b8ccef"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
