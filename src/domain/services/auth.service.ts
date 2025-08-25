@@ -5,7 +5,7 @@ export interface AuthService {
     email: string,
     password: string,
   ): Promise<AuthUser | null>;
-  generateAccessToken(user: AuthUser): string;
+  generateAccessToken(user: AuthUser, jti: string): string;
   generateRefreshToken(user: AuthUser): string;
   validateRefreshToken(token: string): Promise<AuthUser | null>;
 }

@@ -13,7 +13,7 @@ import {
 import type { ChildRepository } from 'src/domain/repositories/child.repository';
 import type { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
 import { Child } from 'src/domain/entities/child.entity';
-import { RequestUserContext } from 'src/common/context/user-context.service';
+import { RequestUserContext } from 'src/common/contexts/user-context.service';
 
 @Injectable()
 export class CreateChildUseCase {

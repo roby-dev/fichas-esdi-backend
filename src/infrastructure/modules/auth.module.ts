@@ -8,7 +8,12 @@ import { AuthController } from '../controllers/auth.controller';
 import { MongoModule } from '../database/mongo/mongo.module';
 import { RefreshTokenUseCase } from 'src/application/use-cases/auth/refresh-token.use-case';
 import { AuthGuard } from '../guards/jwt-auth.guard';
-import { ContextModule } from 'src/common/context/context.module';
+import { RolesGuard } from '../guards/roles.guard';
+import { ContextModule } from 'src/common/contexts/context.module';
+import { RequestInfoContext } from 'src/common/contexts/request-info.context';
+import { LogoutUseCase } from 'src/application/use-cases/auth/logout.use-case';
+import { AppGateway } from '../websockets/app-gateway.socket';
+import { ActivateSessionUseCase } from 'src/application/use-cases/auth/active-session.use-case';
 
 @Module({
   imports: [
@@ -34,8 +39,13 @@ import { ContextModule } from 'src/common/context/context.module';
     },
     LoginUseCase,
     RefreshTokenUseCase,
+    LogoutUseCase,
+    ActivateSessionUseCase,
     AuthGuard,
+    RolesGuard,
+    RequestInfoContext,
+    AppGateway,
   ],
-  exports: [AUTH_SERVICE, AuthGuard, JwtModule],
+  exports: [AUTH_SERVICE, AuthGuard, JwtModule, RolesGuard],
 })
 export class AuthModule {}

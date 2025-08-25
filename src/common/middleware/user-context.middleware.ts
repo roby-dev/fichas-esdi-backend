@@ -1,7 +1,7 @@
 // src/common/middleware/user-context.middleware.ts
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { RequestUserContext } from '../context/user-context.service';
+import { RequestUserContext } from '../contexts/user-context.service';
 
 @Injectable()
 export class UserContextMiddleware implements NestMiddleware {

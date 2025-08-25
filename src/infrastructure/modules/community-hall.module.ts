@@ -5,8 +5,8 @@ import { FindCommunityHallByIdUseCase } from 'src/application/use-cases/communit
 import { FindAllCommunityHallsUseCase } from 'src/application/use-cases/community-hall/find-all-community-halls.use-case';
 import { CommunityHallController } from '../controllers/community-hall.controller';
 import { FindAllCommunityHallsByCommitteeIdUseCase } from 'src/application/use-cases/community-hall/find-all-community-halls-by-committee-id.use-case';
-import { ContextModule } from 'src/common/context/context.module';
 import { AuthModule } from './auth.module';
+import { ContextModule } from 'src/common/contexts/context.module';
 
 @Module({
   imports: [ContextModule, AuthModule, DatabaseModule],

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AlertChildResponseDto } from 'src/application/dtos/alert-child/alert-child-response.dto';
-import { RequestUserContext } from 'src/common/context/user-context.service';
+import { RequestUserContext } from 'src/common/contexts/user-context.service';
 import { ALERT_CHILD_REPOSITORY } from 'src/domain/constants/tokens';
 import type { AlertChildRepository } from 'src/domain/repositories/alert-child.repository';
 

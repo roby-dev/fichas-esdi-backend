@@ -1,9 +1,12 @@
+import { User } from './user.entity';
+
 export class ManagementCommittee {
   constructor(
     private readonly _committeeId: string,
     private readonly _name: string,
     private readonly _userId: string,
     private readonly _id?: string,
+    private readonly _user?: User,
   ) {}
 
   get committeeId(): string {
@@ -22,12 +25,17 @@ export class ManagementCommittee {
     return this._userId;
   }
 
+  get user(): User | undefined {
+    return this._user;
+  }
+
   static create(
     committeeId: string,
     name: string,
     userId: string,
+    user?: User,
   ): ManagementCommittee {
-    return new ManagementCommittee(committeeId, name, userId);
+    return new ManagementCommittee(committeeId, name, userId, undefined, user);
   }
 
   static fromPrimitives(data: {
@@ -35,12 +43,14 @@ export class ManagementCommittee {
     name: string;
     userId: string;
     id?: string;
+    user?: User;
   }): ManagementCommittee {
     return new ManagementCommittee(
       data.committeeId,
       data.name,
       data.userId,
       data.id,
+      data.user,
     );
   }
 
@@ -49,12 +59,14 @@ export class ManagementCommittee {
     name: string;
     userId: string;
     id?: string;
+    user?: User;
   } {
     return {
       committeeId: this._committeeId,
       name: this._name,
       userId: this._userId,
       id: this._id,
+      user: this._user,
     };
   }
 }

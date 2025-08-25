@@ -4,13 +4,13 @@ import {
   ALERT_CHILD_REPOSITORY,
   CHILD_EXCEL_READER,
 } from 'src/domain/constants/tokens';
-import { RequestUserContext } from 'src/common/context/user-context.service';
 import type { ChildExcelReader } from 'src/application/interfaces/child-excel-reader.interface';
 import type { AlertChildRepository } from 'src/domain/repositories/alert-child.repository';
 import { AlertChild } from 'src/domain/entities/alert-child.entity';
 import { parseDdMmYyyyToUtcDate } from 'src/common/utils/functions';
 import { AlertChildResponseDto } from 'src/application/dtos/alert-child/alert-child-response.dto';
 import { BulkUpdateDto } from 'src/application/dtos/alert-child/bulk-update.dto';
+import { RequestUserContext } from 'src/common/contexts/user-context.service';
 
 @Injectable()
 export class UpdateChildrenFromExcelUseCase {

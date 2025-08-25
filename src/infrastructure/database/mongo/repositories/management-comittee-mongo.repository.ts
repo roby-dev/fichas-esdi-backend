@@ -7,6 +7,7 @@ import {
   ManagementCommitteeDocument,
 } from '../schemas/management-committee.schema';
 import { ManagementCommitteeRepository } from 'src/domain/repositories/management-committee.repository';
+import { User } from 'src/domain/entities/user.entity';
 
 @Injectable()
 export class ManagementCommitteeMongoRepository
@@ -46,10 +47,23 @@ export class ManagementCommitteeMongoRepository
   }
 
   async findAll(limit = 10, offset = 0): Promise<ManagementCommittee[]> {
-    const docs = await this.model.find().skip(offset).limit(limit).lean();
-    return docs.map(
-      (doc) =>
-        new ManagementCommittee(doc.committeeId, doc.name, doc._id.toString()),
+    const docs = await this.model
+      .find()
+      .skip(offset)
+      .limit(limit)
+      .populate('userId')
+      .lean();
+    return docs.map((doc) =>
+      ManagementCommittee.fromPrimitives({
+        committeeId: doc.committeeId,
+        name: doc.name,
+        userId: doc.userId._id.toString(),
+        id: doc._id.toString(),
+        user:
+          typeof doc.userId === 'object'
+            ? this.convertToUser(doc.userId)
+            : undefined,
+      }),
     );
   }
 
@@ -108,5 +122,13 @@ export class ManagementCommitteeMongoRepository
         id: doc._id.toString(),
       }),
     );
+  }
+
+  private convertToUser(raw: any): User {
+    return User.fromPrimitives({
+      id: raw._id.toString(),
+      email: raw.email,
+      passwordHash: '',
+    });
   }
 }

@@ -19,7 +19,10 @@ export class JwtAuthService implements AuthService {
     private readonly userRepo: UserRepository,
   ) {
     this.jwtExpiresIn = this.configService.get('JWT_EXPIRES_IN', '1h');
-    this.jwtRefreshExpiresIn = this.configService.get('JWT_REFRESH_EXPIRES_IN', '1d');
+    this.jwtRefreshExpiresIn = this.configService.get(
+      'JWT_REFRESH_EXPIRES_IN',
+      '1d',
+    );
   }
 
   async validateCredentials(
@@ -35,9 +38,9 @@ export class JwtAuthService implements AuthService {
     return new AuthUser(user.id!, user.email, user.roles);
   }
 
-  generateAccessToken(user: AuthUser): string {
+  generateAccessToken(user: AuthUser, jti: string): string {
     return this.jwtService.sign(
-      { sub: user.id, email: user.email, roles: user.roles },
+      { sub: user.id, email: user.email, roles: user.roles, jti: jti },
       { expiresIn: this.jwtExpiresIn },
     );
   }
@@ -49,7 +52,7 @@ export class JwtAuthService implements AuthService {
     );
   }
 
-   async validateRefreshToken(token: string): Promise<AuthUser | null> {
+  async validateRefreshToken(token: string): Promise<AuthUser | null> {
     try {
       const payload = this.jwtService.verify<{ sub: string }>(token);
       const user = await this.userRepo.findById(payload.sub);

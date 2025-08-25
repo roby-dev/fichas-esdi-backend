@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
-import { RequestUserContext } from 'src/common/context/user-context.service';
+import { RequestUserContext } from 'src/common/contexts/user-context.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthGuard implements CanActivate {
@@ -32,7 +32,8 @@ export class AuthGuard implements CanActivate {
       });
 
       this.request['user'] = payload;
-      this.userContext.setUserId(payload.sub); // ✅ setea el contexto aquí
+      this.userContext.setUserId(payload.sub);
+      this.userContext.setTokenId(payload.jti);
     } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }

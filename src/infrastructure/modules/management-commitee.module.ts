@@ -5,7 +5,8 @@ import { FindManagementCommitteeByIdUseCase } from '../../application/use-cases/
 import { FindAllManagementCommitteesUseCase } from '../../application/use-cases/management-committee/find-all-management-committees.use-case';
 import { DatabaseModule } from 'src/infrastructure/database/database.module';
 import { AuthModule } from './auth.module';
-import { ContextModule } from 'src/common/context/context.module';
+import { FindAllManagementCommitteesByUserUseCase } from 'src/application/use-cases/management-committee/find-all-management-committees-by-user.use-case';
+import { ContextModule } from 'src/common/contexts/context.module';
 
 @Module({
   imports: [ContextModule, DatabaseModule, AuthModule],
@@ -14,6 +15,7 @@ import { ContextModule } from 'src/common/context/context.module';
     CreateManagementCommitteeUseCase,
     FindManagementCommitteeByIdUseCase,
     FindAllManagementCommitteesUseCase,
+    FindAllManagementCommitteesByUserUseCase,
   ],
 })
 export class ManagementCommitteeModule {}
