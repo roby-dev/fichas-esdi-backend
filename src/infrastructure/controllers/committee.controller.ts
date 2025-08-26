@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -23,7 +24,8 @@ import { CreateCommitteeUseCase } from 'src/application/use-cases/committee/crea
 import { FindCommitteeByIdUseCase } from 'src/application/use-cases/committee/find-management-committee-by-id.use-case';
 import { FindAllCommitteesUseCase } from 'src/application/use-cases/committee/find-all-management-committees.use-case';
 import { CommitteeResponseDto } from 'src/application/dtos/committee/committee-response.dto';
-import { CreateCommitteeDto } from 'src/application/dtos/committee/create-committee.dto';
+import { CreateUpdateCommitteeDto } from 'src/application/dtos/committee/create-update-committee.dto';
+import { UpdateCommitteeUseCase } from 'src/application/use-cases/committee/update-management-committee.use-case';
 
 @ApiTags('committees')
 @Controller('committees')
@@ -32,6 +34,7 @@ export class CommitteeController {
     private readonly createUseCase: CreateCommitteeUseCase,
     private readonly findByIdUseCase: FindCommitteeByIdUseCase,
     private readonly findAllUseCase: FindAllCommitteesUseCase,
+    private readonly updateUseCase: UpdateCommitteeUseCase,
   ) {}
 
   @Post()
@@ -40,7 +43,9 @@ export class CommitteeController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear un nuevo comité de gestión' })
   @ApiResponse({ status: 201, type: CommitteeResponseDto })
-  async create(@Body() dto: CreateCommitteeDto): Promise<CommitteeResponseDto> {
+  async create(
+    @Body() dto: CreateUpdateCommitteeDto,
+  ): Promise<CommitteeResponseDto> {
     return await this.createUseCase.execute(dto);
   }
 
@@ -66,5 +71,18 @@ export class CommitteeController {
     @Param('id', ValidateObjectIdPipe) id: string,
   ): Promise<CommitteeResponseDto> {
     return await this.findByIdUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Actualizar un nuevo comité de gestión' })
+  @ApiResponse({ status: 201, type: CommitteeResponseDto })
+  async update(
+    @Param('id', ValidateObjectIdPipe) id: string,
+    @Body() dto: CreateUpdateCommitteeDto,
+  ): Promise<CommitteeResponseDto> {
+    return await this.updateUseCase.execute(id, dto);
   }
 }

@@ -7,12 +7,15 @@ import { DatabaseModule } from 'src/infrastructure/database/database.module';
 import { AuthModule } from './auth.module';
 import { FindAllManagementCommitteesByUserUseCase } from 'src/application/use-cases/management-committee/find-all-management-committees-by-user.use-case';
 import { ContextModule } from 'src/common/contexts/context.module';
+import { CreateManagementCommitteeForUserDto } from 'src/application/dtos/management-committee/create-management-committee-for-user.dto';
+import { CreateManagementCommitteeForUserUseCase } from 'src/application/use-cases/management-committee/create-management-committee-for-user.use-case';
 
 @Module({
   imports: [ContextModule, DatabaseModule, AuthModule],
   controllers: [ManagementCommitteeController],
   providers: [
     CreateManagementCommitteeUseCase,
+    CreateManagementCommitteeForUserUseCase,
     FindManagementCommitteeByIdUseCase,
     FindAllManagementCommitteesUseCase,
     FindAllManagementCommitteesByUserUseCase,

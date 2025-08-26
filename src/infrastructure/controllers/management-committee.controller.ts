@@ -26,12 +26,15 @@ import { AuthGuard } from '../guards/jwt-auth.guard';
 import { FindAllManagementCommitteesByUserUseCase } from 'src/application/use-cases/management-committee/find-all-management-committees-by-user.use-case';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
+import { CreateManagementCommitteeForUserDto } from 'src/application/dtos/management-committee/create-management-committee-for-user.dto';
+import { CreateManagementCommitteeForUserUseCase } from 'src/application/use-cases/management-committee/create-management-committee-for-user.use-case';
 
 @ApiTags('management-committees')
 @Controller('management-committees')
 export class ManagementCommitteeController {
   constructor(
     private readonly createUseCase: CreateManagementCommitteeUseCase,
+    private readonly createForUserUseCase: CreateManagementCommitteeForUserUseCase,
     private readonly findByIdUseCase: FindManagementCommitteeByIdUseCase,
     private readonly findAllUseCase: FindAllManagementCommitteesUseCase,
     private readonly findAllByUserUseCase: FindAllManagementCommitteesByUserUseCase,
@@ -88,5 +91,17 @@ export class ManagementCommitteeController {
     @Param('id', ValidateObjectIdPipe) id: string,
   ): Promise<ManagementCommitteeResponseDto> {
     return await this.findByIdUseCase.execute(id);
+  }
+
+  @Post('for-user')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Asignar un comité de gestión al usuario' })
+  @ApiResponse({ status: 201, type: ManagementCommitteeResponseDto })
+  async createForUser(
+    @Body() dto: CreateManagementCommitteeForUserDto,
+  ): Promise<ManagementCommitteeResponseDto> {
+    return await this.createForUserUseCase.execute(dto);
   }
 }

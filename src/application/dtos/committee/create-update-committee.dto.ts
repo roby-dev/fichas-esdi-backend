@@ -1,8 +1,14 @@
-import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsMongoId,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
-export class CreateCommitteeDto {
+export class CreateUpdateCommitteeDto {
   @ApiProperty({
     description: 'Código del comité de gestión',
     example: '737',

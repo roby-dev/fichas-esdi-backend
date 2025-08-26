@@ -52,19 +52,21 @@ export class CommitteeMongoRepository implements CommitteeRepository {
   }
 
   async update(entity: Committee): Promise<Committee> {
+    const { id, ...data } = entity.toPrimitives();
+
     const updated = await this.model
-      .findByIdAndUpdate(entity.id, { name: entity.name }, { new: true })
+      .findByIdAndUpdate(id, data, { new: true })
       .lean();
 
     if (!updated) {
-      throw new Error(`Committee with id ${entity.id} not found`);
+      throw new Error(`Committee with id ${id} not found`);
     }
 
-    return new Committee(
-      updated.committeeId,
-      updated.name,
-      updated._id.toString(),
-    );
+    return Committee.fromPrimitives({
+      id: updated._id.toString(),
+      committeeId: updated.committeeId,
+      name: updated.name,
+    });
   }
 
   async delete(id: string): Promise<void> {

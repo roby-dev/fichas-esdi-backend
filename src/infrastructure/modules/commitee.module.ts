@@ -6,6 +6,7 @@ import { CommitteeController } from '../controllers/committee.controller';
 import { CreateCommitteeUseCase } from 'src/application/use-cases/committee/create-management-committee.use-case';
 import { FindAllCommitteesUseCase } from 'src/application/use-cases/committee/find-all-management-committees.use-case';
 import { FindCommitteeByIdUseCase } from 'src/application/use-cases/committee/find-management-committee-by-id.use-case';
+import { UpdateCommitteeUseCase } from 'src/application/use-cases/committee/update-management-committee.use-case';
 
 @Module({
   imports: [ContextModule, DatabaseModule, AuthModule],
@@ -14,6 +15,7 @@ import { FindCommitteeByIdUseCase } from 'src/application/use-cases/committee/fi
     CreateCommitteeUseCase,
     FindCommitteeByIdUseCase,
     FindAllCommitteesUseCase,
+    UpdateCommitteeUseCase,
   ],
 })
 export class CommitteeModule {}
