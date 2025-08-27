@@ -88,7 +88,7 @@ export class ManagementCommitteeMongoRepository
     userId: string,
   ): Promise<ManagementCommittee | null> {
     const managementCommittee = await this.model
-      .findOne({ name, userId })
+      .findOne({ name, userId: new Types.ObjectId(userId) })
       .exec();
     if (!managementCommittee) return null;
 

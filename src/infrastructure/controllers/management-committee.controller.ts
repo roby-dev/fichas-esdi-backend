@@ -57,7 +57,7 @@ export class ManagementCommitteeController {
   @Get('by-user')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Listar todos los comités de gestión' })
+  @ApiOperation({ summary: 'Listar todos los comités de gestión por usuarios' })
   @ApiResponse({ status: 200, type: [ManagementCommitteeResponseDto] })
   async findAllByUser(
     @Query('limit') limit = '10',
@@ -96,6 +96,7 @@ export class ManagementCommitteeController {
   @Post('for-user')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
+  @Roles(['admin'])
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Asignar un comité de gestión al usuario' })
   @ApiResponse({ status: 201, type: ManagementCommitteeResponseDto })
