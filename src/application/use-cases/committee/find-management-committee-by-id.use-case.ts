@@ -1,4 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundException } from 'src/domain/exceptions';
 import { COMMITTEE_REPOSITORY } from 'src/domain/constants/tokens';
 import type { CommitteeRepository } from 'src/domain/repositories/committee.repository';
 import { CommitteeResponseDto } from 'src/application/dtos/committee/committee-response.dto';

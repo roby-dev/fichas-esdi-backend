@@ -1,5 +1,6 @@
 // src/application/use-cases/auth/login.use-case.ts
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { UnauthorizedException } from 'src/domain/exceptions';
 import { SESSION_REPOSITORY } from 'src/domain/constants/tokens';
 import type { SessionRepository } from 'src/domain/repositories/session.repository';
 

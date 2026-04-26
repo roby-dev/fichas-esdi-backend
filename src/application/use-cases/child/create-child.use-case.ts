@@ -1,9 +1,5 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, NotFoundException } from 'src/domain/exceptions';
 import { CreateChildDto } from '../../dtos/child/create-child.dto';
 import { ChildResponseDto } from '../../dtos/child/child-response.dto';
 import {

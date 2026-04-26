@@ -21,7 +21,7 @@ export class JwtAuthService implements AuthService {
     this.jwtExpiresIn = this.configService.get('JWT_EXPIRES_IN', '1h');
     this.jwtRefreshExpiresIn = this.configService.get(
       'JWT_REFRESH_EXPIRES_IN',
-      '1d',
+      '7d',
     );
   }
 
@@ -41,14 +41,16 @@ export class JwtAuthService implements AuthService {
   generateAccessToken(user: AuthUser, jti: string): string {
     return this.jwtService.sign(
       { sub: user.id, email: user.email, roles: user.roles, jti: jti },
-      { expiresIn: this.jwtExpiresIn },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { expiresIn: this.jwtExpiresIn as any },
     );
   }
 
   generateRefreshToken(user: AuthUser): string {
     return this.jwtService.sign(
       { sub: user.id },
-      { expiresIn: this.jwtRefreshExpiresIn },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { expiresIn: this.jwtRefreshExpiresIn as any },
     );
   }
 

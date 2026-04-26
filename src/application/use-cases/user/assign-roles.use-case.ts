@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { NotFoundException } from 'src/domain/exceptions';
 import { Inject } from '@nestjs/common';
 import { USER_REPOSITORY } from 'src/domain/constants/tokens';
 import type { UserRepository } from 'src/domain/repositories/user.repository';

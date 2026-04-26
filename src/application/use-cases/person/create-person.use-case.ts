@@ -1,4 +1,5 @@
-import { Injectable, ConflictException, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { ConflictException } from 'src/domain/exceptions';
 import { CreatePersonDto } from 'src/application/dtos/person/create-person.dto';
 import { PersonResponseDto } from 'src/application/dtos/person/person-response.dto';
 import { PERSON_REPOSITORY } from 'src/domain/constants/tokens';

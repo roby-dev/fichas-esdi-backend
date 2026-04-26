@@ -1,4 +1,5 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException } from 'src/domain/exceptions';
 import { CreateManagementCommitteeForUserDto } from 'src/application/dtos/management-committee/create-management-committee-for-user.dto';
 import { ManagementCommitteeResponseDto } from 'src/application/dtos/management-committee/management-committee-response.dto';
 import { MANAGEMENT_COMMITTEE_REPOSITORY } from 'src/domain/constants/tokens';

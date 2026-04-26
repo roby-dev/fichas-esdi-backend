@@ -1,5 +1,6 @@
 // src/application/use-cases/auth/login.use-case.ts
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { UnauthorizedException } from 'src/domain/exceptions';
 import { AuthResponseDto } from 'src/application/dtos/auth/auth-response.dto';
 import { LoginDto } from 'src/application/dtos/auth/login.dto';
 import { RequestInfoContext } from 'src/common/contexts/request-info.context';

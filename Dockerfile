@@ -29,25 +29,24 @@ COPY package.json pnpm-lock.yaml ./
 # Instalar dependencias (incluyendo dev)
 RUN pnpm install --frozen-lockfile
 
+# Compilar bcrypt (addon nativo — pnpm ignora build scripts por default)
+RUN pnpm rebuild bcrypt
+
 # Copiar el código fuente
 COPY . .
 
-# Compilar la aplicación
-RUN pnpm build
+# Compilar y eliminar devDependencies
+RUN pnpm build && pnpm prune --prod
 
 # Etapa final
 FROM base
 
-# Instalar pnpm (si necesitas ejecutar scripts con él)
-RUN npm install -g pnpm
-
-# Copiar solo lo necesario del build
-COPY --from=build /app /app
-
-WORKDIR /app
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
 
 # Exponer el puerto
 EXPOSE 3000
 
-# Comando por defecto
-CMD ["pnpm", "start"]
+# Correr el JS compilado directamente, sin CLI ni ts-node
+CMD ["node", "dist/main"]

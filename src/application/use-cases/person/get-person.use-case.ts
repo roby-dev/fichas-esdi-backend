@@ -1,4 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundException } from 'src/domain/exceptions';
 import type { PersonRepository } from '../../../domain/repositories/person.repository';
 import { PersonResponseDto } from 'src/application/dtos/person/person-response.dto';
 import { PERSON_REPOSITORY } from 'src/domain/constants/tokens';

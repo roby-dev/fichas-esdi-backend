@@ -25,9 +25,6 @@ import { ActivateSessionUseCase } from 'src/application/use-cases/auth/active-se
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: config.get<string>('JWT_EXPIRES_IN'),
-        },
       }),
     }),
   ],

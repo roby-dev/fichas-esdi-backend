@@ -1,9 +1,5 @@
-import {
-  Inject,
-  Injectable,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, NotFoundException } from 'src/domain/exceptions';
 import { CreateCommunityHallDto } from 'src/application/dtos/community-hall/create-community-hall.dto';
 import { CommunityHallResponseDto } from 'src/application/dtos/community-hall/community-hall-response.dto';
 import type { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';

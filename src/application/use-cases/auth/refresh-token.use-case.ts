@@ -1,4 +1,5 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { UnauthorizedException } from 'src/domain/exceptions';
 import type { AuthService } from 'src/domain/services/auth.service';
 import { AuthResponseDto } from 'src/application/dtos/auth/auth-response.dto';
 import { AUTH_SERVICE, SESSION_REPOSITORY } from 'src/domain/constants/tokens';

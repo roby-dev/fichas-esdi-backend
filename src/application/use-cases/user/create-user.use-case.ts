@@ -1,5 +1,6 @@
 // src/application/use-cases/user/create-user.use-case.ts
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConflictException } from 'src/domain/exceptions';
 import { CreateUserDto } from 'src/application/dtos/user/create-user.dto';
 import { UserResponseDto } from 'src/application/dtos/user/user-response.dto';
 import { USER_REPOSITORY } from 'src/domain/constants/tokens';

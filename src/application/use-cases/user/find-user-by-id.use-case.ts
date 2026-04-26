@@ -1,5 +1,6 @@
 // src/application/use-cases/user/get-user-by-id.use-case.ts
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundException } from 'src/domain/exceptions';
 import { USER_REPOSITORY } from 'src/domain/constants/tokens';
 import type { UserRepository } from 'src/domain/repositories/user.repository';
 import { UserResponseDto } from 'src/application/dtos/user/user-response.dto';

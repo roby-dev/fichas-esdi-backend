@@ -1,10 +1,5 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from 'src/domain/exceptions';
 import { isValidObjectId } from 'mongoose'; // 👈 importar utilidad
 import { MANAGEMENT_COMMITTEE_REPOSITORY } from 'src/domain/constants/tokens';
 import type { ManagementCommitteeRepository } from 'src/domain/repositories/management-committee.repository';

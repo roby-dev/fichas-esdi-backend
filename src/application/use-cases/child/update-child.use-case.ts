@@ -1,4 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundException } from 'src/domain/exceptions';
 import { UpdateChildDto } from '../../dtos/child/update-child.dto';
 import { ChildResponseDto } from '../../dtos/child/child-response.dto';
 import { CHILD_REPOSITORY } from 'src/domain/constants/tokens';
