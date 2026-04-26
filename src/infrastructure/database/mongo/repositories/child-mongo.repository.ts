@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Child as ChildSchema, ChildDocument } from '../schemas/child.schema';
-import { ChildRepository } from 'src/domain/repositories/child.repository';
+import { ChildrenByUser, ChildRepository } from 'src/domain/repositories/child.repository';
 import { Child } from 'src/domain/entities/child.entity';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
 
@@ -217,6 +217,34 @@ export class ChildMongoRepository implements ChildRepository {
             : undefined,
       }),
     );
+  }
+
+  async findAllGroupedByUser(): Promise<ChildrenByUser[]> {
+    const pipeline: any[] = [
+      {
+        $group: {
+          _id: '$userId',
+          children: { $push: '$$ROOT' },
+        },
+      },
+    ];
+
+    const groups = await this.model.aggregate(pipeline).exec();
+    return groups.map((group: any) => ({
+      userId: group._id.toString(),
+      children: group.children.map((doc: any) =>
+        Child.fromPrimitives({
+          id: doc._id.toString(),
+          documentNumber: doc.documentNumber,
+          firstName: doc.firstName,
+          lastName: doc.lastName,
+          birthday: doc.birthday,
+          admissionDate: doc.admissionDate,
+          communityHallId: doc.communityHallId?.toString(),
+          userId: doc.userId?.toString(),
+        }),
+      ),
+    }));
   }
 
   convertToCommunityHall(raw: any): CommunityHall | undefined {

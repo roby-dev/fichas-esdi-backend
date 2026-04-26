@@ -1,5 +1,10 @@
 import { Child } from 'src/domain/entities/child.entity';
 
+export interface ChildrenByUser {
+  userId: string;
+  children: Child[];
+}
+
 export interface ChildRepository {
   save(child: Child): Promise<Child>;
   update(child: Child): Promise<Child>;
@@ -17,4 +22,5 @@ export interface ChildRepository {
     offset?: number,
   ): Promise<Child[]>;
   findAllByCommittee(committeeId: string): Promise<Child[]>;
+  findAllGroupedByUser(): Promise<ChildrenByUser[]>;
 }

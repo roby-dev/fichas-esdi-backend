@@ -1,4 +1,7 @@
 import { FindAllChildrenByCommitteeUseCase } from 'src/application/use-cases/child/find-all-children-by-committee.use-case';
+import { FindAllChildrenByUserUseCase } from 'src/application/use-cases/child/find-all-children-by-user.use-case';
+import { FindAllChildrenGroupedByUserUseCase } from 'src/application/use-cases/child/find-all-children-grouped-by-user.use-case';
+import { UserWithChildrenDto } from 'src/application/dtos/child/user-with-children.dto';
 import {
   Body,
   Controller,
@@ -41,6 +44,8 @@ export class ChildController {
     private readonly updateChildUseCase: UpdateChildUseCase,
     private readonly deleteChildUseCase: DeleteChildUseCase,
     private readonly findAllChildrenByCommitteeUseCase: FindAllChildrenByCommitteeUseCase,
+    private readonly findAllChildrenByUserUseCase: FindAllChildrenByUserUseCase,
+    private readonly findAllChildrenGroupedByUserUseCase: FindAllChildrenGroupedByUserUseCase,
   ) {}
 
   @Post()
@@ -51,15 +56,6 @@ export class ChildController {
     return this.createChildUseCase.execute(dto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Obtener niño por ID' })
-  @ApiResponse({ status: 200, type: ChildResponseDto })
-  async findById(
-    @Param('id', ValidateObjectIdPipe) id: string,
-  ): Promise<ChildResponseDto> {
-    return this.findChildByIdUseCase.execute(id);
-  }
-
   @Get()
   @ApiOperation({ summary: 'Obtener todos los niños' })
   @ApiResponse({ status: 200, type: [ChildResponseDto] })
@@ -68,6 +64,41 @@ export class ChildController {
     @Query('offset') offset = '0',
   ): Promise<ChildResponseDto[]> {
     return this.findAllChildrenUseCase.execute(Number(limit), Number(offset));
+  }
+
+  @Get('by-user')
+  @ApiOperation({ summary: 'Obtener todos los niños del usuario autenticado' })
+  @ApiResponse({ status: 200, type: [ChildResponseDto] })
+  async findAllByUser(
+    @Query('limit') limit = '10',
+    @Query('offset') offset = '0',
+  ): Promise<ChildResponseDto[]> {
+    return this.findAllChildrenByUserUseCase.execute(Number(limit), Number(offset));
+  }
+
+  @Get('grouped-by-user')
+  @ApiOperation({ summary: 'Obtener todos los usuarios con sus niños registrados' })
+  @ApiResponse({ status: 200, type: [UserWithChildrenDto] })
+  async findGroupedByUser(): Promise<UserWithChildrenDto[]> {
+    return this.findAllChildrenGroupedByUserUseCase.execute();
+  }
+
+  @Get('by-committee/:id')
+  @ApiOperation({ summary: 'Obtener todos los niños por ID de comité' })
+  @ApiResponse({ status: 200, type: [ChildResponseDto] })
+  async findAllByCommittee(
+    @Param('id', ValidateObjectIdPipe) id: string,
+  ): Promise<ChildResponseDto[]> {
+    return this.findAllChildrenByCommitteeUseCase.execute(id);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener niño por ID' })
+  @ApiResponse({ status: 200, type: ChildResponseDto })
+  async findById(
+    @Param('id', ValidateObjectIdPipe) id: string,
+  ): Promise<ChildResponseDto> {
+    return this.findChildByIdUseCase.execute(id);
   }
 
   @Patch(':id')
@@ -85,14 +116,5 @@ export class ChildController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', ValidateObjectIdPipe) id: string): Promise<void> {
     await this.deleteChildUseCase.execute(id);
-  }
-
-  @Get('by-committee/:id')
-  @ApiOperation({ summary: 'Obtener todos los niños por ID de comité' })
-  @ApiResponse({ status: 200, type: [ChildResponseDto] })
-  async findAllByCommittee(
-    @Param('id', ValidateObjectIdPipe) id: string,
-  ): Promise<ChildResponseDto[]> {
-    return this.findAllChildrenByCommitteeUseCase.execute(id);
   }
 }

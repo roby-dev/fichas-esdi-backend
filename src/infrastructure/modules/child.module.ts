@@ -8,6 +8,8 @@ import { FindAllChildrenUseCase } from 'src/application/use-cases/child/find-all
 import { ChildController } from '../controllers/child.controller';
 import { AuthModule } from './auth.module';
 import { FindAllChildrenByCommitteeUseCase } from 'src/application/use-cases/child/find-all-children-by-committee.use-case';
+import { FindAllChildrenByUserUseCase } from 'src/application/use-cases/child/find-all-children-by-user.use-case';
+import { FindAllChildrenGroupedByUserUseCase } from 'src/application/use-cases/child/find-all-children-grouped-by-user.use-case';
 import { ContextModule } from 'src/common/contexts/context.module';
 
 @Module({
@@ -20,6 +22,8 @@ import { ContextModule } from 'src/common/contexts/context.module';
     FindChildByIdUseCase,
     FindAllChildrenUseCase,
     FindAllChildrenByCommitteeUseCase,
+    FindAllChildrenByUserUseCase,
+    FindAllChildrenGroupedByUserUseCase,
   ],
 })
 export class ChildModule {}
