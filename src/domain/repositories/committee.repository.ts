@@ -1,4 +1,4 @@
-import { Committee } from '../entities/committe.entity';
+import { Committee } from '../entities/committee.entity';
 
 export interface CommitteeRepository {
   save(committe: Committee): Promise<Committee>;

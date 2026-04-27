@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ManagementCommittee } from 'src/domain/entities/management-committe.entity';
+import { ManagementCommittee } from 'src/domain/entities/management-committee.entity';
 import { UserResponseDto } from '../user/user-response.dto';
 
 export class ManagementCommitteeResponseDto {

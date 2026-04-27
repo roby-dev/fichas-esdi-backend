@@ -20,22 +20,14 @@ import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
 import { AuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
-import { CreateCommitteeUseCase } from 'src/application/use-cases/committee/create-management-committee.use-case';
-import { FindCommitteeByIdUseCase } from 'src/application/use-cases/committee/find-management-committee-by-id.use-case';
-import { FindAllCommitteesUseCase } from 'src/application/use-cases/committee/find-all-management-committees.use-case';
+import { CommitteeService } from 'src/application/services/committee.service';
 import { CommitteeResponseDto } from 'src/application/dtos/committee/committee-response.dto';
 import { CreateUpdateCommitteeDto } from 'src/application/dtos/committee/create-update-committee.dto';
-import { UpdateCommitteeUseCase } from 'src/application/use-cases/committee/update-management-committee.use-case';
 
 @ApiTags('committees')
 @Controller('committees')
 export class CommitteeController {
-  constructor(
-    private readonly createUseCase: CreateCommitteeUseCase,
-    private readonly findByIdUseCase: FindCommitteeByIdUseCase,
-    private readonly findAllUseCase: FindAllCommitteesUseCase,
-    private readonly updateUseCase: UpdateCommitteeUseCase,
-  ) {}
+  constructor(private readonly service: CommitteeService) {}
 
   @Post()
   @ApiBearerAuth('access-token')
@@ -46,7 +38,7 @@ export class CommitteeController {
   async create(
     @Body() dto: CreateUpdateCommitteeDto,
   ): Promise<CommitteeResponseDto> {
-    return await this.createUseCase.execute(dto);
+    return await this.service.create(dto);
   }
 
   @Get()
@@ -59,7 +51,7 @@ export class CommitteeController {
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
   ): Promise<CommitteeResponseDto[]> {
-    return await this.findAllUseCase.execute(Number(limit), Number(offset));
+    return await this.service.findAll(Number(limit), Number(offset));
   }
 
   @Get(':id')
@@ -70,19 +62,19 @@ export class CommitteeController {
   async findOne(
     @Param('id', ValidateObjectIdPipe) id: string,
   ): Promise<CommitteeResponseDto> {
-    return await this.findByIdUseCase.execute(id);
+    return await this.service.findById(id);
   }
 
   @Patch(':id')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Actualizar un nuevo comité de gestión' })
+  @ApiOperation({ summary: 'Actualizar un comité de gestión' })
   @ApiResponse({ status: 201, type: CommitteeResponseDto })
   async update(
     @Param('id', ValidateObjectIdPipe) id: string,
     @Body() dto: CreateUpdateCommitteeDto,
   ): Promise<CommitteeResponseDto> {
-    return await this.updateUseCase.execute(id, dto);
+    return await this.service.update(id, dto);
   }
 }

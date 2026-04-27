@@ -1,4 +1,4 @@
-import { ManagementCommittee } from './management-committe.entity';
+import { ManagementCommittee } from './management-committee.entity';
 
 export class CommunityHall {
   constructor(

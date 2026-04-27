@@ -5,7 +5,7 @@ import { AlertChildController } from '../controllers/alert-child.controller';
 import { UpdateChildrenFromExcelUseCase } from 'src/application/use-cases/alert-child/update-children-from-excel.use-case';
 import { CHILD_EXCEL_READER } from 'src/domain/constants/tokens';
 import { XlsxChildExcelReader } from '../excel/child-excel.parser';
-import { FindAlertChildrenByUserIdUseCase } from 'src/application/use-cases/alert-child/find-alert-children-by-user-id.use-case';
+import { AlertChildService } from 'src/application/services/alert-child.service';
 import { ContextModule } from 'src/common/contexts/context.module';
 
 @Module({
@@ -17,7 +17,7 @@ import { ContextModule } from 'src/common/contexts/context.module';
       useClass: XlsxChildExcelReader,
     },
     UpdateChildrenFromExcelUseCase,
-    FindAlertChildrenByUserIdUseCase,
+    AlertChildService,
   ],
   exports: [CHILD_EXCEL_READER],
 })

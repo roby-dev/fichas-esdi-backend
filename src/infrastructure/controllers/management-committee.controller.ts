@@ -17,28 +17,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateManagementCommitteeDto } from 'src/application/dtos/management-committee/create-management-committee.dto';
+import { CreateManagementCommitteeForUserDto } from 'src/application/dtos/management-committee/create-management-committee-for-user.dto';
 import { ManagementCommitteeResponseDto } from 'src/application/dtos/management-committee/management-committee-response.dto';
-import { CreateManagementCommitteeUseCase } from 'src/application/use-cases/management-committee/create-management-committee.use-case';
-import { FindManagementCommitteeByIdUseCase } from 'src/application/use-cases/management-committee/find-management-committee-by-id.use-case';
-import { FindAllManagementCommitteesUseCase } from 'src/application/use-cases/management-committee/find-all-management-committees.use-case';
+import { ManagementCommitteeService } from 'src/application/services/management-committee.service';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
 import { AuthGuard } from '../guards/jwt-auth.guard';
-import { FindAllManagementCommitteesByUserUseCase } from 'src/application/use-cases/management-committee/find-all-management-committees-by-user.use-case';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
-import { CreateManagementCommitteeForUserDto } from 'src/application/dtos/management-committee/create-management-committee-for-user.dto';
-import { CreateManagementCommitteeForUserUseCase } from 'src/application/use-cases/management-committee/create-management-committee-for-user.use-case';
 
 @ApiTags('management-committees')
 @Controller('management-committees')
 export class ManagementCommitteeController {
-  constructor(
-    private readonly createUseCase: CreateManagementCommitteeUseCase,
-    private readonly createForUserUseCase: CreateManagementCommitteeForUserUseCase,
-    private readonly findByIdUseCase: FindManagementCommitteeByIdUseCase,
-    private readonly findAllUseCase: FindAllManagementCommitteesUseCase,
-    private readonly findAllByUserUseCase: FindAllManagementCommitteesByUserUseCase,
-  ) {}
+  constructor(private readonly service: ManagementCommitteeService) {}
 
   @Post()
   @ApiBearerAuth('access-token')
@@ -51,7 +41,7 @@ export class ManagementCommitteeController {
     @Body() dto: CreateManagementCommitteeDto,
   ): Promise<ManagementCommitteeResponseDto> {
     const userId = req.user.sub;
-    return await this.createUseCase.execute(userId, dto);
+    return await this.service.create(userId, dto);
   }
 
   @Get('by-user')
@@ -63,7 +53,7 @@ export class ManagementCommitteeController {
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
   ): Promise<ManagementCommitteeResponseDto[]> {
-    return await this.findAllByUserUseCase.execute(
+    return await this.service.findAllByCurrentUser(
       Number(limit),
       Number(offset),
     );
@@ -79,7 +69,7 @@ export class ManagementCommitteeController {
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
   ): Promise<ManagementCommitteeResponseDto[]> {
-    return await this.findAllUseCase.execute(Number(limit), Number(offset));
+    return await this.service.findAll(Number(limit), Number(offset));
   }
 
   @Get(':id')
@@ -90,7 +80,7 @@ export class ManagementCommitteeController {
   async findOne(
     @Param('id', ValidateObjectIdPipe) id: string,
   ): Promise<ManagementCommitteeResponseDto> {
-    return await this.findByIdUseCase.execute(id);
+    return await this.service.findById(id);
   }
 
   @Post('for-user')
@@ -103,6 +93,6 @@ export class ManagementCommitteeController {
   async createForUser(
     @Body() dto: CreateManagementCommitteeForUserDto,
   ): Promise<ManagementCommitteeResponseDto> {
-    return await this.createForUserUseCase.execute(dto);
+    return await this.service.createForUser(dto);
   }
 }

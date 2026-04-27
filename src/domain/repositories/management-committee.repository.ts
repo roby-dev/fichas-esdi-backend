@@ -1,4 +1,4 @@
-import { ManagementCommittee } from '../entities/management-committe.entity';
+import { ManagementCommittee } from '../entities/management-committee.entity';
 
 export interface ManagementCommitteeRepository {
   save(communityCenter: ManagementCommittee): Promise<ManagementCommittee>;

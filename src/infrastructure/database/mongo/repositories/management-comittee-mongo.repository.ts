@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ManagementCommittee } from 'src/domain/entities/management-committe.entity';
+import { ManagementCommittee } from 'src/domain/entities/management-committee.entity';
 import {
   ManagementCommittee as ManagementCommitteeSchema,
   ManagementCommitteeDocument,

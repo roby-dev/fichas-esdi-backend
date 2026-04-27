@@ -11,17 +11,12 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePersonDto } from 'src/application/dtos/person/create-person.dto';
 import { PersonResponseDto } from 'src/application/dtos/person/person-response.dto';
-import { CreatePersonUseCase } from 'src/application/use-cases/person/create-person.use-case';
-import { GetPersonUseCase } from 'src/application/use-cases/person/get-person.use-case';
+import { PersonService } from 'src/application/services/person.service';
 
 @ApiTags('persons')
 @Controller('persons')
 export class PersonController {
-  constructor(
-    private readonly createPersonUseCase: CreatePersonUseCase,
-    private readonly getPersonUseCase: GetPersonUseCase,
-    // ... otros use cases
-  ) {}
+  constructor(private readonly service: PersonService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -30,14 +25,14 @@ export class PersonController {
   async create(
     @Body() createPersonDto: CreatePersonDto,
   ): Promise<PersonResponseDto> {
-    return await this.createPersonUseCase.execute(createPersonDto);
+    return await this.service.create(createPersonDto);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get person by ID' })
   @ApiResponse({ status: 200, type: PersonResponseDto })
   async findOne(@Param('id') id: string): Promise<PersonResponseDto> {
-    return await this.getPersonUseCase.execute(id);
+    return await this.service.findById(id);
   }
 
   @Get()
@@ -47,7 +42,6 @@ export class PersonController {
     @Query('limit') limit = '10',
     @Query('offset') _offset = '0',
   ): Promise<PersonResponseDto[]> {
-    // Implementar use case para listar personas
     return [];
   }
 }

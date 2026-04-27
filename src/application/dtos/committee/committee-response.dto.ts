@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Committee } from 'src/domain/entities/committe.entity';
+import { Committee } from 'src/domain/entities/committee.entity';
 
 export class CommitteeResponseDto {
   @ApiProperty({ example: '64ee123abcde4567f8901234' })

@@ -17,22 +17,14 @@ import {
 } from '@nestjs/swagger';
 import { CreateCommunityHallDto } from 'src/application/dtos/community-hall/create-community-hall.dto';
 import { CommunityHallResponseDto } from 'src/application/dtos/community-hall/community-hall-response.dto';
-import { CreateCommunityHallUseCase } from 'src/application/use-cases/community-hall/create-community-hall.use-case';
-import { FindAllCommunityHallsUseCase } from 'src/application/use-cases/community-hall/find-all-community-halls.use-case';
-import { FindCommunityHallByIdUseCase } from 'src/application/use-cases/community-hall/find-community-hall-by-id.use-case';
+import { CommunityHallService } from 'src/application/services/community-hall.service';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
 import { AuthGuard } from '../guards/jwt-auth.guard';
-import { FindAllCommunityHallsByCommitteeIdUseCase } from 'src/application/use-cases/community-hall/find-all-community-halls-by-committee-id.use-case';
 
 @ApiTags('community-halls')
 @Controller('community-halls')
 export class CommunityHallController {
-  constructor(
-    private readonly createCommunityHallUseCase: CreateCommunityHallUseCase,
-    private readonly findAllCommunityHallsUseCase: FindAllCommunityHallsUseCase,
-    private readonly findCommunityHallByIdUseCase: FindCommunityHallByIdUseCase,
-    private readonly findAllCommunityHallsByCommitteeIdUseCase: FindAllCommunityHallsByCommitteeIdUseCase,
-  ) {}
+  constructor(private readonly service: CommunityHallService) {}
 
   @Post()
   @ApiBearerAuth('access-token')
@@ -43,7 +35,7 @@ export class CommunityHallController {
   async create(
     @Body() createDto: CreateCommunityHallDto,
   ): Promise<CommunityHallResponseDto> {
-    return await this.createCommunityHallUseCase.execute(createDto);
+    return await this.service.create(createDto);
   }
 
   @Get()
@@ -55,10 +47,7 @@ export class CommunityHallController {
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
   ): Promise<CommunityHallResponseDto[]> {
-    return await this.findAllCommunityHallsUseCase.execute(
-      Number(limit),
-      Number(offset),
-    );
+    return await this.service.findAll(Number(limit), Number(offset));
   }
 
   @Get(':id')
@@ -69,7 +58,7 @@ export class CommunityHallController {
   async findOne(
     @Param('id', ValidateObjectIdPipe) id: string,
   ): Promise<CommunityHallResponseDto> {
-    return await this.findCommunityHallByIdUseCase.execute(id);
+    return await this.service.findById(id);
   }
 
   @Get('by-committee/:id')
@@ -77,11 +66,15 @@ export class CommunityHallController {
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener todos los locales comunales por commite id' })
   @ApiResponse({ status: 200, type: [CommunityHallResponseDto] })
-  async findAllByUser(
+  async findAllByCommittee(
     @Param('id', ValidateObjectIdPipe) id: string,
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
   ): Promise<CommunityHallResponseDto[]> {
-    return await this.findAllCommunityHallsByCommitteeIdUseCase.execute(id);
+    return await this.service.findAllByCommitteeId(
+      id,
+      Number(limit),
+      Number(offset),
+    );
   }
 }

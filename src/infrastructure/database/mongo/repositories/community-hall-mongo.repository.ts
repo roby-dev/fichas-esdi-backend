@@ -7,7 +7,7 @@ import {
 } from '../schemas/community-hall.schema';
 import { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
-import { ManagementCommittee } from 'src/domain/entities/management-committe.entity';
+import { ManagementCommittee } from 'src/domain/entities/management-committee.entity';
 
 @Injectable()
 export class CommunityHallMongoRepository implements CommunityHallRepository {

@@ -24,7 +24,7 @@ import { BulkUpdateDto } from 'src/application/dtos/alert-child/bulk-update.dto'
 import { BulkUpdateResponseDto } from 'src/application/dtos/alert-child/bulk-update-response.dto';
 import { UpdateChildrenFromExcelUseCase } from 'src/application/use-cases/alert-child/update-children-from-excel.use-case';
 import { AlertChildResponseDto } from 'src/application/dtos/alert-child/alert-child-response.dto';
-import { FindAlertChildrenByUserIdUseCase } from 'src/application/use-cases/alert-child/find-alert-children-by-user-id.use-case';
+import { AlertChildService } from 'src/application/services/alert-child.service';
 
 @ApiTags('alert-child')
 @Controller('alert-child')
@@ -33,7 +33,7 @@ import { FindAlertChildrenByUserIdUseCase } from 'src/application/use-cases/aler
 export class AlertChildController {
   constructor(
     private readonly updateChildrenFromExcelUseCase: UpdateChildrenFromExcelUseCase,
-    private readonly findAlertChildrenByUserIdUseCase: FindAlertChildrenByUserIdUseCase,
+    private readonly service: AlertChildService,
   ) {}
 
   @Post('bulk-update')
@@ -52,8 +52,8 @@ export class AlertChildController {
     }
 
     const allowedMimeTypes = [
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-      'application/vnd.ms-excel', // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
     ];
 
     if (!allowedMimeTypes.includes(file.mimetype)) {
@@ -62,7 +62,7 @@ export class AlertChildController {
       );
     }
 
-    var result = await this.updateChildrenFromExcelUseCase.execute({
+    const result = await this.updateChildrenFromExcelUseCase.execute({
       file,
       ...dto,
     });
@@ -80,6 +80,6 @@ export class AlertChildController {
   @ApiOperation({ summary: 'Obtener niños por usuario logeado' })
   @ApiResponse({ status: 200, type: [AlertChildResponseDto] })
   async findAllByUser(): Promise<AlertChildResponseDto[]> {
-    return await this.findAlertChildrenByUserIdUseCase.execute();
+    return await this.service.findAllByCurrentUser();
   }
 }

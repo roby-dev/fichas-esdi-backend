@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Committee } from 'src/domain/entities/committe.entity';
+import { Committee } from 'src/domain/entities/committee.entity';
 import {
   Committee as CommitteeSchema,
   CommitteeDocument,
