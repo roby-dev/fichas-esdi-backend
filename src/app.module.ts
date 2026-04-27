@@ -7,12 +7,14 @@ import { AuthModule } from './infrastructure/modules/auth.module';
 import { UserModule } from './infrastructure/modules/user.module';
 import { AlertChildModule } from './infrastructure/modules/alert-child.module';
 import { RequestInfoMiddleware } from './infrastructure/middlewares/request-info.middleware';
-import { RequestInfoContext } from './common/contexts/request-info.context';
 import { AppGateway } from './infrastructure/websockets/app-gateway.socket';
 import { CommitteeModule } from './infrastructure/modules/committee.module';
+import { ContextModule } from './common/contexts/context.module';
+import { AuditModule } from './infrastructure/modules/audit.module';
 
 @Module({
   imports: [
+    ContextModule,
     PersonModule,
     ManagementCommitteeModule,
     CommunityHallmodule,
@@ -21,8 +23,8 @@ import { CommitteeModule } from './infrastructure/modules/committee.module';
     UserModule,
     AlertChildModule,
     CommitteeModule,
+    AuditModule,
   ],
-  providers: [RequestInfoContext],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

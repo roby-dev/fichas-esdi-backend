@@ -13,9 +13,11 @@ import {
 import { Child, ChildSchema } from './schemas/child.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { AlertChild, AlertChildSchema } from './schemas/alert-child.schema';
+import { AuditEvent, AuditEventSchema } from './schemas/audit-event.schema';
 
 import {
   ALERT_CHILD_REPOSITORY,
+  AUDIT_EVENT_REPOSITORY,
   CHILD_REPOSITORY,
   COMMITTEE_REPOSITORY,
   COMMUNITY_HALL_REPOSITORY,
@@ -34,6 +36,7 @@ import { Session, SessionSchema } from './schemas/session.schema';
 import { SessionMongoRepository } from './repositories/session-mongo.repository';
 import { Committee, CommitteeSchema } from './schemas/committee.schema';
 import { CommitteeMongoRepository } from './repositories/comittee-mongo.repository';
+import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repository';
 
 @Module({
   imports: [
@@ -49,6 +52,7 @@ import { CommitteeMongoRepository } from './repositories/comittee-mongo.reposito
         name: Committee.name,
         schema: CommitteeSchema,
       },
+      { name: AuditEvent.name, schema: AuditEventSchema },
     ]),
   ],
   providers: [
@@ -84,6 +88,10 @@ import { CommitteeMongoRepository } from './repositories/comittee-mongo.reposito
       provide: COMMITTEE_REPOSITORY,
       useClass: CommitteeMongoRepository,
     },
+    {
+      provide: AUDIT_EVENT_REPOSITORY,
+      useClass: AuditEventMongoRepository,
+    },
   ],
   exports: [
     PERSON_REPOSITORY,
@@ -94,6 +102,7 @@ import { CommitteeMongoRepository } from './repositories/comittee-mongo.reposito
     ALERT_CHILD_REPOSITORY,
     SESSION_REPOSITORY,
     COMMITTEE_REPOSITORY,
+    AUDIT_EVENT_REPOSITORY,
   ],
 })
 export class MongoModule {}

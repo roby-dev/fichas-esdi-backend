@@ -7,9 +7,10 @@ import { CHILD_EXCEL_READER } from 'src/domain/constants/tokens';
 import { XlsxChildExcelReader } from '../excel/child-excel.parser';
 import { AlertChildService } from 'src/application/services/alert-child.service';
 import { ContextModule } from 'src/common/contexts/context.module';
+import { AuditModule } from './audit.module';
 
 @Module({
-  imports: [ContextModule, AuthModule, DatabaseModule],
+  imports: [ContextModule, AuthModule, DatabaseModule, AuditModule],
   controllers: [AlertChildController],
   providers: [
     {

@@ -1,9 +1,9 @@
-// src/app.module.ts o src/common/context/context.module.ts
 import { Module } from '@nestjs/common';
+import { RequestInfoContext } from './request-info.context';
 import { RequestUserContext } from './user-context.service';
 
 @Module({
-  providers: [RequestUserContext],
-  exports: [RequestUserContext],
+  providers: [RequestUserContext, RequestInfoContext],
+  exports: [RequestUserContext, RequestInfoContext],
 })
 export class ContextModule {}

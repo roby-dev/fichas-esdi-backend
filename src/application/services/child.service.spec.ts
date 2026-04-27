@@ -7,6 +7,7 @@ import { Child } from 'src/domain/entities/child.entity';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
 import { ConflictException, NotFoundException } from 'src/domain/exceptions';
 import { CreateChildDto } from '../dtos/child/create-child.dto';
+import { AuditService } from './audit.service';
 
 describe('ChildService.create', () => {
   let service: ChildService;
@@ -14,6 +15,7 @@ describe('ChildService.create', () => {
   let hallRepo: jest.Mocked<CommunityHallRepository>;
   let userRepo: jest.Mocked<UserRepository>;
   let userContext: jest.Mocked<RequestUserContext>;
+  let auditService: jest.Mocked<AuditService>;
 
   const HALL_ID = 'hallId-123';
   const USER_ID = 'userId-456';
@@ -83,7 +85,19 @@ describe('ChildService.create', () => {
       getUserId: jest.fn().mockReturnValue(USER_ID),
     } as unknown as jest.Mocked<RequestUserContext>;
 
-    service = new ChildService(childRepo, hallRepo, userRepo, userContext);
+    auditService = {
+      record: jest.fn().mockResolvedValue(undefined),
+      recordMany: jest.fn().mockResolvedValue([]),
+      query: jest.fn(),
+    } as unknown as jest.Mocked<AuditService>;
+
+    service = new ChildService(
+      childRepo,
+      hallRepo,
+      userRepo,
+      userContext,
+      auditService,
+    );
   });
 
   describe('happy path', () => {
@@ -128,6 +142,25 @@ describe('ChildService.create', () => {
         childRepo.findByDocumentNumberAndCommunnityHallId,
       ).toHaveBeenCalledWith(mockDto.documentNumber, HALL_ID);
     });
+
+    it('should record an audit event for the creation with after snapshot and null before', async () => {
+      await service.create(mockDto);
+
+      expect(auditService.record).toHaveBeenCalledTimes(1);
+      expect(auditService.record).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'child.create',
+          entityType: 'Child',
+          entityId: 'childId-001',
+          before: null,
+          after: expect.objectContaining({
+            documentNumber: mockDto.documentNumber,
+            firstName: mockDto.firstName,
+            lastName: mockDto.lastName,
+          }),
+        }),
+      );
+    });
   });
 
   describe('when community hall does not exist', () => {
@@ -148,6 +181,11 @@ describe('ChildService.create', () => {
     it('should not attempt to save the child', async () => {
       await expect(service.create(mockDto)).rejects.toThrow();
       expect(childRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('should not record an audit event when validation fails', async () => {
+      await expect(service.create(mockDto)).rejects.toThrow();
+      expect(auditService.record).not.toHaveBeenCalled();
     });
   });
 
@@ -179,6 +217,11 @@ describe('ChildService.create', () => {
     it('should not attempt to save the child', async () => {
       await expect(service.create(mockDto)).rejects.toThrow();
       expect(childRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('should not record an audit event when a duplicate is detected', async () => {
+      await expect(service.create(mockDto)).rejects.toThrow();
+      expect(auditService.record).not.toHaveBeenCalled();
     });
   });
 });

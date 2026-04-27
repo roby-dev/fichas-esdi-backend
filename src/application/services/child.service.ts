@@ -15,6 +15,9 @@ import { UpdateChildDto } from '../dtos/child/update-child.dto';
 import { ChildResponseDto } from '../dtos/child/child-response.dto';
 import { UserResponseDto } from '../dtos/user/user-response.dto';
 import { UserWithChildrenDto } from '../dtos/child/user-with-children.dto';
+import { AuditService } from './audit.service';
+
+const CHILD_ENTITY_TYPE = 'Child';
 
 @Injectable()
 export class ChildService {
@@ -26,6 +29,7 @@ export class ChildService {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepository,
     private readonly userContext: RequestUserContext,
+    private readonly auditService: AuditService,
   ) {}
 
   async create(dto: CreateChildDto): Promise<ChildResponseDto> {
@@ -59,6 +63,15 @@ export class ChildService {
       hall,
     );
     const saved = await this.childRepository.save(child);
+
+    await this.auditService.record({
+      action: 'child.create',
+      entityType: CHILD_ENTITY_TYPE,
+      entityId: saved.id!,
+      before: null,
+      after: saved.toPrimitives(),
+    });
+
     return ChildResponseDto.fromDomain(saved);
   }
 
@@ -67,6 +80,8 @@ export class ChildService {
     if (!existing) {
       throw new NotFoundException(`No se encontró un niño con el ID ${id}`);
     }
+
+    const before = existing.toPrimitives();
 
     const updated = new Child(
       dto.documentNumber,
@@ -78,6 +93,15 @@ export class ChildService {
       id,
     );
     const result = await this.childRepository.update(updated);
+
+    await this.auditService.record({
+      action: 'child.update',
+      entityType: CHILD_ENTITY_TYPE,
+      entityId: id,
+      before,
+      after: result.toPrimitives(),
+    });
+
     return ChildResponseDto.fromDomain(result);
   }
 
@@ -86,7 +110,17 @@ export class ChildService {
     if (!exists) {
       throw new NotFoundException(`No se encontró un niño con el ID ${id}`);
     }
+
+    const before = exists.toPrimitives();
     await this.childRepository.delete(id);
+
+    await this.auditService.record({
+      action: 'child.delete',
+      entityType: CHILD_ENTITY_TYPE,
+      entityId: id,
+      before,
+      after: null,
+    });
   }
 
   async findById(id: string): Promise<ChildResponseDto> {
