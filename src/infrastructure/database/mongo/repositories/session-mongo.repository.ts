@@ -5,7 +5,7 @@ import {
   Session as SessionSchema,
   SessionDocument,
 } from '../schemas/session.schema';
-import { SessionRepository } from 'src/domain/repositories/session.repository';
+import { SessionRepository, SessionPage } from 'src/domain/repositories/session.repository';
 import { Session } from 'src/domain/entities/session.entity';
 import { User } from 'src/domain/entities/user.entity';
 
@@ -53,14 +53,14 @@ export class SessionMongoRepository implements SessionRepository {
     });
   }
 
-  async findAll(limit = 10, offset = 0): Promise<Session[]> {
+  async findAll(limit = 10, offset = 0): Promise<SessionPage> {
     const docs = await this.model
       .find()
       .skip(offset)
       .limit(limit)
       .populate('userId')
       .lean();
-    return docs.map((doc) =>
+    const items = docs.map((doc) =>
       Session.fromPrimitives({
         id: doc._id.toString(),
         userId: doc.userId._id.toString(),
@@ -74,6 +74,8 @@ export class SessionMongoRepository implements SessionRepository {
             : undefined,
       }),
     );
+    const total = await this.model.countDocuments();
+    return { items, total };
   }
 
   async update(entity: Session): Promise<Session> {
@@ -99,14 +101,14 @@ export class SessionMongoRepository implements SessionRepository {
     userId: string,
     limit: number = 10,
     offset: number = 0,
-  ): Promise<Session[]> {
+  ): Promise<SessionPage> {
     const docs = await this.model
       .find({ userId: new Types.ObjectId(userId) })
       .skip(offset)
       .limit(limit)
       .populate('userId')
       .lean();
-    return docs.map((doc) =>
+    const items = docs.map((doc) =>
       Session.fromPrimitives({
         id: doc._id.toString(),
         userId: doc.userId._id.toString(),
@@ -120,6 +122,8 @@ export class SessionMongoRepository implements SessionRepository {
             : undefined,
       }),
     );
+    const total = await this.model.countDocuments({ userId: new Types.ObjectId(userId) });
+    return { items, total };
   }
 
   private convertToUser(raw: any): User {
@@ -128,6 +132,45 @@ export class SessionMongoRepository implements SessionRepository {
       email: raw.email,
       passwordHash: '',
     });
+  }
+
+  async findMany(
+    filter: { userId?: string; active?: boolean },
+    pagination?: { limit?: number; offset?: number },
+  ): Promise<SessionPage> {
+    const query: any = {};
+    if (filter.userId) query.userId = new Types.ObjectId(filter.userId);
+    if (filter.active !== undefined) query.active = filter.active;
+
+    const limit = pagination?.limit ?? 50;
+    const offset = pagination?.offset ?? 0;
+
+    const [docs, total] = await Promise.all([
+      this.model
+        .find(query)
+        .skip(offset)
+        .limit(limit)
+        .populate('userId')
+        .lean(),
+      this.model.countDocuments(query),
+    ]);
+
+    const items = docs.map((doc) =>
+      Session.fromPrimitives({
+        id: doc._id.toString(),
+        userId: doc.userId._id.toString(),
+        tokenId: doc.tokenId,
+        active: doc.active,
+        ipAddress: doc.ipAddress,
+        userAgent: doc.userAgent,
+        user:
+          typeof doc.userId === 'object'
+            ? this.convertToUser(doc.userId)
+            : undefined,
+      }),
+    );
+
+    return { items, total };
   }
 
   async updateByTokenId(

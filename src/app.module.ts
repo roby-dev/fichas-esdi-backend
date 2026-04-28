@@ -11,6 +11,7 @@ import { AppGateway } from './infrastructure/websockets/app-gateway.socket';
 import { CommitteeModule } from './infrastructure/modules/committee.module';
 import { ContextModule } from './common/contexts/context.module';
 import { AuditModule } from './infrastructure/modules/audit.module';
+import { SessionModule } from './infrastructure/modules/session.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuditModule } from './infrastructure/modules/audit.module';
     AlertChildModule,
     CommitteeModule,
     AuditModule,
+    SessionModule,
   ],
 })
 export class AppModule implements NestModule {
