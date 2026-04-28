@@ -15,6 +15,23 @@ export interface SessionPage {
   total: number;
 }
 
+export interface UserSessionSummary {
+  userId: string;
+  email: string;
+  roles: string[];
+  isOnline: boolean;
+  totalSessions: number;
+  activeSessions: number;
+  lastSeenAt: Date;
+  lastIpAddress?: string;
+  lastUserAgent?: string;
+}
+
+export interface UserSessionSummaryPage {
+  items: UserSessionSummary[];
+  total: number;
+}
+
 export interface SessionRepository {
   save(session: Session): Promise<Session>;
   findById(id: string): Promise<Session | null>;
@@ -29,6 +46,9 @@ export interface SessionRepository {
     filter: SessionQueryFilter,
     pagination?: SessionPagination,
   ): Promise<SessionPage>;
+  getSummaryByUser(
+    pagination?: SessionPagination,
+  ): Promise<UserSessionSummaryPage>;
 
   updateByTokenId(
     id: string,
@@ -37,3 +57,4 @@ export interface SessionRepository {
     userAgent: string | undefined,
   ): Promise<Session | null>;
 }
+

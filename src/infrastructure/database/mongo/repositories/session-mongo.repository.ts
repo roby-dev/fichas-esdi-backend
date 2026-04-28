@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, PipelineStage, Types } from 'mongoose';
 import {
   Session as SessionSchema,
   SessionDocument,
 } from '../schemas/session.schema';
-import { SessionRepository, SessionPage } from 'src/domain/repositories/session.repository';
+import { SessionRepository, SessionPage, UserSessionSummaryPage } from 'src/domain/repositories/session.repository';
 import { Session } from 'src/domain/entities/session.entity';
 import { User } from 'src/domain/entities/user.entity';
 
@@ -199,5 +199,62 @@ export class SessionMongoRepository implements SessionRepository {
       ipAddress: updated!.ipAddress,
       userAgent: updated!.userAgent,
     });
+  }
+
+  async getSummaryByUser(
+    pagination?: { limit?: number; offset?: number },
+  ): Promise<UserSessionSummaryPage> {
+    const limit = pagination?.limit ?? 50;
+    const offset = pagination?.offset ?? 0;
+
+    const pipeline: PipelineStage[] = [
+      { $sort: { createdAt: -1 as const } },
+      {
+        $group: {
+          _id: '$userId',
+          totalSessions: { $sum: 1 },
+          activeSessions: {
+            $sum: { $cond: [{ $eq: ['$active', true] }, 1, 0] },
+          },
+          lastSeenAt: { $first: '$createdAt' },
+          lastActive: { $first: '$active' },
+          lastIpAddress: { $first: '$ipAddress' },
+          lastUserAgent: { $first: '$userAgent' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 0,
+          userId: { $toString: '$_id' },
+          email: '$user.email',
+          roles: '$user.roles',
+          isOnline: '$lastActive',
+          totalSessions: 1,
+          activeSessions: 1,
+          lastSeenAt: 1,
+          lastIpAddress: 1,
+          lastUserAgent: 1,
+        },
+      },
+      { $sort: { lastSeenAt: -1 as const } },
+    ];
+
+    const [results, countResult] = await Promise.all([
+      this.model.aggregate([...pipeline, { $skip: offset }, { $limit: limit }]),
+      this.model.aggregate([...pipeline, { $count: 'total' }]),
+    ]);
+
+    const total = countResult[0]?.total ?? 0;
+
+    return { items: results, total };
   }
 }

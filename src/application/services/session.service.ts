@@ -5,6 +5,7 @@ import type {
   SessionPagination,
   SessionQueryFilter,
   SessionRepository,
+  UserSessionSummaryPage,
 } from 'src/domain/repositories/session.repository';
 
 @Injectable()
@@ -20,4 +21,11 @@ export class SessionService {
   ): Promise<SessionPage> {
     return this.sessionRepository.findMany(filter, pagination);
   }
+
+  getSummaryByUser(
+    pagination?: SessionPagination,
+  ): Promise<UserSessionSummaryPage> {
+    return this.sessionRepository.getSummaryByUser(pagination);
+  }
 }
+

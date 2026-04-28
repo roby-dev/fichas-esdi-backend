@@ -8,6 +8,7 @@ import {
 import { SessionQueryDto } from 'src/application/dtos/session/session-query.dto';
 import { SessionResponseDto } from 'src/application/dtos/session/session-response.dto';
 import { SessionPageResponseDto } from 'src/application/dtos/session/session-page-response.dto';
+import { SessionSummaryPageResponseDto } from 'src/application/dtos/session/session-summary-response.dto';
 import { SessionService } from 'src/application/services/session.service';
 import { AuthGuard } from '../guards/jwt-auth.guard';
 import { Roles } from '../guards/roles.decorator';
@@ -20,6 +21,28 @@ import { RolesGuard } from '../guards/roles.guard';
 @Roles(['admin'])
 export class SessionController {
   constructor(private readonly service: SessionService) {}
+
+  @Get('summary')
+  @ApiOperation({
+    summary:
+      'Sessions grouped by user with online status, totals, and last activity',
+  })
+  @ApiOkResponse({ type: SessionSummaryPageResponseDto })
+  async getSummary(
+    @Query() query: SessionQueryDto,
+  ): Promise<SessionSummaryPageResponseDto> {
+    const limit = query.limit ?? 50;
+    const offset = query.offset ?? 0;
+
+    const page = await this.service.getSummaryByUser({ limit, offset });
+
+    return {
+      items: page.items,
+      total: page.total,
+      limit,
+      offset,
+    };
+  }
 
   @Get()
   @ApiOperation({
@@ -48,3 +71,4 @@ export class SessionController {
     };
   }
 }
+
