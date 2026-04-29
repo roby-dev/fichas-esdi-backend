@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Param,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -81,5 +82,16 @@ export class AlertChildController {
   @ApiResponse({ status: 200, type: [AlertChildResponseDto] })
   async findAllByUser(): Promise<AlertChildResponseDto[]> {
     return await this.service.findAllByCurrentUser();
+  }
+
+  @Get('committee/:committeeCode')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Obtener niños por usuario logeado y comité' })
+  @ApiResponse({ status: 200, type: [AlertChildResponseDto] })
+  async findAllByUserAndCommittee(
+    @Param('committeeCode') committeeCode: string,
+  ): Promise<AlertChildResponseDto[]> {
+    return await this.service.findAllByCurrentUserAndCommitteeCode(committeeCode);
   }
 }

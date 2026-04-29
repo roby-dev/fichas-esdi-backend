@@ -38,6 +38,29 @@ export class AlertChildMongoRepository implements AlertChildRepository {
     );
   }
 
+  async findAllByUserIdAndCommitteeCode(userId: string, managementCommitteCode: string): Promise<AlertChild[]> {
+    const docs = await this.model
+      .find({ userId: new Types.ObjectId(userId), managementCommitteCode })
+      .lean();
+
+    return docs.map((doc) =>
+      AlertChild.fromPrimitives({
+        id: doc._id.toString(),
+        documentNumber: doc.documentNumber,
+        fullName: doc.fullName,
+        gender: doc.gender,
+        childCode: doc.childCode,
+        admissionDate: doc.admissionDate,
+        birthday: doc.birthday,
+        managementCommitteName: doc.managementCommitteName,
+        managementCommitteCode: doc.managementCommitteCode,
+        communityHallName: doc.communityHallName,
+        communityHallId: doc.communityHallId,
+        userId: doc.userId.toString(),
+      }),
+    );
+  }
+
   async save(alertChild: AlertChild): Promise<AlertChild> {
     const primitives = alertChild.toPrimitives();
     const created = await this.model.create({

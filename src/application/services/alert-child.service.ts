@@ -17,4 +17,10 @@ export class AlertChildService {
     const children = await this.alertChildRepository.findAllByUserId(userId);
     return children.map(AlertChildResponseDto.fromDomain);
   }
+
+  async findAllByCurrentUserAndCommitteeCode(committeeCode: string): Promise<AlertChildResponseDto[]> {
+    const userId = this.userContext.getUserId();
+    const children = await this.alertChildRepository.findAllByUserIdAndCommitteeCode(userId, committeeCode);
+    return children.map(AlertChildResponseDto.fromDomain);
+  }
 }
