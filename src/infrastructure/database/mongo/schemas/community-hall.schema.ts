@@ -11,8 +11,8 @@ export class CommunityHall {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'ManagementCommittee', required: true })
-  managementCommitteeId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Committee', required: true })
+  committeeRef: Types.ObjectId;
 }
 
 export const CommunityHallSchema = SchemaFactory.createForClass(CommunityHall);

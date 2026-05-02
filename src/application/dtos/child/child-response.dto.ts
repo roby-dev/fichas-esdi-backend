@@ -21,6 +21,8 @@ export class ChildResponseDto {
   @ApiProperty() isCurrentlyAdmitted: boolean;
   @ApiProperty() isGraduated: boolean;
   @ApiProperty() ageInMonths: number;
+  @ApiProperty() activeAlertSignal: string;
+  @ApiProperty() alertSignalSchedule: string;
 
   @ApiProperty() admissionFormatted: string;
   @ApiProperty() graduationFormatted: string;
@@ -45,6 +47,8 @@ export class ChildResponseDto {
       isCurrentlyAdmitted: entity.isCurrentlyAdmitted,
       isGraduated: entity.isGraduated,
       ageInMonths: entity.ageInMonths,
+      activeAlertSignal: entity.activeAlertSignal,
+      alertSignalSchedule: entity.alertSignalSchedule,
       communityHall: entity.communityHall
         ? CommunityHallResponseDto.fromDomain(entity.communityHall)
         : undefined,

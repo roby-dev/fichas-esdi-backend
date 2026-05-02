@@ -1,5 +1,6 @@
 import { addUtcDays, nowUtc } from '../../common/utils/functions';
 import { CommunityHall } from './community-hall.entity';
+import { AlertSignal, AlertSignalInterface } from './alert-signal.entity';
 
 export class Child {
   constructor(
@@ -97,6 +98,18 @@ export class Child {
     }
 
     return totalMonths;
+  }
+
+  get alertSignals(): AlertSignalInterface {
+    return new AlertSignal(this._birthday).alertSignals;
+  }
+
+  get activeAlertSignal(): string {
+    return new AlertSignal(this._birthday).getActiveAlertSignal(this.ageInMonths);
+  }
+
+  get alertSignalSchedule(): string {
+    return new AlertSignal(this._birthday).getAlertSignalSchedule(this.ageInMonths);
   }
 
   static create(

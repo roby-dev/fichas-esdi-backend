@@ -84,7 +84,7 @@ export class SessionMongoRepository implements SessionRepository {
       .lean();
 
     if (!updated) {
-      throw new Error(`ManagementCommittee with id ${entity.id} not found`);
+      throw new Error(`Session with id ${entity.id} not found`);
     }
 
     return Session.fromPrimitives({

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
-import { ManagementCommitteeResponseDto } from '../management-committee/management-committee-response.dto';
+import { CommitteeResponseDto } from '../committee/committee-response.dto';
 
 export class CommunityHallResponseDto {
   @ApiProperty()
@@ -13,19 +13,19 @@ export class CommunityHallResponseDto {
   name: string;
 
   @ApiProperty()
-  managementCommitteeId: string;
+  committeeRef: string;
 
-  @ApiProperty()
-  managementCommittee: ManagementCommitteeResponseDto | undefined;
+  @ApiProperty({ required: false })
+  committee?: CommitteeResponseDto;
 
   static fromDomain(entity: CommunityHall): CommunityHallResponseDto {
     return {
       id: entity.id!,
       localId: entity.localId,
       name: entity.name,
-      managementCommitteeId: entity.managementCommitteeId,
-      managementCommittee: entity.managementCommittee
-        ? ManagementCommitteeResponseDto.fromDomain(entity.managementCommittee)
+      committeeRef: entity.committeeRef,
+      committee: entity.committee
+        ? CommitteeResponseDto.fromDomain(entity.committee)
         : undefined,
     };
   }

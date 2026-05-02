@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { PersonModule } from './infrastructure/modules/person.module';
-import { ManagementCommitteeModule } from './infrastructure/modules/management-committee.module';
+import { CommitteeMembershipModule } from './infrastructure/modules/committee-membership.module';
 import { CommunityHallmodule } from './infrastructure/modules/community-hall.module';
 import { ChildModule } from './infrastructure/modules/child.module';
 import { AuthModule } from './infrastructure/modules/auth.module';
@@ -17,7 +17,7 @@ import { SessionModule } from './infrastructure/modules/session.module';
   imports: [
     ContextModule,
     PersonModule,
-    ManagementCommitteeModule,
+    CommitteeMembershipModule,
     CommunityHallmodule,
     ChildModule,
     AuthModule,

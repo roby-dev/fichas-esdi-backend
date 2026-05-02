@@ -7,7 +7,7 @@ import {
 } from '../schemas/community-hall.schema';
 import { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
-import { ManagementCommittee } from 'src/domain/entities/management-committee.entity';
+import { Committee } from 'src/domain/entities/committee.entity';
 
 @Injectable()
 export class CommunityHallMongoRepository implements CommunityHallRepository {
@@ -21,35 +21,22 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     const created = await this.model.create({
       localId: data.localId,
       name: data.name,
-      managementCommitteeId: new Types.ObjectId(data.managementCommitteeId),
+      committeeRef: new Types.ObjectId(data.committeeRef),
     });
 
     return CommunityHall.fromPrimitives({
       localId: created.localId,
       name: created.name,
-      managementCommitteeId: created.managementCommitteeId._id.toString(),
+      committeeRef: created.committeeRef.toString(),
       id: created._id.toString(),
-      managementCommittee: entity.managementCommittee,
+      committee: entity.committee,
     });
   }
 
   async findById(id: string): Promise<CommunityHall | null> {
-    const doc = await this.model
-      .findById(id)
-      .populate('managementCommitteeId')
-      .lean();
+    const doc = await this.model.findById(id).populate('committeeRef').lean();
     if (!doc) return null;
-
-    return CommunityHall.fromPrimitives({
-      localId: doc.localId,
-      name: doc.name,
-      managementCommitteeId: doc.managementCommitteeId._id.toString(),
-      id: doc._id.toString(),
-      managementCommittee:
-        typeof doc.managementCommitteeId === 'object'
-          ? this.convertToManagementCommittee(doc.managementCommitteeId)
-          : undefined,
-    });
+    return this.toDomain(doc);
   }
 
   async findAll(limit = 10, offset = 0): Promise<CommunityHall[]> {
@@ -57,20 +44,9 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
       .find()
       .skip(offset)
       .limit(limit)
-      .populate('managementCommitteeId')
+      .populate('committeeRef')
       .lean();
-    return docs.map((doc) =>
-      CommunityHall.fromPrimitives({
-        localId: doc.localId,
-        name: doc.name,
-        managementCommitteeId: doc.managementCommitteeId._id.toString(),
-        id: doc._id.toString(),
-        managementCommittee:
-          typeof doc.managementCommitteeId === 'object'
-            ? this.convertToManagementCommittee(doc.managementCommitteeId)
-            : undefined,
-      }),
-    );
+    return docs.map((doc) => this.toDomain(doc));
   }
 
   async update(entity: CommunityHall): Promise<CommunityHall> {
@@ -80,87 +56,79 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
         {
           localId: entity.localId,
           name: entity.name,
-          managementCommitteeId: entity.managementCommitteeId,
+          committeeRef: new Types.ObjectId(entity.committeeRef),
         },
         { new: true },
       )
       .lean();
 
     if (!doc) {
-      throw new Error(`CommunityCenter with id ${entity.id} not found`);
+      throw new Error(`CommunityHall with id ${entity.id} not found`);
     }
 
-    return CommunityHall.fromPrimitives({
-      localId: doc.localId,
-      name: doc.name,
-      managementCommitteeId: doc.managementCommitteeId._id.toString(),
-      id: doc._id.toString(),
-    });
+    return this.toDomain(doc);
   }
 
   async delete(id: string): Promise<void> {
     await this.model.findByIdAndDelete(id);
   }
 
-  async findByNameAndCommitteeId(
+  async findByNameAndCommitteeRef(
     name: string,
-    managementCommitteeId: string,
+    committeeRef: string,
   ): Promise<CommunityHall | null> {
     const doc = await this.model
       .findOne({
         name,
-        managementCommitteeId: new Types.ObjectId(managementCommitteeId),
+        committeeRef: new Types.ObjectId(committeeRef),
       })
-      .populate('managementCommitteeId')
+      .populate('committeeRef')
       .lean();
     if (!doc) return null;
-
-    return CommunityHall.fromPrimitives({
-      localId: doc.localId,
-      name: doc.name,
-      managementCommitteeId: doc.managementCommitteeId._id.toString(),
-      id: doc._id.toString(),
-      managementCommittee:
-        typeof doc.managementCommitteeId === 'object'
-          ? this.convertToManagementCommittee(doc.managementCommitteeId)
-          : undefined,
-    });
+    return this.toDomain(doc);
   }
 
-  async findAllByCommitteeId(
-    managementCommitteeId: string,
+  async findAllByCommitteeRef(
+    committeeRef: string,
     limit = 10,
     offset = 0,
   ): Promise<CommunityHall[]> {
     const docs = await this.model
-      .find({
-        managementCommitteeId: new Types.ObjectId(managementCommitteeId),
-      })
+      .find({ committeeRef: new Types.ObjectId(committeeRef) })
       .skip(offset)
       .limit(limit)
-      .populate('managementCommitteeId')
+      .populate('committeeRef')
       .lean();
-
-    return docs.map((doc) =>
-      CommunityHall.fromPrimitives({
-        localId: doc.localId,
-        name: doc.name,
-        managementCommitteeId: doc.managementCommitteeId._id.toString(),
-        id: doc._id.toString(),
-        managementCommittee:
-          typeof doc.managementCommitteeId === 'object'
-            ? this.convertToManagementCommittee(doc.managementCommitteeId)
-            : undefined,
-      }),
-    );
+    return docs.map((doc) => this.toDomain(doc));
   }
 
-  private convertToManagementCommittee(raw: any): ManagementCommittee {
-    return ManagementCommittee.fromPrimitives({
-      id: raw._id.toString(),
-      committeeId: raw.committeeId,
-      userId: raw.userId.toString(),
-      name: raw.name,
+  private toDomain(doc: any): CommunityHall {
+    const committeeRefRaw = doc.committeeRef;
+
+    let committeeRefId = '';
+    if (committeeRefRaw) {
+      if (typeof committeeRefRaw === 'object' && committeeRefRaw._id) {
+        committeeRefId = committeeRefRaw._id.toString();
+      } else {
+        committeeRefId = committeeRefRaw.toString();
+      }
+    }
+
+    const committee =
+      committeeRefRaw && typeof committeeRefRaw === 'object' && committeeRefRaw.name
+        ? Committee.fromPrimitives({
+            id: committeeRefRaw._id.toString(),
+            committeeId: committeeRefRaw.committeeId,
+            name: committeeRefRaw.name,
+          })
+        : undefined;
+
+    return CommunityHall.fromPrimitives({
+      id: doc._id.toString(),
+      localId: doc.localId,
+      name: doc.name,
+      committeeRef: committeeRefId,
+      committee,
     });
   }
 }

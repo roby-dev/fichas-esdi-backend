@@ -3,6 +3,7 @@ import { Injectable, Scope } from '@nestjs/common';
 @Injectable({ scope: Scope.REQUEST })
 export class RequestUserContext {
   private userId: string | null = null;
+  private userEmail: string | null = null;
   private tokenId: string | null = null;
   private ipAddress: string | string[] | undefined;
   private userAgent: string | undefined;
@@ -19,6 +20,10 @@ export class RequestUserContext {
     this.userId = userId;
   }
 
+  setUserEmail(userEmail: string) {
+    this.userEmail = userEmail;
+  }
+
   setTokenId(tokenId: string) {
     this.tokenId = tokenId;
   }
@@ -28,6 +33,13 @@ export class RequestUserContext {
       throw new Error('User ID no está definido');
     }
     return this.userId;
+  }
+
+  getUserEmail(): string {
+    if (!this.userEmail) {
+      throw new Error('User Email no está definido');
+    }
+    return this.userEmail;
   }
 
   getTokenId(): string | null {

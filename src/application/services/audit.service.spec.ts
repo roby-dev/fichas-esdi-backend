@@ -31,6 +31,7 @@ describe('AuditService', () => {
 
     userContext = new RequestUserContext();
     userContext.setUserId('user-id-1');
+    userContext.setUserEmail('test@example.com');
 
     requestInfo = new RequestInfoContext();
     requestInfo.setIpAddress('127.0.0.1');
@@ -49,6 +50,7 @@ describe('AuditService', () => {
       expect(saved.entityType).toBe('Child');
       expect(saved.entityId).toBe('child-id-1');
       expect(saved.actorUserId).toBe('user-id-1');
+      expect(saved.actorEmail).toBe('test@example.com');
       expect(saved.ipAddress).toBe('127.0.0.1');
       expect(saved.userAgent).toBe('jest');
       expect(saved.before).toEqual({ firstName: 'A' });

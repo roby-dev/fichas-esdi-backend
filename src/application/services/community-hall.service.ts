@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  COMMITTEE_REPOSITORY,
   COMMUNITY_HALL_REPOSITORY,
-  MANAGEMENT_COMMITTEE_REPOSITORY,
 } from 'src/domain/constants/tokens';
 import type { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
-import type { ManagementCommitteeRepository } from 'src/domain/repositories/management-committee.repository';
+import type { CommitteeRepository } from 'src/domain/repositories/committee.repository';
 import { ConflictException, NotFoundException } from 'src/domain/exceptions';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
 import { CreateCommunityHallDto } from '../dtos/community-hall/create-community-hall.dto';
@@ -15,23 +15,21 @@ export class CommunityHallService {
   constructor(
     @Inject(COMMUNITY_HALL_REPOSITORY)
     private readonly repository: CommunityHallRepository,
-    @Inject(MANAGEMENT_COMMITTEE_REPOSITORY)
-    private readonly managementCommitteeRepository: ManagementCommitteeRepository,
+    @Inject(COMMITTEE_REPOSITORY)
+    private readonly committeeRepository: CommitteeRepository,
   ) {}
 
   async create(dto: CreateCommunityHallDto): Promise<CommunityHallResponseDto> {
-    const committee = await this.managementCommitteeRepository.findById(
-      dto.managementCommitteeId,
-    );
+    const committee = await this.committeeRepository.findById(dto.committeeRef);
     if (!committee) {
       throw new NotFoundException(
-        `No existe un comité con id ${dto.managementCommitteeId}`,
+        `No existe un comité con id ${dto.committeeRef}`,
       );
     }
 
-    const existing = await this.repository.findByNameAndCommitteeId(
+    const existing = await this.repository.findByNameAndCommitteeRef(
       dto.name,
-      dto.managementCommitteeId,
+      dto.committeeRef,
     );
     if (existing) {
       throw new ConflictException(
@@ -42,7 +40,7 @@ export class CommunityHallService {
     const entity = CommunityHall.create(
       dto.localId,
       dto.name,
-      dto.managementCommitteeId,
+      dto.committeeRef,
       committee,
     );
     const saved = await this.repository.save(entity);
@@ -62,18 +60,19 @@ export class CommunityHallService {
     return CommunityHallResponseDto.fromDomain(entity);
   }
 
-  async findAllByCommitteeId(
-    committeeId: string,
+  async findAllByCommitteeRef(
+    committeeRef: string,
     limit = 10,
     offset = 0,
   ): Promise<CommunityHallResponseDto[]> {
-    const committee =
-      await this.managementCommitteeRepository.findById(committeeId);
+    const committee = await this.committeeRepository.findById(committeeRef);
     if (!committee) {
-      throw new NotFoundException(`No existe un comité con id ${committeeId}`);
+      throw new NotFoundException(
+        `No existe un comité con id ${committeeRef}`,
+      );
     }
-    const halls = await this.repository.findAllByCommitteeId(
-      committeeId,
+    const halls = await this.repository.findAllByCommitteeRef(
+      committeeRef,
       limit,
       offset,
     );

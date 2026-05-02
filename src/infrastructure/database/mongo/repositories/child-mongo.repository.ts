@@ -182,7 +182,7 @@ export class ChildMongoRepository implements ChildRepository {
       { $unwind: '$communityHall' },
       {
         $match: {
-          'communityHall.managementCommitteeId': committeeObjectId,
+          'communityHall.committeeRef': committeeObjectId,
         },
       },
       // proyectar solo los campos del child que necesitamos
@@ -250,10 +250,15 @@ export class ChildMongoRepository implements ChildRepository {
   convertToCommunityHall(raw: any): CommunityHall | undefined {
     if (!raw) return undefined;
 
+    const committeeRefId =
+      raw.committeeRef && typeof raw.committeeRef === 'object' && raw.committeeRef._id
+        ? raw.committeeRef._id.toString()
+        : raw.committeeRef?.toString();
+
     return new CommunityHall(
       raw.localId,
       raw.name,
-      raw.managementCommitteeId._id.toString(),
+      committeeRefId,
       raw._id.toString(),
     );
   }

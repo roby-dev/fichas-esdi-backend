@@ -8,6 +8,7 @@ export class AuditEvent {
     private readonly _entityType: string,
     private readonly _entityId: string,
     private readonly _actorUserId: string,
+    private readonly _actorEmail: string,
     private readonly _occurredAt: Date,
     private readonly _before: AuditEventSnapshot,
     private readonly _after: AuditEventSnapshot,
@@ -31,6 +32,10 @@ export class AuditEvent {
 
   get actorUserId(): string {
     return this._actorUserId;
+  }
+
+  get actorEmail(): string {
+    return this._actorEmail;
   }
 
   get occurredAt(): Date {
@@ -87,6 +92,7 @@ export class AuditEvent {
     entityType: string,
     entityId: string,
     actorUserId: string,
+    actorEmail: string,
     before: AuditEventSnapshot,
     after: AuditEventSnapshot,
     metadata?: Record<string, unknown>,
@@ -98,6 +104,7 @@ export class AuditEvent {
       entityType,
       entityId,
       actorUserId,
+      actorEmail,
       nowUtc(),
       before,
       after,
@@ -114,6 +121,7 @@ export class AuditEvent {
     entityType: string;
     entityId: string;
     actorUserId: string;
+    actorEmail: string;
     occurredAt: Date;
     before: AuditEventSnapshot;
     after: AuditEventSnapshot;
@@ -126,6 +134,7 @@ export class AuditEvent {
       data.entityType,
       data.entityId,
       data.actorUserId,
+      data.actorEmail,
       data.occurredAt,
       data.before,
       data.after,
@@ -142,6 +151,7 @@ export class AuditEvent {
     entityType: string;
     entityId: string;
     actorUserId: string;
+    actorEmail: string;
     occurredAt: Date;
     before: AuditEventSnapshot;
     after: AuditEventSnapshot;
@@ -155,6 +165,7 @@ export class AuditEvent {
       entityType: this._entityType,
       entityId: this._entityId,
       actorUserId: this._actorUserId,
+      actorEmail: this._actorEmail,
       occurredAt: this._occurredAt,
       before: this._before,
       after: this._after,

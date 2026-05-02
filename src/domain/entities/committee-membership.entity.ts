@@ -1,66 +1,64 @@
 import { Committee } from './committee.entity';
+import { User } from './user.entity';
 
-export class CommunityHall {
+export class CommitteeMembership {
   constructor(
-    private readonly _localId: string,
-    private readonly _name: string,
     private readonly _committeeRef: string,
+    private readonly _userRef: string,
     private readonly _id?: string,
     private readonly _committee?: Committee,
+    private readonly _user?: User,
   ) {}
 
   get id(): string | undefined {
     return this._id;
   }
 
-  get localId(): string {
-    return this._localId;
-  }
-
-  get name(): string {
-    return this._name;
-  }
-
   get committeeRef(): string {
     return this._committeeRef;
+  }
+
+  get userRef(): string {
+    return this._userRef;
   }
 
   get committee(): Committee | undefined {
     return this._committee;
   }
 
-  static create(
-    localId: string,
-    name: string,
-    committeeRef: string,
-    committee?: Committee,
-  ): CommunityHall {
-    return new CommunityHall(localId, name, committeeRef, undefined, committee);
+  get user(): User | undefined {
+    return this._user;
+  }
+
+  static create(committeeRef: string, userRef: string): CommitteeMembership {
+    return new CommitteeMembership(committeeRef, userRef);
   }
 
   static fromPrimitives(data: {
-    localId: string;
-    name: string;
     committeeRef: string;
+    userRef: string;
     id?: string;
     committee?: Committee;
-  }): CommunityHall {
-    return new CommunityHall(
-      data.localId,
-      data.name,
+    user?: User;
+  }): CommitteeMembership {
+    return new CommitteeMembership(
       data.committeeRef,
+      data.userRef,
       data.id,
       data.committee,
+      data.user,
     );
   }
 
-  toPrimitives() {
+  toPrimitives(): {
+    committeeRef: string;
+    userRef: string;
+    id?: string;
+  } {
     return {
-      localId: this._localId,
-      name: this._name,
       committeeRef: this._committeeRef,
+      userRef: this._userRef,
       id: this._id,
-      committee: this._committee,
     };
   }
 }

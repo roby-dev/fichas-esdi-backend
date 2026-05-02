@@ -33,6 +33,7 @@ export class AuthGuard implements CanActivate {
 
       this.request['user'] = payload;
       this.userContext.setUserId(payload.sub);
+      this.userContext.setUserEmail(payload.email);
       this.userContext.setTokenId(payload.jti);
     } catch {
       throw new UnauthorizedException('Token inválido o expirado');

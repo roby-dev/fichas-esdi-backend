@@ -35,6 +35,7 @@ export class AuditService {
     const event = this.buildEvent(
       input,
       this.userContext.getUserId(),
+      this.userContext.getUserEmail(),
       this.normalizeIp(this.requestInfo.getIpAddress()),
       this.requestInfo.getUserAgent(),
     );
@@ -46,11 +47,12 @@ export class AuditService {
     if (inputs.length === 0) return [];
 
     const userId = this.userContext.getUserId();
+    const userEmail = this.userContext.getUserEmail();
     const ipAddress = this.normalizeIp(this.requestInfo.getIpAddress());
     const userAgent = this.requestInfo.getUserAgent();
 
     const events = inputs
-      .map((input) => this.buildEvent(input, userId, ipAddress, userAgent))
+      .map((input) => this.buildEvent(input, userId, userEmail, ipAddress, userAgent))
       .filter((event) => event.hasDiff);
 
     if (events.length === 0) return [];
@@ -67,6 +69,7 @@ export class AuditService {
   private buildEvent(
     input: AuditRecordInput,
     actorUserId: string,
+    actorEmail: string,
     ipAddress: string | undefined,
     userAgent: string | undefined,
   ): AuditEvent {
@@ -75,6 +78,7 @@ export class AuditService {
       input.entityType,
       input.entityId,
       actorUserId,
+      actorEmail,
       input.before,
       input.after,
       input.metadata,

@@ -20,6 +20,8 @@ import { CommunityHallResponseDto } from 'src/application/dtos/community-hall/co
 import { CommunityHallService } from 'src/application/services/community-hall.service';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
 import { AuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../guards/roles.decorator';
 
 @ApiTags('community-halls')
 @Controller('community-halls')
@@ -28,9 +30,10 @@ export class CommunityHallController {
 
   @Post()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(['admin'])
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Crear nuevo local comunal' })
+  @ApiOperation({ summary: 'Crear nuevo local comunal (solo admin)' })
   @ApiResponse({ status: 201, type: CommunityHallResponseDto })
   async create(
     @Body() createDto: CreateCommunityHallDto,
@@ -64,14 +67,16 @@ export class CommunityHallController {
   @Get('by-committee/:id')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Obtener todos los locales comunales por commite id' })
+  @ApiOperation({
+    summary: 'Obtener todos los locales comunales por comité',
+  })
   @ApiResponse({ status: 200, type: [CommunityHallResponseDto] })
   async findAllByCommittee(
     @Param('id', ValidateObjectIdPipe) id: string,
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
   ): Promise<CommunityHallResponseDto[]> {
-    return await this.service.findAllByCommitteeId(
+    return await this.service.findAllByCommitteeRef(
       id,
       Number(limit),
       Number(offset),

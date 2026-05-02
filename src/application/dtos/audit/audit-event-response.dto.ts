@@ -17,6 +17,9 @@ export class AuditEventResponseDto {
   @ApiProperty()
   actorUserId: string;
 
+  @ApiProperty()
+  actorEmail: string;
+
   @ApiProperty({ type: String, format: 'date-time' })
   occurredAt: Date;
 
@@ -60,6 +63,7 @@ export class AuditEventResponseDto {
       entityType: event.entityType,
       entityId: event.entityId,
       actorUserId: event.actorUserId,
+      actorEmail: event.actorEmail,
       occurredAt: event.occurredAt,
       before: event.before,
       after: event.after,

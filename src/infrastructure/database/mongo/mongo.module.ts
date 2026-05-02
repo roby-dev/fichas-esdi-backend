@@ -7,9 +7,9 @@ import {
   CommunityHallSchema,
 } from './schemas/community-hall.schema';
 import {
-  ManagementCommittee,
-  ManagementCommitteeSchema,
-} from './schemas/management-committee.schema';
+  CommitteeMembership,
+  CommitteeMembershipSchema,
+} from './schemas/committee-membership.schema';
 import { Child, ChildSchema } from './schemas/child.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { AlertChild, AlertChildSchema } from './schemas/alert-child.schema';
@@ -19,16 +19,16 @@ import {
   ALERT_CHILD_REPOSITORY,
   AUDIT_EVENT_REPOSITORY,
   CHILD_REPOSITORY,
+  COMMITTEE_MEMBERSHIP_REPOSITORY,
   COMMITTEE_REPOSITORY,
   COMMUNITY_HALL_REPOSITORY,
-  MANAGEMENT_COMMITTEE_REPOSITORY,
   PERSON_REPOSITORY,
   SESSION_REPOSITORY,
   USER_REPOSITORY,
 } from 'src/domain/constants/tokens';
 import { MongoPersonRepository } from './repositories/mongo-person.repository';
 import { CommunityHallMongoRepository } from './repositories/community-hall-mongo.repository';
-import { ManagementCommitteeMongoRepository } from './repositories/management-comittee-mongo.repository';
+import { CommitteeMembershipMongoRepository } from './repositories/committee-membership-mongo.repository';
 import { ChildMongoRepository } from './repositories/child-mongo.repository';
 import { UserMongoRepository } from './repositories/user-mongo.repository';
 import { AlertChildMongoRepository } from './repositories/alert-child-monto.repository';
@@ -43,15 +43,12 @@ import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repo
     MongooseModule.forFeature([
       { name: Person.name, schema: PersonSchema },
       { name: CommunityHall.name, schema: CommunityHallSchema },
-      { name: ManagementCommittee.name, schema: ManagementCommitteeSchema },
+      { name: CommitteeMembership.name, schema: CommitteeMembershipSchema },
       { name: Child.name, schema: ChildSchema },
       { name: User.name, schema: UserSchema },
       { name: AlertChild.name, schema: AlertChildSchema },
       { name: Session.name, schema: SessionSchema },
-      {
-        name: Committee.name,
-        schema: CommitteeSchema,
-      },
+      { name: Committee.name, schema: CommitteeSchema },
       { name: AuditEvent.name, schema: AuditEventSchema },
     ]),
   ],
@@ -65,8 +62,8 @@ import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repo
       useClass: CommunityHallMongoRepository,
     },
     {
-      provide: MANAGEMENT_COMMITTEE_REPOSITORY,
-      useClass: ManagementCommitteeMongoRepository,
+      provide: COMMITTEE_MEMBERSHIP_REPOSITORY,
+      useClass: CommitteeMembershipMongoRepository,
     },
     {
       provide: CHILD_REPOSITORY,
@@ -96,7 +93,7 @@ import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repo
   exports: [
     PERSON_REPOSITORY,
     COMMUNITY_HALL_REPOSITORY,
-    MANAGEMENT_COMMITTEE_REPOSITORY,
+    COMMITTEE_MEMBERSHIP_REPOSITORY,
     CHILD_REPOSITORY,
     USER_REPOSITORY,
     ALERT_CHILD_REPOSITORY,

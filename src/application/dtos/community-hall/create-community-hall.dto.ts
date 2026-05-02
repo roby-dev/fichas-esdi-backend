@@ -9,7 +9,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class CreateCommunityHallDto {
-   @ApiProperty({
+  @ApiProperty({
     description: 'Código del local comunal',
     example: '17229',
     minLength: 1,
@@ -40,9 +40,9 @@ export class CreateCommunityHallDto {
   name: string;
 
   @ApiProperty({
-    description: 'ID del comité de gestión asociado',
+    description: 'ID (Mongo) del comité al que pertenece el local',
     example: '64df012fa23b93e8f83e916b',
   })
-  @IsMongoId({ message: 'El ID del comité de gestión no es válido' })
-  managementCommitteeId: string;
+  @IsMongoId({ message: 'El ID del comité no es válido' })
+  committeeRef: string;
 }

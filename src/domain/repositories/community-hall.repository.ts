@@ -1,17 +1,17 @@
 import { CommunityHall } from '../entities/community-hall.entity';
 
 export interface CommunityHallRepository {
-  save(communityCenter: CommunityHall): Promise<CommunityHall>;
+  save(hall: CommunityHall): Promise<CommunityHall>;
   findById(id: string): Promise<CommunityHall | null>;
   findAll(limit?: number, offset?: number): Promise<CommunityHall[]>;
-  update(person: CommunityHall): Promise<CommunityHall>;
+  update(hall: CommunityHall): Promise<CommunityHall>;
   delete(id: string): Promise<void>;
-  findByNameAndCommitteeId(
+  findByNameAndCommitteeRef(
     name: string,
-    managementCommitteeId: string,
+    committeeRef: string,
   ): Promise<CommunityHall | null>;
-  findAllByCommitteeId(
-    managementCommitteeId: string,
+  findAllByCommitteeRef(
+    committeeRef: string,
     limit: number,
     offset: number,
   ): Promise<CommunityHall[]>;

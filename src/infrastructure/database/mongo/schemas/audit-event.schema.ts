@@ -26,6 +26,9 @@ export class AuditEvent {
   actorUserId: Types.ObjectId;
 
   @Prop({ required: true })
+  actorEmail: string;
+
+  @Prop({ required: true })
   occurredAt: Date;
 
   @Prop({ type: SchemaTypes.Mixed, default: null })
