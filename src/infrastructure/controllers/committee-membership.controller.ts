@@ -20,7 +20,6 @@ import { CommitteeMembershipService } from 'src/application/services/committee-m
 import { CommitteeMembershipResponseDto } from 'src/application/dtos/committee-membership/committee-membership-response.dto';
 import { CreateCommitteeMembershipDto } from 'src/application/dtos/committee-membership/create-committee-membership.dto';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
 
@@ -31,7 +30,7 @@ export class CommitteeMembershipController {
 
   @Post()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
@@ -46,7 +45,7 @@ export class CommitteeMembershipController {
 
   @Delete(':id')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
@@ -61,7 +60,7 @@ export class CommitteeMembershipController {
 
   @Get()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @ApiOperation({ summary: 'Listar todas las asignaciones (solo admin)' })
   @ApiResponse({ status: 200, type: [CommitteeMembershipResponseDto] })
@@ -74,7 +73,6 @@ export class CommitteeMembershipController {
 
   @Get('me')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Listar los comités del usuario logueado',
   })
@@ -91,7 +89,7 @@ export class CommitteeMembershipController {
 
   @Get('by-user/:userId')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @ApiOperation({
     summary: 'Listar los comités de un usuario específico (solo admin)',
@@ -111,7 +109,7 @@ export class CommitteeMembershipController {
 
   @Get('by-committee/:committeeId')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @ApiOperation({
     summary: 'Listar los usuarios asignados a un comité (solo admin)',

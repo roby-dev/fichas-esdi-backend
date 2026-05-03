@@ -15,7 +15,11 @@ interface ClientData {
   userAgent?: string;
 }
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  cors: { origin: '*' },
+  pingTimeout: 5000,
+  pingInterval: 10000,
+})
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private connectedClients = new Map<string, ClientData>();
 

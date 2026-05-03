@@ -49,6 +49,11 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
+  async findAllUnpaginated(): Promise<CommunityHall[]> {
+    const docs = await this.model.find().populate('committeeRef').lean();
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
   async update(entity: CommunityHall): Promise<CommunityHall> {
     const doc = await this.model
       .findByIdAndUpdate(

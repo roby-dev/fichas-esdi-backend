@@ -19,7 +19,6 @@ import { CreateCommunityHallDto } from 'src/application/dtos/community-hall/crea
 import { CommunityHallResponseDto } from 'src/application/dtos/community-hall/community-hall-response.dto';
 import { CommunityHallService } from 'src/application/services/community-hall.service';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
 
@@ -30,7 +29,7 @@ export class CommunityHallController {
 
   @Post()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear nuevo local comunal (solo admin)' })
@@ -43,7 +42,6 @@ export class CommunityHallController {
 
   @Get()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener todos los locales comunales' })
   @ApiResponse({ status: 200, type: [CommunityHallResponseDto] })
   async findAll(
@@ -55,7 +53,6 @@ export class CommunityHallController {
 
   @Get(':id')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener local comunal por ID' })
   @ApiResponse({ status: 200, type: CommunityHallResponseDto })
   async findOne(
@@ -66,7 +63,6 @@ export class CommunityHallController {
 
   @Get('by-committee/:id')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Obtener todos los locales comunales por comité',
   })

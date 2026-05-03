@@ -33,6 +33,6 @@ export class LoginUseCase {
     const session = Session.create(user.id, jti, infoContext.getIpAddress(), infoContext.getUserAgent());
     const sessionCreated = await this.sessionRepository.save(session);
 
-    return AuthResponseDto.create(accessToken, refreshToken);
+    return AuthResponseDto.create(accessToken, refreshToken, user.mustChangePassword);
   }
 }

@@ -10,8 +10,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
-import { REQUEST } from '@nestjs/core';
+import { REQUEST, Reflector } from '@nestjs/core';
 import { RequestUserContext } from 'src/common/contexts/user-context.service';
+import { IS_PUBLIC } from './public.decorator';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthGuard implements CanActivate {
@@ -20,9 +21,16 @@ export class AuthGuard implements CanActivate {
     private readonly configService: ConfigService,
     @Inject(REQUEST) private readonly request: Request,
     private readonly userContext: RequestUserContext,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     const token = this.extractTokenFromHeader(this.request);
     if (!token) throw new UnauthorizedException('Token no proporcionado');
 

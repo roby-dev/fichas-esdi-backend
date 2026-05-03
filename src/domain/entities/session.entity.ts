@@ -49,7 +49,7 @@ export class Session {
     return new Session(
       userId,
       tokenId,
-      true,
+      false,
       ipAddress,
       userAgent,
       undefined,

@@ -51,6 +51,17 @@ export class CommitteeMongoRepository implements CommitteeRepository {
     );
   }
 
+  async findAllUnpaginated(): Promise<Committee[]> {
+    const docs = await this.model.find().lean();
+    return docs.map((doc) =>
+      Committee.fromPrimitives({
+        committeeId: doc.committeeId,
+        name: doc.name,
+        id: doc._id.toString(),
+      }),
+    );
+  }
+
   async update(entity: Committee): Promise<Committee> {
     const { id, ...data } = entity.toPrimitives();
 

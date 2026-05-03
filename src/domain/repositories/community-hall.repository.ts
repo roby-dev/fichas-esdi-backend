@@ -4,6 +4,7 @@ export interface CommunityHallRepository {
   save(hall: CommunityHall): Promise<CommunityHall>;
   findById(id: string): Promise<CommunityHall | null>;
   findAll(limit?: number, offset?: number): Promise<CommunityHall[]>;
+  findAllUnpaginated(): Promise<CommunityHall[]>;
   update(hall: CommunityHall): Promise<CommunityHall>;
   delete(id: string): Promise<void>;
   findByNameAndCommitteeRef(

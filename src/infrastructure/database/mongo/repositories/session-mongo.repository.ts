@@ -56,6 +56,7 @@ export class SessionMongoRepository implements SessionRepository {
   async findAll(limit = 10, offset = 0): Promise<SessionPage> {
     const docs = await this.model
       .find()
+      .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
       .populate('userId')
@@ -104,6 +105,7 @@ export class SessionMongoRepository implements SessionRepository {
   ): Promise<SessionPage> {
     const docs = await this.model
       .find({ userId: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
       .populate('userId')
@@ -148,6 +150,7 @@ export class SessionMongoRepository implements SessionRepository {
     const [docs, total] = await Promise.all([
       this.model
         .find(query)
+        .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
         .populate('userId')
@@ -199,6 +202,29 @@ export class SessionMongoRepository implements SessionRepository {
       ipAddress: updated!.ipAddress,
       userAgent: updated!.userAgent,
     });
+  }
+
+  async deactivateAllByUserId(userId: string): Promise<number> {
+    const r = await this.model.updateMany(
+      { userId: new Types.ObjectId(userId), active: true },
+      { active: false },
+    );
+    return r.modifiedCount;
+  }
+
+  async deactivateAllByUserIdExcept(
+    userId: string,
+    exceptTokenId: string,
+  ): Promise<number> {
+    const r = await this.model.updateMany(
+      {
+        userId: new Types.ObjectId(userId),
+        active: true,
+        tokenId: { $ne: exceptTokenId },
+      },
+      { active: false },
+    );
+    return r.modifiedCount;
   }
 
   async getSummaryByUser(

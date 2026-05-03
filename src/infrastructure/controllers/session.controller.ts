@@ -10,14 +10,13 @@ import { SessionResponseDto } from 'src/application/dtos/session/session-respons
 import { SessionPageResponseDto } from 'src/application/dtos/session/session-page-response.dto';
 import { SessionSummaryPageResponseDto } from 'src/application/dtos/session/session-summary-response.dto';
 import { SessionService } from 'src/application/services/session.service';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 import { Roles } from '../guards/roles.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 
 @ApiTags('admin/sessions')
 @Controller('admin/sessions')
 @ApiBearerAuth('access-token')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @Roles(['admin'])
 export class SessionController {
   constructor(private readonly service: SessionService) {}

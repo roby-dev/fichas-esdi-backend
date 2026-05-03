@@ -114,6 +114,22 @@ export class ChildMongoRepository implements ChildRepository {
     );
   }
 
+  async findAllUnpaginated(): Promise<Child[]> {
+    const docs = await this.model.find().lean();
+    return docs.map((doc) =>
+      Child.fromPrimitives({
+        id: doc._id.toString(),
+        documentNumber: doc.documentNumber,
+        firstName: doc.firstName,
+        lastName: doc.lastName,
+        birthday: doc.birthday,
+        admissionDate: doc.admissionDate,
+        communityHallId: doc.communityHallId?._id.toString(),
+        userId: doc.userId?._id.toString(),
+      }),
+    );
+  }
+
   async delete(id: string): Promise<void> {
     await this.model.findByIdAndDelete(id);
   }

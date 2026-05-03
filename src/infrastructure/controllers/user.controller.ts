@@ -20,7 +20,8 @@ import { AssignRolesDto } from 'src/application/dtos/user/assign-roles.dto';
 import { UserResponseDto } from 'src/application/dtos/user/user-response.dto';
 import { UserService } from 'src/application/services/user.service';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
-import { AuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../guards/roles.decorator';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -28,6 +29,9 @@ export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Post()
+  @ApiBearerAuth('access-token')
+  @UseGuards(RolesGuard)
+  @Roles(['admin'])
   @ApiCreatedResponse({ type: UserResponseDto })
   async createUser(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
     return this.service.create(dto);
@@ -35,7 +39,6 @@ export class UserController {
 
   @Patch(':id/roles')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: UserResponseDto })
   async assignRoles(
@@ -47,7 +50,6 @@ export class UserController {
 
   @Get()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOkResponse({ type: [UserResponseDto] })
   async findAll(): Promise<UserResponseDto[]> {
     return this.service.findAll();
@@ -55,7 +57,6 @@ export class UserController {
 
   @Get(':id')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOkResponse({ type: UserResponseDto })
   async findById(
     @Param('id', ValidateObjectIdPipe) id: string,

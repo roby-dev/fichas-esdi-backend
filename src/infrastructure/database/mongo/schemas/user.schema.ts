@@ -13,6 +13,9 @@ export class User {
 
   @Prop({ type: [String], default: [] })
   roles: string[];
+
+  @Prop({ type: Boolean, default: false })
+  mustChangePassword: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

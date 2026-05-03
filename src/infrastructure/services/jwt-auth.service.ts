@@ -35,12 +35,18 @@ export class JwtAuthService implements AuthService {
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) return null;
 
-    return new AuthUser(user.id!, user.email, user.roles);
+    return new AuthUser(user.id!, user.email, user.roles, user.mustChangePassword);
   }
 
   generateAccessToken(user: AuthUser, jti: string): string {
     return this.jwtService.sign(
-      { sub: user.id, email: user.email, roles: user.roles, jti: jti },
+      {
+        sub: user.id,
+        email: user.email,
+        roles: user.roles,
+        jti: jti,
+        mustChangePassword: user.mustChangePassword,
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { expiresIn: this.jwtExpiresIn as any },
     );
@@ -60,7 +66,7 @@ export class JwtAuthService implements AuthService {
       const user = await this.userRepo.findById(payload.sub);
       if (!user) return null;
 
-      return new AuthUser(user.id!, user.email, user.roles);
+      return new AuthUser(user.id!, user.email, user.roles, user.mustChangePassword);
     } catch {
       return null;
     }

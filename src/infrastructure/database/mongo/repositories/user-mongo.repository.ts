@@ -20,6 +20,7 @@ export class UserMongoRepository implements UserRepository {
         passwordHash: doc.passwordHash,
         roles: doc.roles,
         id: doc._id.toString(),
+        mustChangePassword: doc.mustChangePassword ?? false,
       }),
     );
   }
@@ -32,6 +33,7 @@ export class UserMongoRepository implements UserRepository {
           passwordHash: doc.passwordHash,
           roles: doc.roles,
           id: doc._id.toString(),
+          mustChangePassword: doc.mustChangePassword ?? false,
         })
       : null;
   }
@@ -44,6 +46,7 @@ export class UserMongoRepository implements UserRepository {
           passwordHash: doc.passwordHash,
           roles: doc.roles,
           id: doc._id.toString(),
+          mustChangePassword: doc.mustChangePassword ?? false,
         })
       : null;
   }
@@ -54,6 +57,7 @@ export class UserMongoRepository implements UserRepository {
       email: raw.email,
       passwordHash: raw.passwordHash,
       roles: raw.roles,
+      mustChangePassword: raw.mustChangePassword,
     });
 
     return User.fromPrimitives({
@@ -61,6 +65,7 @@ export class UserMongoRepository implements UserRepository {
       passwordHash: doc.passwordHash,
       roles: doc.roles,
       id: doc._id.toString(),
+      mustChangePassword: doc.mustChangePassword ?? false,
     });
   }
 
@@ -68,6 +73,11 @@ export class UserMongoRepository implements UserRepository {
     await this.model.findByIdAndDelete(id);
   }
 
+  /**
+   * Updates non-credential user fields only.
+   * CONTRACT: MUST NOT write passwordHash or mustChangePassword.
+   * Use updatePassword() for credential mutations.
+   */
   async update(entity: User): Promise<User> {
     const data = entity.toPrimitives();
     const doc = await this.model.findByIdAndUpdate(
@@ -75,6 +85,7 @@ export class UserMongoRepository implements UserRepository {
       {
         email: data.email,
         roles: data.roles,
+        // passwordHash and mustChangePassword are intentionally excluded
       },
       {
         new: true,
@@ -90,6 +101,31 @@ export class UserMongoRepository implements UserRepository {
       passwordHash: doc.passwordHash,
       roles: doc.roles,
       id: doc._id.toString(),
+      mustChangePassword: doc.mustChangePassword ?? false,
+    });
+  }
+
+  async updatePassword(
+    id: string,
+    passwordHash: string,
+    mustChangePassword: boolean,
+  ): Promise<User> {
+    const doc = await this.model.findByIdAndUpdate(
+      id,
+      { passwordHash, mustChangePassword },
+      { new: true },
+    );
+
+    if (!doc) {
+      throw new Error(`User with id ${id} not found`);
+    }
+
+    return User.fromPrimitives({
+      email: doc.email,
+      passwordHash: doc.passwordHash,
+      roles: doc.roles,
+      id: doc._id.toString(),
+      mustChangePassword: doc.mustChangePassword ?? false,
     });
   }
 }

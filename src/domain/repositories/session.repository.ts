@@ -56,5 +56,14 @@ export interface SessionRepository {
     ipAddress: string | string[] | undefined,
     userAgent: string | undefined,
   ): Promise<Session | null>;
+
+  /** Deactivates ALL active sessions for the given user. Returns number of sessions affected. */
+  deactivateAllByUserId(userId: string): Promise<number>;
+
+  /** Deactivates all active sessions for the given user EXCEPT the one identified by exceptTokenId. Returns number of sessions affected. */
+  deactivateAllByUserIdExcept(
+    userId: string,
+    exceptTokenId: string,
+  ): Promise<number>;
 }
 

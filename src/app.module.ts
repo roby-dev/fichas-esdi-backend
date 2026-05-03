@@ -12,6 +12,8 @@ import { CommitteeModule } from './infrastructure/modules/committee.module';
 import { ContextModule } from './common/contexts/context.module';
 import { AuditModule } from './infrastructure/modules/audit.module';
 import { SessionModule } from './infrastructure/modules/session.module';
+import { AdminDashboardModule } from './infrastructure/modules/admin-dashboard.module';
+import { AdminUsersModule } from './infrastructure/modules/admin-users.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { SessionModule } from './infrastructure/modules/session.module';
     CommitteeModule,
     AuditModule,
     SessionModule,
+    AdminDashboardModule,
+    AdminUsersModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -8,7 +8,6 @@ import {
   Post,
   Param,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -20,7 +19,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 import { BulkUpdateDto } from 'src/application/dtos/alert-child/bulk-update.dto';
 import { BulkUpdateResponseDto } from 'src/application/dtos/alert-child/bulk-update-response.dto';
 import { UpdateChildrenFromExcelUseCase } from 'src/application/use-cases/alert-child/update-children-from-excel.use-case';
@@ -30,7 +28,6 @@ import { AlertChildService } from 'src/application/services/alert-child.service'
 @ApiTags('alert-child')
 @Controller('alert-child')
 @ApiBearerAuth('access-token')
-@UseGuards(AuthGuard)
 export class AlertChildController {
   constructor(
     private readonly updateChildrenFromExcelUseCase: UpdateChildrenFromExcelUseCase,
@@ -77,7 +74,6 @@ export class AlertChildController {
 
   @Get('')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener niños por usuario logeado' })
   @ApiResponse({ status: 200, type: [AlertChildResponseDto] })
   async findAllByUser(): Promise<AlertChildResponseDto[]> {
@@ -86,7 +82,6 @@ export class AlertChildController {
 
   @Get('committee/:committeeCode')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener niños por usuario logeado y comité' })
   @ApiResponse({ status: 200, type: [AlertChildResponseDto] })
   async findAllByUserAndCommittee(

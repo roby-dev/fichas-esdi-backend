@@ -9,14 +9,13 @@ import { AuditQueryDto } from 'src/application/dtos/audit/audit-query.dto';
 import { AuditEventResponseDto } from 'src/application/dtos/audit/audit-event-response.dto';
 import { AuditPageResponseDto } from 'src/application/dtos/audit/audit-page-response.dto';
 import { AuditService } from 'src/application/services/audit.service';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 import { Roles } from '../guards/roles.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 
 @ApiTags('admin/audit')
 @Controller('admin/audit')
 @ApiBearerAuth('access-token')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @Roles(['admin'])
 export class AuditController {
   constructor(private readonly service: AuditService) {}

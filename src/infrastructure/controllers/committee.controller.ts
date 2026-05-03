@@ -17,7 +17,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
 import { CommitteeService } from 'src/application/services/committee.service';
@@ -31,7 +30,6 @@ export class CommitteeController {
 
   @Post()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear un nuevo comité de gestión' })
   @ApiResponse({ status: 201, type: CommitteeResponseDto })
@@ -43,7 +41,7 @@ export class CommitteeController {
 
   @Get()
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(['admin'])
   @ApiOperation({ summary: 'Listar todos los comités de gestión' })
   @ApiResponse({ status: 200, type: [CommitteeResponseDto] })
@@ -56,7 +54,6 @@ export class CommitteeController {
 
   @Get(':id')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Obtener comité de gestión por ID' })
   @ApiResponse({ status: 200, type: CommitteeResponseDto })
   async findOne(
@@ -67,7 +64,6 @@ export class CommitteeController {
 
   @Patch(':id')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Actualizar un comité de gestión' })
   @ApiResponse({ status: 201, type: CommitteeResponseDto })

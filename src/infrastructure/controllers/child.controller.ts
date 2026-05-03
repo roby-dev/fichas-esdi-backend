@@ -9,7 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -23,12 +22,10 @@ import { ChildResponseDto } from 'src/application/dtos/child/child-response.dto'
 import { UserWithChildrenDto } from 'src/application/dtos/child/user-with-children.dto';
 import { ChildService } from 'src/application/services/child.service';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-obect-id.pipe';
-import { AuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('children')
 @Controller('children')
 @ApiBearerAuth('access-token')
-@UseGuards(AuthGuard)
 export class ChildController {
   constructor(private readonly service: ChildService) {}
 

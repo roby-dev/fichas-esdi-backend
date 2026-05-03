@@ -12,9 +12,12 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePersonDto } from 'src/application/dtos/person/create-person.dto';
 import { PersonResponseDto } from 'src/application/dtos/person/person-response.dto';
 import { PersonService } from 'src/application/services/person.service';
+import { Public } from '../guards/public.decorator';
 
+// Preserved as Public to match previous behavior; revisit auth requirements.
 @ApiTags('persons')
 @Controller('persons')
+@Public()
 export class PersonController {
   constructor(private readonly service: PersonService) {}
 

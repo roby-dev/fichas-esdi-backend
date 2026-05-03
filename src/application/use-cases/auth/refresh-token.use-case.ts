@@ -37,6 +37,6 @@ export class RefreshTokenUseCase {
 
     const sessionCreated = await this.sessionRepository.save(session);
 
-    return AuthResponseDto.create(newAccessToken, newRefreshToken);
+    return AuthResponseDto.create(newAccessToken, newRefreshToken, user.mustChangePassword);
   }
 }

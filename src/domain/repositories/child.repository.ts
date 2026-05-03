@@ -10,6 +10,7 @@ export interface ChildRepository {
   update(child: Child): Promise<Child>;
   findById(id: string): Promise<Child | null>;
   findAll(limit?: number, offset?: number): Promise<Child[]>;
+  findAllUnpaginated(): Promise<Child[]>;
   delete(id: string): Promise<void>;
   findByDocumentNumber(documentNumber: string): Promise<Child | null>;
   findByDocumentNumberAndCommunnityHallId(
