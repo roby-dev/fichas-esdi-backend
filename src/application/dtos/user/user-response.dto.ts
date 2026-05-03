@@ -5,12 +5,14 @@ export class UserResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() email: string;
   @ApiProperty({ isArray: true }) roles: string[];
+  @ApiProperty() mustChangePassword: boolean;
 
   static fromDomain(user: User): UserResponseDto {
     return {
       id: user.id!,
       email: user.email,
       roles: user.roles,
+      mustChangePassword: user.mustChangePassword,
     };
   }
 }
