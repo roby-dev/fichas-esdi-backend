@@ -2,7 +2,7 @@ import { addUtcDays, nowUtc } from '../../common/utils/functions';
 import { CommunityHall } from './community-hall.entity';
 import { AlertSignal, AlertSignalInterface } from './alert-signal.entity';
 
-export interface ChildPrimitives {
+export type ChildPrimitives = {
   id?: string;
   documentNumber: string;
   firstName: string;

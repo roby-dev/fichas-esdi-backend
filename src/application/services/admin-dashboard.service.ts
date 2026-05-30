@@ -45,7 +45,7 @@ export class AdminDashboardService {
     let activeSignalsTotal = 0;
 
     for (const child of activeChildren) {
-      const hallId = child.communityHallId;
+      const hallId = child.communityHallId ?? '';
       const hall = hallById.get(hallId);
       hallCounts.set(hallId, (hallCounts.get(hallId) ?? 0) + 1);
 

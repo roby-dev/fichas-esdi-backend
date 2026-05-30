@@ -13,7 +13,7 @@ export class ChildResponseDto {
   @ApiProperty() lastName: string;
   @ApiProperty() birthday: Date;
   @ApiProperty() admissionDate: Date;
-  @ApiProperty() communityHallId: string;
+  @ApiProperty({ nullable: true }) communityHallId: string | null;
 
   @ApiProperty() admissionValidFrom: Date;
   @ApiProperty() admissionValidUntil: Date;
@@ -40,7 +40,7 @@ export class ChildResponseDto {
       lastName: primitives.lastName,
       birthday: primitives.birthday,
       admissionDate: primitives.admissionDate,
-      communityHallId: primitives.communityHallId,
+      communityHallId: primitives.communityHallId ?? null,
       admissionValidFrom: entity.admissionValidFrom,
       admissionValidUntil: entity.admissionValidUntil,
       graduationDate: entity.graduationDate,
