@@ -16,4 +16,6 @@ export interface CommunityHallRepository {
     limit: number,
     offset: number,
   ): Promise<CommunityHall[]>;
+  /** Find a community hall by its local identifier string (e.g. "LOC001") */
+  findByLocalId(localId: string): Promise<CommunityHall | null>;
 }

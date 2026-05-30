@@ -107,6 +107,15 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     return docs.map((doc) => this.toDomain(doc));
   }
 
+  async findByLocalId(localId: string): Promise<CommunityHall | null> {
+    const doc = await this.model
+      .findOne({ localId })
+      .populate('committeeRef')
+      .lean();
+    if (!doc) return null;
+    return this.toDomain(doc);
+  }
+
   private toDomain(doc: any): CommunityHall {
     const committeeRefRaw = doc.committeeRef;
 

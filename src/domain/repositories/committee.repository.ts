@@ -7,4 +7,6 @@ export interface CommitteeRepository {
   findAllUnpaginated(): Promise<Committee[]>;
   update(committee: Committee): Promise<Committee>;
   delete(id: string): Promise<void>;
+  /** Find a committee by its domain committeeId string (not MongoDB _id) */
+  findByCommitteeId(committeeId: string): Promise<Committee | null>;
 }

@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Child as ChildSchema, ChildDocument } from '../schemas/child.schema';
-import { ChildrenByUser, ChildRepository } from 'src/domain/repositories/child.repository';
+import {
+  ChildrenByUser,
+  ChildRepository,
+  UpsertChildDto,
+} from 'src/domain/repositories/child.repository';
 import { Child } from 'src/domain/entities/child.entity';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
 
@@ -18,10 +22,21 @@ export class ChildMongoRepository implements ChildRepository {
       documentNumber: child.documentNumber,
       firstName: child.firstName,
       lastName: child.lastName,
+      fullName: child.fullName,
       birthday: child.birthday,
       admissionDate: child.admissionDate,
-      communityHallId: new Types.ObjectId(child.communityHallId),
-      userId: new Types.ObjectId(child.userId),
+      birthdayImported: child.birthdayImported ?? null,
+      admissionDateImported: child.admissionDateImported ?? null,
+      communityHallId: child.communityHallId
+        ? new Types.ObjectId(child.communityHallId)
+        : null,
+      communityHallLocalId: child.communityHallLocalId,
+      communityHallName: child.communityHallName,
+      userId: child.userId ? new Types.ObjectId(child.userId) : null,
+      gender: child.gender,
+      childCode: child.childCode,
+      managementCommitteCode: child.managementCommitteCode,
+      managementCommitteName: child.managementCommitteName,
     });
 
     return Child.fromPrimitives({
@@ -29,10 +44,21 @@ export class ChildMongoRepository implements ChildRepository {
       documentNumber: created.documentNumber,
       firstName: created.firstName,
       lastName: created.lastName,
+      fullName: created.fullName,
       birthday: created.birthday,
       admissionDate: created.admissionDate,
-      communityHallId: created.communityHallId?._id.toString(),
-      userId: created.userId?._id.toString(),
+      birthdayImported: created.birthdayImported,
+      admissionDateImported: created.admissionDateImported,
+      communityHallId: (created.communityHallId as any)?._id?.toString() ??
+        (created.communityHallId as any)?.toString() ?? null,
+      communityHallLocalId: created.communityHallLocalId,
+      communityHallName: created.communityHallName,
+      userId: (created.userId as any)?._id?.toString() ??
+        (created.userId as any)?.toString() ?? null,
+      gender: created.gender,
+      childCode: created.childCode,
+      managementCommitteCode: created.managementCommitteCode,
+      managementCommitteName: created.managementCommitteName,
     });
   }
 
@@ -261,6 +287,75 @@ export class ChildMongoRepository implements ChildRepository {
         }),
       ),
     }));
+  }
+
+  async upsertByDni(dto: UpsertChildDto): Promise<Child> {
+    const filter = { documentNumber: dto.documentNumber };
+
+    const setOnInsert: Record<string, unknown> = {};
+    if (dto.birthday !== undefined) setOnInsert['birthday'] = dto.birthday;
+    if (dto.admissionDate !== undefined)
+      setOnInsert['admissionDate'] = dto.admissionDate;
+
+    const setFields: Record<string, unknown> = {
+      documentNumber: dto.documentNumber,
+    };
+    if (dto.firstName !== undefined) setFields['firstName'] = dto.firstName;
+    if (dto.lastName !== undefined) setFields['lastName'] = dto.lastName;
+    if (dto.fullName !== undefined) setFields['fullName'] = dto.fullName;
+    if (dto.birthdayImported !== undefined)
+      setFields['birthdayImported'] = dto.birthdayImported;
+    if (dto.admissionDateImported !== undefined)
+      setFields['admissionDateImported'] = dto.admissionDateImported;
+    if (dto.communityHallId !== undefined)
+      setFields['communityHallId'] =
+        dto.communityHallId ? new Types.ObjectId(dto.communityHallId) : null;
+    if (dto.communityHallLocalId !== undefined)
+      setFields['communityHallLocalId'] = dto.communityHallLocalId;
+    if (dto.communityHallName !== undefined)
+      setFields['communityHallName'] = dto.communityHallName;
+    if (dto.userId !== undefined)
+      setFields['userId'] =
+        dto.userId ? new Types.ObjectId(dto.userId) : null;
+    if (dto.gender !== undefined) setFields['gender'] = dto.gender;
+    if (dto.childCode !== undefined) setFields['childCode'] = dto.childCode;
+    if (dto.managementCommitteCode !== undefined)
+      setFields['managementCommitteCode'] = dto.managementCommitteCode;
+    if (dto.managementCommitteName !== undefined)
+      setFields['managementCommitteName'] = dto.managementCommitteName;
+
+    const update: Record<string, unknown> = { $set: setFields };
+    if (Object.keys(setOnInsert).length > 0) {
+      update['$setOnInsert'] = setOnInsert;
+    }
+
+    const doc = await this.model.findOneAndUpdate(filter, update, {
+      upsert: true,
+      new: true,
+      runValidators: true,
+    });
+
+    return Child.fromPrimitives({
+      id: doc._id.toString(),
+      documentNumber: doc.documentNumber,
+      firstName: doc.firstName ?? '',
+      lastName: doc.lastName ?? '',
+      fullName: doc.fullName,
+      birthday: doc.birthday,
+      admissionDate: doc.admissionDate,
+      birthdayImported: doc.birthdayImported,
+      admissionDateImported: doc.admissionDateImported,
+      communityHallId: (doc.communityHallId as any)?._id?.toString() ??
+        (doc.communityHallId as any)?.toString() ?? null,
+      communityHallLocalId: doc.communityHallLocalId,
+      communityHallName: doc.communityHallName,
+      userId: (doc.userId as any)?._id?.toString() ??
+        (doc.userId as any)?.toString() ?? null,
+      gender: doc.gender,
+      childCode: doc.childCode,
+      managementCommitteCode: doc.managementCommitteCode,
+      managementCommitteName: doc.managementCommitteName,
+    });
   }
 
   convertToCommunityHall(raw: any): CommunityHall | undefined {

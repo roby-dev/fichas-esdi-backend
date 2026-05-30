@@ -83,4 +83,14 @@ export class CommitteeMongoRepository implements CommitteeRepository {
   async delete(id: string): Promise<void> {
     await this.model.findByIdAndDelete(id);
   }
+
+  async findByCommitteeId(committeeId: string): Promise<Committee | null> {
+    const doc = await this.model.findOne({ committeeId }).lean();
+    if (!doc) return null;
+    return Committee.fromPrimitives({
+      id: doc._id.toString(),
+      committeeId: doc.committeeId,
+      name: doc.name,
+    });
+  }
 }
