@@ -25,9 +25,11 @@ describe('AlertChild Entity - AlertSignals', () => {
       'A123',
       new Date('2024-01-01'),
       birthday,
+      'Committee A',
+      'COM-A',
+      'HALL A',
       baseHall.id!,
       user.id!,
-      baseHall,
     );
   };
 

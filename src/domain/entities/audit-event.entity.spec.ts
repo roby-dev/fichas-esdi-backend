@@ -6,6 +6,7 @@ describe('AuditEvent Entity', () => {
     entityType: 'Child',
     entityId: 'child-id-1',
     actorUserId: 'user-id-1',
+    actorEmail: 'actor@example.com',
   };
 
   afterEach(() => {
@@ -19,6 +20,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         { firstName: 'Juan' },
         { firstName: 'Juan' },
       );
@@ -32,6 +34,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         { firstName: 'Juan', lastName: 'Pérez' },
         { firstName: 'Juan', lastName: 'González' },
       );
@@ -45,6 +48,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         null,
         { firstName: 'Juan', lastName: 'Pérez' },
       );
@@ -58,6 +62,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         { firstName: 'Juan', lastName: 'Pérez' },
         null,
       );
@@ -71,6 +76,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         { address: { street: 'A' } },
         { address: { street: 'B' } },
       );
@@ -86,6 +92,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         { name: 'A' },
         { name: 'B' },
       );
@@ -99,6 +106,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         { name: 'A' },
         { name: 'A' },
       );
@@ -117,6 +125,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         null,
         { firstName: 'Juan' },
       );
@@ -130,6 +139,7 @@ describe('AuditEvent Entity', () => {
         base.entityType,
         base.entityId,
         base.actorUserId,
+        base.actorEmail,
         null,
         { firstName: 'Juan' },
       );
@@ -147,6 +157,7 @@ describe('AuditEvent Entity', () => {
         entityType: 'Child',
         entityId: 'child-id-1',
         actorUserId: 'user-id-1',
+        actorEmail: 'actor@example.com',
         occurredAt,
         before: { name: 'A' },
         after: { name: 'B' },
