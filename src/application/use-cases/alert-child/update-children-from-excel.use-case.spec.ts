@@ -87,7 +87,7 @@ describe('UpdateChildrenFromExcelUseCase', () => {
   let excelReader: jest.Mocked<ChildExcelReader>;
   let userContext: jest.Mocked<RequestUserContext>;
 
-  const MOCK_FILE = {} as Express.Multer.File;
+  const MOCK_FILE = { originalname: 'import-2026.xlsx' } as Express.Multer.File;
   const MOCK_USER_ID = 'userId-001';
 
   beforeEach(() => {
@@ -456,8 +456,99 @@ describe('UpdateChildrenFromExcelUseCase', () => {
       await useCase.execute(MOCK_FILE, 'CG001');
 
       const upsertArg = childRepo.upsertByDni.mock.calls[0][0];
-      // birthday field must be absent or match the stored value (never the Excel override)
-      expect(upsertArg.birthday).toBeUndefined();
+      // The diverging Excel value is parked in birthdayImported, NOT used to
+      // overwrite the authoritative form birthday. (The adapter routes the
+      // passed-through `birthday` to $setOnInsert, so it can only seed a brand
+      // new record — never clobber an existing one.)
+      expect(upsertArg.birthdayImported).toEqual(new Date(Date.UTC(2018, 3, 15)));
+    });
+  });
+
+  describe('new child insert — date provenance (spec: imported MUST be null)', () => {
+    it('should set authoritative birthday/admissionDate from Excel and leave imported fields null', async () => {
+      const row = makeRow({ birthday: '10/03/2018', admissionDate: '01/01/2025' });
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      childRepo.findByDocumentNumber.mockResolvedValue(null); // new insert
+      childRepo.upsertByDni.mockResolvedValue(makeExistingChild());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const upsertArg = childRepo.upsertByDni.mock.calls[0][0];
+      // Excel dates become the authoritative primary fields (adapter routes to $setOnInsert)
+      expect(upsertArg.birthday).toEqual(new Date(Date.UTC(2018, 2, 10)));
+      expect(upsertArg.admissionDate).toEqual(new Date(Date.UTC(2025, 0, 1)));
+      // Imported provenance fields MUST be null on a pure insert
+      expect(upsertArg.birthdayImported).toBeNull();
+      expect(upsertArg.admissionDateImported).toBeNull();
+    });
+  });
+
+  describe('non-destructive date merge — existing child edge cases', () => {
+    const makeExistingWithImported = (overrides: {
+      birthdayImported?: Date | null;
+      admissionDateImported?: Date | null;
+    }) =>
+      Child.fromPrimitives({
+        id: '507f1f77bcf86cd799439011',
+        documentNumber: '12345678',
+        firstName: 'PEDRO',
+        lastName: 'GOMEZ',
+        birthday: new Date('2018-03-10'),
+        admissionDate: new Date('2025-01-01'),
+        birthdayImported: overrides.birthdayImported ?? null,
+        admissionDateImported: overrides.admissionDateImported ?? null,
+        communityHallId: 'hallMongoId-001',
+        userId: 'userId-001',
+        managementCommitteCode: 'CG001',
+      });
+
+    it('should leave admissionDateImported null when Excel admissionDate matches the stored value', async () => {
+      // stored admissionDate 2025-01-01, Excel admissionDate 01/01/2025 (same)
+      const row = makeRow({ admissionDate: '01/01/2025', birthday: '10/03/2018' });
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      childRepo.findByDocumentNumber.mockResolvedValue(
+        makeExistingWithImported({}),
+      );
+      childRepo.upsertByDni.mockResolvedValue(makeExistingChild());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const upsertArg = childRepo.upsertByDni.mock.calls[0][0];
+      expect(upsertArg.admissionDateImported).toBeNull();
+      expect(upsertArg.birthdayImported).toBeNull();
+    });
+
+    it('should overwrite a prior birthdayImported when a re-import provides a different birthday', async () => {
+      // stored form birthday 2018-03-10, prior import had 2018-01-20; new Excel 15/04/2018
+      const row = makeRow({ birthday: '15/04/2018' });
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      childRepo.findByDocumentNumber.mockResolvedValue(
+        makeExistingWithImported({ birthdayImported: new Date('2018-01-20') }),
+      );
+      childRepo.upsertByDni.mockResolvedValue(makeExistingChild());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const upsertArg = childRepo.upsertByDni.mock.calls[0][0];
+      expect(upsertArg.birthdayImported).toEqual(new Date(Date.UTC(2018, 3, 15)));
+    });
+  });
+
+  describe('importBatchRef tagging', () => {
+    it('should stamp every error log with the import file name as importBatchRef', async () => {
+      const row = makeRow({ documentNumber: 'INVALID' });
+      excelReader.read.mockResolvedValue([row]);
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const logs: ImportErrorLog[] = errorLogRepo.bulkSave.mock.calls[0][0];
+      expect(logs[0].importBatchRef).toBe('import-2026.xlsx');
     });
   });
 

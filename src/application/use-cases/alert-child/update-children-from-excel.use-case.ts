@@ -61,11 +61,12 @@ export class UpdateChildrenFromExcelUseCase {
   ): Promise<Child[]> {
     const rows = await this.childExcelReader.read(file, committeeId);
     const now = new Date();
+    const importBatchRef = file.originalname;
     const results: Child[] = [];
 
     for (const row of rows) {
       try {
-        await this.processRow(row, now, results);
+        await this.processRow(row, now, importBatchRef, results);
       } catch (error) {
         this.logger.error(
           `Unhandled error processing row DNI=${row.documentNumber}`,
@@ -82,6 +83,7 @@ export class UpdateChildrenFromExcelUseCase {
   private async processRow(
     row: ChildExcelRow,
     now: Date,
+    importBatchRef: string,
     results: Child[],
   ): Promise<void> {
     const errorLogs: ImportErrorLog[] = [];
@@ -99,6 +101,7 @@ export class UpdateChildrenFromExcelUseCase {
           managementCommitteCode: row.managementCommitteCode,
           managementCommitteName: row.managementCommitteName,
           communityHallName: row.communityHallName,
+          importBatchRef,
           loggedAt: now,
         }),
       );
@@ -119,6 +122,7 @@ export class UpdateChildrenFromExcelUseCase {
           managementCommitteCode: row.managementCommitteCode,
           managementCommitteName: row.managementCommitteName,
           communityHallName: row.communityHallName,
+          importBatchRef,
           loggedAt: now,
         }),
       );
@@ -133,6 +137,7 @@ export class UpdateChildrenFromExcelUseCase {
           managementCommitteCode: row.managementCommitteCode,
           managementCommitteName: row.managementCommitteName,
           communityHallName: row.communityHallName,
+          importBatchRef,
           loggedAt: now,
         }),
       );
@@ -156,6 +161,7 @@ export class UpdateChildrenFromExcelUseCase {
             managementCommitteName: row.managementCommitteName,
             communityHallId: hall.id,
             communityHallName: row.communityHallName,
+            importBatchRef,
             loggedAt: now,
           }),
         );
@@ -223,15 +229,16 @@ export class UpdateChildrenFromExcelUseCase {
     let admissionDateImported: Date | null =
       existing?.admissionDateImported ?? null;
 
+    // Only an EXISTING (form-authoritative) record diverts diverging Excel dates
+    // to the imported fields. On a pure insert the Excel dates ARE authoritative
+    // (set as primary birthday/admissionDate via $setOnInsert below) and the
+    // imported fields MUST stay null (spec: "New child inserted").
     if (existing && excelBirthday) {
       const datesMatch =
         existing.birthday.getTime() === excelBirthday.getTime();
       if (!datesMatch) {
         birthdayImported = excelBirthday;
       }
-    } else if (!existing && excelBirthday) {
-      // New child — no form birthday on record yet; store Excel date as imported
-      birthdayImported = excelBirthday;
     }
 
     if (existing && excelAdmissionDate) {
@@ -240,14 +247,14 @@ export class UpdateChildrenFromExcelUseCase {
       if (!datesMatch) {
         admissionDateImported = excelAdmissionDate;
       }
-    } else if (!existing && excelAdmissionDate) {
-      admissionDateImported = excelAdmissionDate;
     }
 
     // 7. Build fullName from Excel row
     const fullName = this.buildFullName(row);
 
-    // 8. Upsert — $set Excel-only fields; $setOnInsert form-originated fields handled by adapter
+    // 8. Upsert — $set Excel-only fields; birthday/admissionDate go to $setOnInsert
+    //    in the adapter, so they seed a new record but never overwrite the
+    //    authoritative form dates of an existing one.
     const saved = await this.childRepository.upsertByDni({
       documentNumber: normalizedDni,
       fullName,
@@ -258,6 +265,8 @@ export class UpdateChildrenFromExcelUseCase {
       communityHallId: hall?.id ?? null,
       communityHallLocalId: row.communityHallId,
       communityHallName: row.communityHallName,
+      birthday: excelBirthday ?? undefined,
+      admissionDate: excelAdmissionDate ?? undefined,
       birthdayImported,
       admissionDateImported,
       userId: this.userContext.getUserId(),

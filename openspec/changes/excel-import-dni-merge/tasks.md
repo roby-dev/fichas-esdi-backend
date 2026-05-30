@@ -56,7 +56,7 @@ Chain strategy: pending
 - [x] 3.2 Write integration tests for `ChildService.create` — global DNI rejection, fullName concatenation, authoritative dates
 - [x] 3.3 Rewrite `src/application/use-cases/alert-child/update-children-from-excel.use-case.ts` — merge-by-DNI: normalize, resolve refs, committee-change detection, non-destructive date merge, error logging
 - [x] 3.4 Write unit tests for use-case: committee detection algorithm, date merge, hall-unresolved tolerant insert
-- [x] 3.5 Write integration tests: full Excel import flow with in-memory Mongo
+- [ ] 3.5 Write integration tests: full Excel import flow with in-memory Mongo — DEFERRED: currently covered by unit tests with mocked repositories; real in-memory Mongo (mongodb-memory-server) integration tests pending. DB-layer contracts ($setOnInsert non-overwrite, unique index, date round-trips) not yet exercised.
 - [x] 3.6 Modify `src/infrastructure/database/mongo/mongo.module.ts` — registered ChildHistoryMongoRepository + ImportErrorLogMongoRepository + schemas; updated alert-child.controller.ts to use new use-case signature and ChildResponseDto
 
 ## Phase 4: Migration Script
