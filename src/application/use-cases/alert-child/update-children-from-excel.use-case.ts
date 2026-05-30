@@ -170,9 +170,17 @@ export class UpdateChildrenFromExcelUseCase {
     );
 
     // 5. Committee-change detection
+    //    Compare the Excel row's resolved committeeId against the STORED child's
+    //    committee resolved through the hall chain (decision #4):
+    //    communityHallId -> community_halls.committeeRef -> committees.committeeId.
+    //    NEVER read existing.managementCommitteCode directly — form-originated
+    //    children don't carry it, which would flag every first import as a change.
     if (existing && hall && resolvedCommitteeId !== null) {
-      const storedCommitteeCode = existing.managementCommitteCode ?? null;
-      const committeeChanged = storedCommitteeCode !== resolvedCommitteeId;
+      const storedCommitteeId = await this.resolveStoredCommitteeId(existing);
+      // Only a change when both sides resolve and differ. If the stored side
+      // cannot be resolved, we cannot prove a change → do not snapshot.
+      const committeeChanged =
+        storedCommitteeId !== null && storedCommitteeId !== resolvedCommitteeId;
 
       if (committeeChanged) {
         // Snapshot BEFORE update (two-step, no transaction — orphan snapshots accepted)
@@ -259,6 +267,25 @@ export class UpdateChildrenFromExcelUseCase {
 
     // 9. Flush error logs for this row (tolerant — save happens regardless)
     await this.importErrorLogRepository.bulkSave(errorLogs);
+  }
+
+  /**
+   * Resolve a stored child's committeeId through the hall chain:
+   * communityHallId -> community_halls.committeeRef -> committees.committeeId.
+   * Returns null when any link in the chain cannot be resolved (e.g. the child
+   * has no communityHallId, the hall was deleted, or the committee is missing),
+   * which signals that a committee change cannot be reliably determined.
+   */
+  private async resolveStoredCommitteeId(existing: Child): Promise<string | null> {
+    if (!existing.communityHallId) {
+      return null;
+    }
+    const hall = await this.hallRepository.findById(existing.communityHallId);
+    if (!hall) {
+      return null;
+    }
+    const committee = await this.committeeRepository.findById(hall.committeeRef);
+    return committee?.committeeId ?? null;
   }
 
   private buildFullName(row: ChildExcelRow): string {

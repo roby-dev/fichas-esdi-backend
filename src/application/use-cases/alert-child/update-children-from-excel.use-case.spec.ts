@@ -144,6 +144,12 @@ describe('UpdateChildrenFromExcelUseCase', () => {
       getUserId: jest.fn().mockReturnValue(MOCK_USER_ID),
     } as unknown as jest.Mocked<RequestUserContext>;
 
+    // Default stored-side committee resolution chain (decision #4):
+    //   existing.communityHallId -> hall.findById -> committeeRef -> committee.findById
+    // Resolves a stored child to committeeId "CG001" unless a test overrides it.
+    hallRepo.findById.mockResolvedValue(makeHall());
+    committeeRepo.findById.mockResolvedValue(makeCommittee());
+
     useCase = new UpdateChildrenFromExcelUseCase(
       childRepo,
       hallRepo,
@@ -315,6 +321,69 @@ describe('UpdateChildrenFromExcelUseCase', () => {
       await useCase.execute(MOCK_FILE, 'CG001');
 
       expect(callOrder).toEqual(['snapshot', 'upsert']);
+    });
+
+    it('should NOT snapshot a form-originated child (no managementCommitteCode) when its resolved committee matches the Excel row', async () => {
+      const row = makeRow({ managementCommitteCode: 'CG001' });
+      excelReader.read.mockResolvedValue([row]);
+      // Current Excel row hall + committee resolve to CG001
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      // Stored child is FORM-originated: has communityHallId but NO managementCommitteCode
+      const formChild = Child.fromPrimitives({
+        id: '507f1f77bcf86cd799439011',
+        documentNumber: '12345678',
+        firstName: 'PEDRO',
+        lastName: 'GOMEZ RIOS',
+        fullName: 'PEDRO GOMEZ RIOS',
+        birthday: new Date('2018-03-10'),
+        admissionDate: new Date('2025-01-01'),
+        birthdayImported: null,
+        admissionDateImported: null,
+        communityHallId: 'hallMongoId-001',
+        userId: 'userId-001',
+        // managementCommitteCode intentionally omitted — form children don't carry it
+      });
+      childRepo.findByDocumentNumber.mockResolvedValue(formChild);
+      childRepo.upsertByDni.mockResolvedValue(formChild);
+      // Stored-side resolution chain: communityHallId -> hall -> committeeRef -> committee
+      hallRepo.findById.mockResolvedValue(makeHall());
+      committeeRepo.findById.mockResolvedValue(makeCommittee());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      expect(historyRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('should NOT snapshot when the stored committee cannot be resolved (no communityHallId)', async () => {
+      const row = makeRow({ managementCommitteCode: 'CG002' });
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(
+        Committee.fromPrimitives({ id: 'c2', committeeId: 'CG002', name: 'Comité 2' }),
+      );
+      // Existing child has NO communityHallId → stored committee is unresolvable
+      const childWithoutHall = Child.fromPrimitives({
+        id: '507f1f77bcf86cd799439011',
+        documentNumber: '12345678',
+        firstName: 'PEDRO',
+        lastName: 'GOMEZ RIOS',
+        fullName: 'PEDRO GOMEZ RIOS',
+        birthday: new Date('2018-03-10'),
+        admissionDate: new Date('2025-01-01'),
+        birthdayImported: null,
+        admissionDateImported: null,
+        communityHallId: null,
+        userId: 'userId-001',
+        managementCommitteCode: 'CG001',
+      });
+      childRepo.findByDocumentNumber.mockResolvedValue(childWithoutHall);
+      childRepo.upsertByDni.mockResolvedValue(childWithoutHall);
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      // Cannot prove a committee change → no snapshot (avoids false positives)
+      expect(historyRepo.save).not.toHaveBeenCalled();
     });
 
     it('should NOT snapshot when child does not exist yet (new insert)', async () => {
