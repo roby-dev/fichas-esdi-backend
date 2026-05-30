@@ -27,13 +27,13 @@ Chain strategy: pending
 
 ## Phase 1: Foundation — DNI Normalizer & Schema
 
-- [ ] 1.1 RED: Write `src/common/utils/dni.spec.ts` — test normalizeDni: null/empty, non-digits, 7-digit pad, 8-digit, >8-digit rejection
-- [ ] 1.2 GREEN: Create `src/common/utils/dni.ts` with `normalizeDni(raw): string | null`
-- [ ] 1.3 Modify `src/infrastructure/database/mongo/schemas/child.schema.ts` — add `fullName`, `birthdayImported`, `admissionDateImported`, `gender`, `childCode`, `managementCommitteCode/Name`, `communityHallName`, `communityHallLocalId`; make `communityHallId` optional; add unique index on `documentNumber`
-- [ ] 1.4 Modify `src/domain/entities/child.entity.ts` — add new fields + `fullName`; update `create`, `fromPrimitives`, `toPrimitives`; retain `firstName`/`lastName`
-- [ ] 1.5 Modify `src/domain/repositories/child.repository.ts` — add `upsertByDni(dto): Promise<Child>`, `findByDocumentNumber(dni): Promise<Child | null>`; remove `findByDocumentNumberAndCommunnityHallId`
-- [ ] 1.6 Modify `src/domain/repositories/community-hall.repository.ts` — add `findByLocalId(localId: string): Promise<CommunityHall | null>`
-- [ ] 1.7 Modify `src/domain/repositories/committee.repository.ts` — add `findByCommitteeId(committeeId: string): Promise<Committee | null>`
+- [x] 1.1 RED: Write `src/common/utils/dni.spec.ts` — test normalizeDni: null/empty, non-digits, 7-digit pad, 8-digit, >8-digit rejection
+- [x] 1.2 GREEN: Create `src/common/utils/dni.ts` with `normalizeDni(raw): string | null`
+- [x] 1.3 Modify `src/infrastructure/database/mongo/schemas/child.schema.ts` — add `fullName`, `birthdayImported`, `admissionDateImported`, `gender`, `childCode`, `managementCommitteCode/Name`, `communityHallName`, `communityHallLocalId`; make `communityHallId` optional; add unique index on `documentNumber`
+- [x] 1.4 Modify `src/domain/entities/child.entity.ts` — add new fields + `fullName`; update `create`, `fromPrimitives`, `toPrimitives`; retain `firstName`/`lastName`
+- [x] 1.5 Modify `src/domain/repositories/child.repository.ts` — add `upsertByDni(dto): Promise<Child>`, `findByDocumentNumber(dni): Promise<Child | null>`; NOTE: kept findByDocumentNumberAndCommunnityHallId deprecated (removal deferred to Phase 3 — service still depends on it)
+- [x] 1.6 Modify `src/domain/repositories/community-hall.repository.ts` — add `findByLocalId(localId: string): Promise<CommunityHall | null>`
+- [x] 1.7 Modify `src/domain/repositories/committee.repository.ts` — add `findByCommitteeId(committeeId: string): Promise<Committee | null>`
 
 ## Phase 2: New Domain Entities & Repositories
 
