@@ -25,6 +25,10 @@ import { Committee } from 'src/domain/entities/committee.entity';
 import { ChildExcelRow } from 'src/application/interfaces/child-excel-row.interface';
 import { ImportErrorLog } from 'src/domain/entities/import-error-log.entity';
 import { ChildHistory } from 'src/domain/entities/child-history.entity';
+import {
+  AuditRecordInput,
+  AuditService,
+} from 'src/application/services/audit.service';
 
 // Helpers
 const makeRow = (overrides: Partial<ChildExcelRow> = {}): ChildExcelRow => ({
@@ -86,6 +90,7 @@ describe('UpdateChildrenFromExcelUseCase', () => {
   let errorLogRepo: jest.Mocked<ImportErrorLogRepository>;
   let excelReader: jest.Mocked<ChildExcelReader>;
   let userContext: jest.Mocked<RequestUserContext>;
+  let auditService: jest.Mocked<AuditService>;
 
   const MOCK_FILE = { originalname: 'import-2026.xlsx' } as Express.Multer.File;
   const MOCK_USER_ID = 'userId-001';
@@ -144,6 +149,11 @@ describe('UpdateChildrenFromExcelUseCase', () => {
       getUserId: jest.fn().mockReturnValue(MOCK_USER_ID),
     } as unknown as jest.Mocked<RequestUserContext>;
 
+    auditService = {
+      record: jest.fn().mockResolvedValue(null),
+      recordMany: jest.fn().mockResolvedValue([]),
+    } as unknown as jest.Mocked<AuditService>;
+
     // Default stored-side committee resolution chain (decision #4):
     //   existing.communityHallId -> hall.findById -> committeeRef -> committee.findById
     // Resolves a stored child to committeeId "CG001" unless a test overrides it.
@@ -158,8 +168,13 @@ describe('UpdateChildrenFromExcelUseCase', () => {
       errorLogRepo,
       excelReader,
       userContext,
+      auditService,
     );
   });
+
+  // Helper: flatten all audit inputs passed to recordMany across calls
+  const recordedAudits = (): AuditRecordInput[] =>
+    auditService.recordMany.mock.calls.flatMap((call) => call[0]);
 
   describe('INVALID_DNI', () => {
     it('should skip saving a child with an invalid DNI and log INVALID_DNI', async () => {
@@ -592,6 +607,86 @@ describe('UpdateChildrenFromExcelUseCase', () => {
 
       const upsertArg = childRepo.upsertByDni.mock.calls[0][0];
       expect(upsertArg.communityHallId).toBeNull();
+    });
+  });
+
+  describe('audit trail (regression: import must record per-row audit events)', () => {
+    it('should record child.create for a new inserted row', async () => {
+      const row = makeRow();
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      childRepo.findByDocumentNumber.mockResolvedValue(null);
+      childRepo.upsertByDni.mockResolvedValue(makeExistingChild());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const audits = recordedAudits();
+      const created = audits.find((a) => a.action === 'child.create');
+      expect(created).toBeDefined();
+      expect(created!.metadata?.source).toBe('excel-import');
+    });
+
+    it('should record child.update for a matched row', async () => {
+      const row = makeRow();
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      childRepo.findByDocumentNumber.mockResolvedValue(makeExistingChild());
+      childRepo.upsertByDni.mockResolvedValue(makeExistingChild());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const audits = recordedAudits();
+      expect(audits.some((a) => a.action === 'child.update')).toBe(true);
+    });
+
+    it('should record child.skip for an invalid DNI row', async () => {
+      const row = makeRow({ documentNumber: 'INVALID' });
+      excelReader.read.mockResolvedValue([row]);
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const audits = recordedAudits();
+      const skipped = audits.find((a) => a.action === 'child.skip');
+      expect(skipped).toBeDefined();
+      expect(skipped!.metadata?.source).toBe('excel-import');
+    });
+
+    it('should record child.save-with-warnings for a row saved with unresolved references', async () => {
+      const row = makeRow();
+      excelReader.read.mockResolvedValue([row]);
+      hallRepo.findByLocalId.mockResolvedValue(null); // unresolved hall → warnings
+      childRepo.findByDocumentNumber.mockResolvedValue(null);
+      childRepo.upsertByDni.mockResolvedValue(
+        makeExistingChild({ communityHallId: null }),
+      );
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const audits = recordedAudits();
+      expect(audits.some((a) => a.action === 'child.save-with-warnings')).toBe(
+        true,
+      );
+    });
+
+    it('should tag every audit event with source excel-import', async () => {
+      excelReader.read.mockResolvedValue([
+        makeRow({ documentNumber: '11111111' }),
+        makeRow({ documentNumber: 'INVALID' }),
+      ]);
+      hallRepo.findByLocalId.mockResolvedValue(makeHall());
+      committeeRepo.findByCommitteeId.mockResolvedValue(makeCommittee());
+      childRepo.findByDocumentNumber.mockResolvedValue(null);
+      childRepo.upsertByDni.mockResolvedValue(makeExistingChild());
+
+      await useCase.execute(MOCK_FILE, 'CG001');
+
+      const audits = recordedAudits();
+      expect(audits.length).toBeGreaterThan(0);
+      expect(audits.every((a) => a.metadata?.source === 'excel-import')).toBe(
+        true,
+      );
     });
   });
 

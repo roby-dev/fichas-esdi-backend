@@ -34,6 +34,13 @@ import { parseDdMmYyyyToUtcDate } from 'src/common/utils/functions';
 import { normalizeDni } from 'src/common/utils/dni';
 import { RequestUserContext } from 'src/common/contexts/user-context.service';
 import { ChildExcelRow } from 'src/application/interfaces/child-excel-row.interface';
+import {
+  AuditRecordInput,
+  AuditService,
+} from 'src/application/services/audit.service';
+
+const CHILD_ENTITY_TYPE = 'Child';
+const EXCEL_IMPORT_SOURCE = 'excel-import';
 
 @Injectable()
 export class UpdateChildrenFromExcelUseCase {
@@ -53,6 +60,7 @@ export class UpdateChildrenFromExcelUseCase {
     @Inject(CHILD_EXCEL_READER)
     private readonly childExcelReader: ChildExcelReader,
     private readonly userContext: RequestUserContext,
+    private readonly auditService: AuditService,
   ) {}
 
   async execute(
@@ -63,16 +71,22 @@ export class UpdateChildrenFromExcelUseCase {
     const now = new Date();
     const importBatchRef = file.originalname;
     const results: Child[] = [];
+    const auditInputs: AuditRecordInput[] = [];
 
     for (const row of rows) {
       try {
-        await this.processRow(row, now, importBatchRef, results);
+        await this.processRow(row, now, importBatchRef, results, auditInputs);
       } catch (error) {
         this.logger.error(
           `Unhandled error processing row DNI=${row.documentNumber}`,
           error?.stack,
         );
       }
+    }
+
+    // Persist the per-row audit trail (insert / update / skip / save-with-warnings).
+    if (auditInputs.length) {
+      await this.auditService.recordMany(auditInputs);
     }
 
     return results;
@@ -85,6 +99,7 @@ export class UpdateChildrenFromExcelUseCase {
     now: Date,
     importBatchRef: string,
     results: Child[],
+    auditInputs: AuditRecordInput[],
   ): Promise<void> {
     const errorLogs: ImportErrorLog[] = [];
 
@@ -106,6 +121,20 @@ export class UpdateChildrenFromExcelUseCase {
         }),
       );
       await this.importErrorLogRepository.bulkSave(errorLogs);
+      // Excluded from save → record a skip audit event (reason in `after` so the
+      // event has a diff and is not suppressed by AuditService.hasDiff filtering).
+      auditInputs.push({
+        action: 'child.skip',
+        entityType: CHILD_ENTITY_TYPE,
+        entityId: row.documentNumber || 'unknown',
+        before: null,
+        after: {
+          documentNumber: row.documentNumber ?? '',
+          reason: 'INVALID_DNI',
+          importBatchRef,
+        },
+        metadata: { source: EXCEL_IMPORT_SOURCE, importBatchRef },
+      });
       return;
     }
 
@@ -276,6 +305,30 @@ export class UpdateChildrenFromExcelUseCase {
 
     // 9. Flush error logs for this row (tolerant — save happens regardless)
     await this.importErrorLogRepository.bulkSave(errorLogs);
+
+    // 10. Per-row audit event. A row saved with unresolved references is a
+    //     save-with-warnings; otherwise it is an insert or an update depending
+    //     on whether a record already existed for this DNI.
+    const action =
+      errorLogs.length > 0
+        ? 'child.save-with-warnings'
+        : existing
+          ? 'child.update'
+          : 'child.create';
+    auditInputs.push({
+      action,
+      entityType: CHILD_ENTITY_TYPE,
+      entityId: saved.id!,
+      before: existing ? existing.toPrimitives() : null,
+      after: saved.toPrimitives(),
+      metadata: {
+        source: EXCEL_IMPORT_SOURCE,
+        importBatchRef,
+        ...(errorLogs.length > 0
+          ? { warnings: errorLogs.map((log) => log.errorCode) }
+          : {}),
+      },
+    });
   }
 
   /**
