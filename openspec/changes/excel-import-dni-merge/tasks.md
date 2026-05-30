@@ -37,18 +37,18 @@ Chain strategy: pending
 
 ## Phase 2: New Domain Entities & Repositories
 
-- [ ] 2.1 RED+GREEN: Create `src/domain/entities/child-history.entity.ts` — snapshot entity with `originalId`, `snapshotDate`, `reason`, all child fields
-- [ ] 2.2 RED+GREEN: Create `src/domain/entities/import-error-log.entity.ts` — error log entity with `errorCode`, `errorMessage`, `documentNumber`, ref fields, `loggedAt`
-- [ ] 2.3 Create `src/domain/repositories/child-history.repository.ts` — `save(snapshot): Promise<void>` append-only
-- [ ] 2.4 Create `src/domain/repositories/import-error-log.repository.ts` — `bulkSave(logs): Promise<void>` append-only
-- [ ] 2.5 Create `src/infrastructure/database/mongo/schemas/child-history.schema.ts` — Mongoose schema for `children_history`
-- [ ] 2.6 Create `src/infrastructure/database/mongo/schemas/import-error-log.schema.ts` — Mongoose schema for `import_error_logs`
-- [ ] 2.7 Create `src/infrastructure/database/mongo/repositories/child-history-mongo.repository.ts` — Mongo adapter implementing save
-- [ ] 2.8 Create `src/infrastructure/database/mongo/repositories/import-error-log-mongo.repository.ts` — Mongo adapter implementing bulkSave
-- [ ] 2.9 Modify `src/infrastructure/database/mongo/repositories/child-mongo.repository.ts` — implement `upsertByDni` with `findOneAndUpdate(upsert:true)`; implement `findByDocumentNumber` with communityHall lookup
-- [ ] 2.10 Modify `src/infrastructure/database/mongo/repositories/community-hall-mongo.repository.ts` — implement `findByLocalId(localId)`
-- [ ] 2.11 Modify `src/infrastructure/database/mongo/repositories/comittee-mongo.repository.ts` — implement `findByCommitteeId(committeeId)`
-- [ ] 2.12 Modify `src/domain/constants/tokens.ts` — add `CHILD_HISTORY_REPOSITORY`, `IMPORT_ERROR_LOG_REPOSITORY`
+- [x] 2.1 RED+GREEN: Create `src/domain/entities/child-history.entity.ts` — snapshot entity with `originalId`, `snapshotDate`, `reason`, all child fields
+- [x] 2.2 RED+GREEN: Create `src/domain/entities/import-error-log.entity.ts` — error log entity with `errorCode`, `errorMessage`, `documentNumber`, ref fields, `loggedAt`
+- [x] 2.3 Create `src/domain/repositories/child-history.repository.ts` — `save(snapshot): Promise<void>` append-only
+- [x] 2.4 Create `src/domain/repositories/import-error-log.repository.ts` — `bulkSave(logs): Promise<void>` append-only
+- [x] 2.5 Create `src/infrastructure/database/mongo/schemas/child-history.schema.ts` — Mongoose schema for `children_history`
+- [x] 2.6 Create `src/infrastructure/database/mongo/schemas/import-error-log.schema.ts` — Mongoose schema for `import_error_logs`
+- [x] 2.7 Create `src/infrastructure/database/mongo/repositories/child-history-mongo.repository.ts` — Mongo adapter implementing save
+- [x] 2.8 Create `src/infrastructure/database/mongo/repositories/import-error-log-mongo.repository.ts` — Mongo adapter implementing bulkSave
+- [x] 2.9 Modify `src/infrastructure/database/mongo/repositories/child-mongo.repository.ts` — implement `upsertByDni` with `findOneAndUpdate(upsert:true)`; implement `findByDocumentNumber` with communityHall lookup
+- [x] 2.10 Modify `src/infrastructure/database/mongo/repositories/community-hall-mongo.repository.ts` — implement `findByLocalId(localId)`
+- [x] 2.11 Modify `src/infrastructure/database/mongo/repositories/comittee-mongo.repository.ts` — implement `findByCommitteeId(committeeId)`
+- [x] 2.12 Modify `src/domain/constants/tokens.ts` — add `CHILD_HISTORY_REPOSITORY`, `IMPORT_ERROR_LOG_REPOSITORY`
 
 ## Phase 3: Core Logic — ChildService & Use-Case Rewrite
 
