@@ -1,0 +1,54 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Project: fichas-esdi-backend
+  Stack: NestJS 11 + TypeScript 5.8 + MongoDB (Mongoose 8)
+  Architecture: Hexagonal/Clean (domain/ → application/ → infrastructure/)
+  Package Manager: pnpm
+  Runtime: Node 20.18 (Docker multi-stage, Railway deploy)
+  Validation: class-validator + class-transformer
+  Auth: JWT (bcrypt + @nestjs/jwt)
+  API: Swagger (@nestjs/swagger)
+  Websocket: Socket.IO
+  Linter: ESLint 9 (flat config, typescript-eslint)
+  Formatter: Prettier 3.4 (singleQuote, trailingComma all, printWidth 80)
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+    tdd: true
+    test_command: "pnpm test"
+  verify:
+    test_command: "pnpm test"
+    build_command: "pnpm build"
+    coverage_threshold: 80
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  runner: jest
+  framework: ts-jest
+  unit_command: pnpm test
+  e2e_command: pnpm test:e2e
+  coverage_command: pnpm test:cov
+  layers:
+    unit: true
+    integration: false
+    e2e: true
+  quality:
+    linter: pnpm lint
+    type_checker: pnpm build
+    formatter: pnpm format
