@@ -5,6 +5,7 @@ import {
   COMMUNITY_HALL_REPOSITORY,
   USER_REPOSITORY,
 } from 'src/domain/constants/tokens';
+import { normalizeDni } from 'src/common/utils/dni';
 import type { ChildRepository } from 'src/domain/repositories/child.repository';
 import type { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
 import type { UserRepository } from 'src/domain/repositories/user.repository';
@@ -40,20 +41,21 @@ export class ChildService {
       );
     }
 
+    // Global DNI check — a child's DNI is unique across all halls
+    const normalizedDni = normalizeDni(dto.documentNumber) ?? dto.documentNumber;
     const existing =
-      await this.childRepository.findByDocumentNumberAndCommunnityHallId(
-        dto.documentNumber,
-        dto.communityHallId,
-      );
+      await this.childRepository.findByDocumentNumber(normalizedDni);
     if (existing) {
       throw new ConflictException(
-        `Ya existe un niño registrado en el local comunal ${hall.name}`,
+        `Ya existe un niño registrado con el DNI ${normalizedDni}`,
       );
     }
 
     const userId = this.userContext.getUserId();
+    // Child.create already sets fullName = firstName + lastName and
+    // birthdayImported / admissionDateImported = null (form-originated child)
     const child = Child.create(
-      dto.documentNumber,
+      normalizedDni,
       dto.firstName,
       dto.lastName,
       new Date(dto.birthday),

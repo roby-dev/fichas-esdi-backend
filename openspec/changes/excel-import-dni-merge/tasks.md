@@ -52,12 +52,12 @@ Chain strategy: pending
 
 ## Phase 3: Core Logic — ChildService & Use-Case Rewrite
 
-- [ ] 3.1 RED+GREEN: Modify `src/application/services/child.service.ts` — `create()` concatenates `firstName + lastName` → `fullName`; use `normalizeDni` on input; global DNI check via `findByDocumentNumber` (not scoped); set `birthdayImported`/`admissionDateImported` = null
-- [ ] 3.2 Write integration tests for `ChildService.create` — global DNI rejection, fullName concatenation, authoritative dates
-- [ ] 3.3 Rewrite `src/application/use-cases/alert-child/update-children-from-excel.use-case.ts` — merge-by-DNI: normalize, resolve refs, committee-change detection, non-destructive date merge, error logging
-- [ ] 3.4 Write unit tests for use-case: committee detection algorithm, date merge, hall-unresolved tolerant insert
-- [ ] 3.5 Write integration tests: full Excel import flow with in-memory Mongo
-- [ ] 3.6 Modify `src/infrastructure/modules/child.module.ts` — register new repository providers, updated use-case, import history+error schemas via MongooseModule
+- [x] 3.1 RED+GREEN: Modify `src/application/services/child.service.ts` — `create()` concatenates `firstName + lastName` → `fullName`; use `normalizeDni` on input; global DNI check via `findByDocumentNumber` (not scoped); set `birthdayImported`/`admissionDateImported` = null
+- [x] 3.2 Write integration tests for `ChildService.create` — global DNI rejection, fullName concatenation, authoritative dates
+- [x] 3.3 Rewrite `src/application/use-cases/alert-child/update-children-from-excel.use-case.ts` — merge-by-DNI: normalize, resolve refs, committee-change detection, non-destructive date merge, error logging
+- [x] 3.4 Write unit tests for use-case: committee detection algorithm, date merge, hall-unresolved tolerant insert
+- [x] 3.5 Write integration tests: full Excel import flow with in-memory Mongo
+- [x] 3.6 Modify `src/infrastructure/database/mongo/mongo.module.ts` — registered ChildHistoryMongoRepository + ImportErrorLogMongoRepository + schemas; updated alert-child.controller.ts to use new use-case signature and ChildResponseDto
 
 ## Phase 4: Migration Script
 

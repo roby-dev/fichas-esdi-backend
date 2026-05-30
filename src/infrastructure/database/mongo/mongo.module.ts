@@ -14,14 +14,24 @@ import { Child, ChildSchema } from './schemas/child.schema';
 import { User, UserSchema } from './schemas/user.schema';
 import { AlertChild, AlertChildSchema } from './schemas/alert-child.schema';
 import { AuditEvent, AuditEventSchema } from './schemas/audit-event.schema';
+import {
+  ChildHistory,
+  ChildHistorySchema,
+} from './schemas/child-history.schema';
+import {
+  ImportErrorLog,
+  ImportErrorLogSchema,
+} from './schemas/import-error-log.schema';
 
 import {
   ALERT_CHILD_REPOSITORY,
   AUDIT_EVENT_REPOSITORY,
+  CHILD_HISTORY_REPOSITORY,
   CHILD_REPOSITORY,
   COMMITTEE_MEMBERSHIP_REPOSITORY,
   COMMITTEE_REPOSITORY,
   COMMUNITY_HALL_REPOSITORY,
+  IMPORT_ERROR_LOG_REPOSITORY,
   PERSON_REPOSITORY,
   SESSION_REPOSITORY,
   USER_REPOSITORY,
@@ -37,6 +47,8 @@ import { SessionMongoRepository } from './repositories/session-mongo.repository'
 import { Committee, CommitteeSchema } from './schemas/committee.schema';
 import { CommitteeMongoRepository } from './repositories/comittee-mongo.repository';
 import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repository';
+import { ChildHistoryMongoRepository } from './repositories/child-history-mongo.repository';
+import { ImportErrorLogMongoRepository } from './repositories/import-error-log-mongo.repository';
 
 @Module({
   imports: [
@@ -50,6 +62,8 @@ import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repo
       { name: Session.name, schema: SessionSchema },
       { name: Committee.name, schema: CommitteeSchema },
       { name: AuditEvent.name, schema: AuditEventSchema },
+      { name: ChildHistory.name, schema: ChildHistorySchema },
+      { name: ImportErrorLog.name, schema: ImportErrorLogSchema },
     ]),
   ],
   providers: [
@@ -89,6 +103,14 @@ import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repo
       provide: AUDIT_EVENT_REPOSITORY,
       useClass: AuditEventMongoRepository,
     },
+    {
+      provide: CHILD_HISTORY_REPOSITORY,
+      useClass: ChildHistoryMongoRepository,
+    },
+    {
+      provide: IMPORT_ERROR_LOG_REPOSITORY,
+      useClass: ImportErrorLogMongoRepository,
+    },
   ],
   exports: [
     PERSON_REPOSITORY,
@@ -100,6 +122,8 @@ import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repo
     SESSION_REPOSITORY,
     COMMITTEE_REPOSITORY,
     AUDIT_EVENT_REPOSITORY,
+    CHILD_HISTORY_REPOSITORY,
+    IMPORT_ERROR_LOG_REPOSITORY,
   ],
 })
 export class MongoModule {}

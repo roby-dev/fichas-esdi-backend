@@ -9,6 +9,10 @@ import { AlertChildService } from 'src/application/services/alert-child.service'
 import { ContextModule } from 'src/common/contexts/context.module';
 import { AuditModule } from './audit.module';
 
+// UpdateChildrenFromExcelUseCase (Phase 3) targets ChildRepository +
+// CommunityHallRepository + CommitteeRepository + ChildHistoryRepository +
+// ImportErrorLogRepository — all exported by DatabaseModule via MongoModule.
+
 @Module({
   imports: [ContextModule, AuthModule, DatabaseModule, AuditModule],
   controllers: [AlertChildController],

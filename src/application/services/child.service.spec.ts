@@ -55,12 +55,14 @@ describe('ChildService.create', () => {
       update: jest.fn(),
       findById: jest.fn(),
       findAll: jest.fn(),
+      findAllUnpaginated: jest.fn(),
       delete: jest.fn(),
       findByDocumentNumber: jest.fn(),
       findByDocumentNumberAndCommunnityHallId: jest.fn(),
       findAlllByUser: jest.fn(),
       findAllByCommittee: jest.fn(),
       findAllGroupedByUser: jest.fn(),
+      upsertByDni: jest.fn(),
     } as unknown as jest.Mocked<ChildRepository>;
 
     hallRepo = {
@@ -103,7 +105,8 @@ describe('ChildService.create', () => {
   describe('happy path', () => {
     beforeEach(() => {
       hallRepo.findById.mockResolvedValue(mockHall);
-      childRepo.findByDocumentNumberAndCommunnityHallId.mockResolvedValue(null);
+      // Phase 3: global DNI check via findByDocumentNumber
+      childRepo.findByDocumentNumber.mockResolvedValue(null);
       childRepo.save.mockResolvedValue(buildSavedChild());
     });
 
@@ -135,12 +138,17 @@ describe('ChildService.create', () => {
       expect(userContext.getUserId).toHaveBeenCalled();
     });
 
-    it('should check duplicates using document number and hall ID', async () => {
+    it('should check duplicates using global document number (not scoped by hall)', async () => {
       await service.create(mockDto);
 
+      // Phase 3: global DNI check
+      expect(childRepo.findByDocumentNumber).toHaveBeenCalledWith(
+        mockDto.documentNumber,
+      );
+      // deprecated scoped method must NOT be called
       expect(
         childRepo.findByDocumentNumberAndCommunnityHallId,
-      ).toHaveBeenCalledWith(mockDto.documentNumber, HALL_ID);
+      ).not.toHaveBeenCalled();
     });
 
     it('should record an audit event for the creation with after snapshot and null before', async () => {
@@ -189,10 +197,11 @@ describe('ChildService.create', () => {
     });
   });
 
-  describe('when child is already registered in that hall', () => {
+  describe('when child DNI already exists globally (Phase 3 global check)', () => {
     beforeEach(() => {
       hallRepo.findById.mockResolvedValue(mockHall);
-      childRepo.findByDocumentNumberAndCommunnityHallId.mockResolvedValue(
+      // Phase 3: global DNI duplicate — child exists in ANY hall
+      childRepo.findByDocumentNumber.mockResolvedValue(
         Child.fromPrimitives({
           id: 'existingId',
           documentNumber: mockDto.documentNumber,
@@ -200,7 +209,7 @@ describe('ChildService.create', () => {
           lastName: 'CHILD',
           birthday: new Date('2021-01-01'),
           admissionDate: new Date('2025-06-01'),
-          communityHallId: HALL_ID,
+          communityHallId: 'SOME-OTHER-HALL',
           userId: USER_ID,
         }),
       );
@@ -210,8 +219,10 @@ describe('ChildService.create', () => {
       await expect(service.create(mockDto)).rejects.toThrow(ConflictException);
     });
 
-    it('should include the hall name in the error message', async () => {
-      await expect(service.create(mockDto)).rejects.toThrow(mockHall.name);
+    it('should include the DNI in the error message', async () => {
+      await expect(service.create(mockDto)).rejects.toThrow(
+        mockDto.documentNumber,
+      );
     });
 
     it('should not attempt to save the child', async () => {

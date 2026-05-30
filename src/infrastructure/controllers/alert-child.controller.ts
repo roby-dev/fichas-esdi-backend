@@ -20,10 +20,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { BulkUpdateDto } from 'src/application/dtos/alert-child/bulk-update.dto';
-import { BulkUpdateResponseDto } from 'src/application/dtos/alert-child/bulk-update-response.dto';
 import { UpdateChildrenFromExcelUseCase } from 'src/application/use-cases/alert-child/update-children-from-excel.use-case';
 import { AlertChildResponseDto } from 'src/application/dtos/alert-child/alert-child-response.dto';
 import { AlertChildService } from 'src/application/services/alert-child.service';
+import { ChildResponseDto } from 'src/application/dtos/child/child-response.dto';
 
 @ApiTags('alert-child')
 @Controller('alert-child')
@@ -40,11 +40,11 @@ export class AlertChildController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: BulkUpdateDto })
   @ApiOperation({ summary: 'Bulk update children from an Excel file' })
-  @ApiResponse({ status: 200, type: BulkUpdateResponseDto })
+  @ApiResponse({ status: 200 })
   async bulkUpdateFromExcel(
     @Body() dto: Omit<BulkUpdateDto, 'file'>,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<BulkUpdateResponseDto> {
+  ): Promise<{ ok: boolean; message: string; data: ChildResponseDto[] }> {
     if (!file) {
       throw new BadRequestException('File is required.');
     }
@@ -60,15 +60,15 @@ export class AlertChildController {
       );
     }
 
-    const result = await this.updateChildrenFromExcelUseCase.execute({
+    const children = await this.updateChildrenFromExcelUseCase.execute(
       file,
-      ...dto,
-    });
+      dto.committeeId,
+    );
 
     return {
       ok: true,
       message: 'Niños actualizados correctamente',
-      data: result,
+      data: children.map(ChildResponseDto.fromDomain),
     };
   }
 
