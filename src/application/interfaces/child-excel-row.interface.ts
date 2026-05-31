@@ -1,7 +1,7 @@
 export interface ChildExcelRow {
   managementCommitteCode: string;
   managementCommitteName: string;
-  communityHallId: string;
+  communityHallLocalId: string;
   communityHallName: string;
   childCode: string;
   fatherLastName: string;

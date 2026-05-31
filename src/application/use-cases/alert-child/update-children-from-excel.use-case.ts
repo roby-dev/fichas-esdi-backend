@@ -139,12 +139,12 @@ export class UpdateChildrenFromExcelUseCase {
     }
 
     // 2. Resolve community hall by localId
-    const hall = await this.hallRepository.findByLocalId(row.communityHallId);
+    const hall = await this.hallRepository.findByLocalId(row.communityHallLocalId);
     if (!hall) {
       errorLogs.push(
         ImportErrorLog.create({
           errorCode: 'UNKNOWN_COMMUNITY_HALL',
-          errorMessage: `Community hall localId "${row.communityHallId}" not found`,
+          errorMessage: `Community hall localId "${row.communityHallLocalId}" not found`,
           documentNumber: normalizedDni,
           fullName: this.buildFullName(row),
           childCode: row.childCode,
@@ -159,7 +159,7 @@ export class UpdateChildrenFromExcelUseCase {
       errorLogs.push(
         ImportErrorLog.create({
           errorCode: 'COMMITTEE_DETECTION_SKIPPED',
-          errorMessage: `Committee detection skipped because hall localId "${row.communityHallId}" could not be resolved`,
+          errorMessage: `Committee detection skipped because hall localId "${row.communityHallLocalId}" could not be resolved`,
           documentNumber: normalizedDni,
           fullName: this.buildFullName(row),
           childCode: row.childCode,
@@ -292,7 +292,7 @@ export class UpdateChildrenFromExcelUseCase {
       managementCommitteCode: row.managementCommitteCode,
       managementCommitteName: row.managementCommitteName,
       communityHallId: hall?.id ?? null,
-      communityHallLocalId: row.communityHallId,
+      communityHallLocalId: row.communityHallLocalId,
       communityHallName: row.communityHallName,
       birthday: excelBirthday ?? undefined,
       admissionDate: excelAdmissionDate ?? undefined,

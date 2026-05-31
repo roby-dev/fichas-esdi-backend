@@ -36,7 +36,7 @@ export class XlsxChildExcelReader implements ChildExcelReader {
     const headerMap: Record<string, keyof ChildExcelRow> = {
       'CUI del CG': 'managementCommitteCode',
       'Nombre de Comité de Gestión': 'managementCommitteName',
-      LOCAL_ID: 'communityHallId',
+      LOCAL_ID: 'communityHallLocalId',
       'Nombre del Local': 'communityHallName',
       'Código de Usuario': 'childCode',
       'Apellido Paterno del Usuario': 'fatherLastName',

@@ -34,7 +34,7 @@ import {
 const makeRow = (overrides: Partial<ChildExcelRow> = {}): ChildExcelRow => ({
   managementCommitteCode: 'CG001',
   managementCommitteName: 'Comité Central',
-  communityHallId: 'LOC001',
+  communityHallLocalId: 'LOC001',
   communityHallName: 'Sala Los Pinos',
   childCode: 'CH-001',
   fatherLastName: 'GOMEZ',
