@@ -32,6 +32,7 @@ export interface FormChild {
   birthday?: Date | null;
   admissionDate?: Date | null;
   communityHallId?: string | object | null;
+  userId?: string | object | null;
   [key: string]: unknown;
 }
 
@@ -48,6 +49,7 @@ export interface AlertChild {
   communityHallLocalId?: string | null;
   birthday?: Date | null;
   admissionDate?: Date | null;
+  userId?: string | object | null;
   [key: string]: unknown;
 }
 
@@ -68,6 +70,7 @@ export interface UnifiedChild {
   managementCommitteName: string | null;
   communityHallName: string | null;
   communityHallLocalId: string | null;
+  userId: string | object | null;
   _migratedAt: Date;
 }
 
@@ -171,6 +174,9 @@ export function mergeChildrenSources(
       managementCommitteName: alert?.managementCommitteName ?? null,
       communityHallName: alert?.communityHallName ?? null,
       communityHallLocalId: alert?.communityHallLocalId ?? null,
+      // Preserve ownership: form children carry userId; fall back to the Excel
+      // record's userId when the form record has none.
+      userId: form.userId ?? alert?.userId ?? null,
       _migratedAt: now,
     });
 
@@ -200,6 +206,7 @@ export function mergeChildrenSources(
       managementCommitteName: alert.managementCommitteName ?? null,
       communityHallName: alert.communityHallName ?? null,
       communityHallLocalId: alert.communityHallLocalId ?? null,
+      userId: alert.userId ?? null,
       _migratedAt: now,
     });
   }
