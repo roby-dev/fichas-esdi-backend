@@ -1,26 +1,33 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ALERT_CHILD_REPOSITORY } from 'src/domain/constants/tokens';
-import type { AlertChildRepository } from 'src/domain/repositories/alert-child.repository';
-import { RequestUserContext } from 'src/common/contexts/user-context.service';
+import { CHILD_REPOSITORY } from 'src/domain/constants/tokens';
+import type { ChildRepository } from 'src/domain/repositories/child.repository';
 import { AlertChildResponseDto } from '../dtos/alert-child/alert-child-response.dto';
 
+/**
+ * Serves the alert-signals views. Reads from the unified `children` collection
+ * (not the frozen `alert_children`) and maps to the legacy AlertChildResponseDto
+ * shape so the frontend keeps consuming /alert-child without changes.
+ *
+ * Both Excel-imported and form children carry a denormalized
+ * managementCommitteCode, so a committee filter returns the full roster.
+ */
 @Injectable()
 export class AlertChildService {
   constructor(
-    @Inject(ALERT_CHILD_REPOSITORY)
-    private readonly alertChildRepository: AlertChildRepository,
-    private readonly userContext: RequestUserContext,
+    @Inject(CHILD_REPOSITORY)
+    private readonly childRepository: ChildRepository,
   ) {}
 
   async findAllByCurrentUser(): Promise<AlertChildResponseDto[]> {
-    const userId = this.userContext.getUserId();
-    const children = await this.alertChildRepository.findAllByUserId(userId);
-    return children.map(AlertChildResponseDto.fromDomain);
+    const children = await this.childRepository.findAllUnpaginated();
+    return children.map(AlertChildResponseDto.fromChild);
   }
 
-  async findAllByCurrentUserAndCommitteeCode(committeeCode: string): Promise<AlertChildResponseDto[]> {
-    const userId = this.userContext.getUserId();
-    const children = await this.alertChildRepository.findAllByUserIdAndCommitteeCode(userId, committeeCode);
-    return children.map(AlertChildResponseDto.fromDomain);
+  async findAllByCurrentUserAndCommitteeCode(
+    committeeCode: string,
+  ): Promise<AlertChildResponseDto[]> {
+    const children =
+      await this.childRepository.findAllByManagementCommitteCode(committeeCode);
+    return children.map(AlertChildResponseDto.fromChild);
   }
 }

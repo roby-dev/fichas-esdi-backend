@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AlertChild } from 'src/domain/entities/alert-child.entity';
+import { Child } from 'src/domain/entities/child.entity';
 import type { AlertSignalInterface } from 'src/domain/entities/alert-signal.entity';
 
 export class AlertChildResponseDto {
@@ -65,6 +66,31 @@ export class AlertChildResponseDto {
       ageInMonths: entity.ageInMonths,
       activeAlertSignal: entity.activeAlertSignal,
       alertSignalSchedule: entity.alertSignalSchedule
+    };
+  }
+
+  /**
+   * Map a unified `Child` (the source of truth) into the alert-child response
+   * shape so the frontend keeps consuming /alert-child unchanged. Excel-only
+   * fields absent on form children (gender, childCode) degrade to ''.
+   */
+  static fromChild(entity: Child): AlertChildResponseDto {
+    return {
+      id: entity.id!,
+      documentNumber: entity.documentNumber,
+      fullName: entity.fullName,
+      gender: entity.gender ?? '',
+      childCode: entity.childCode ?? '',
+      admissionDate: entity.admissionDate,
+      birthday: entity.birthday,
+      managementCommitteName: entity.managementCommitteName ?? '',
+      communityHallName: entity.communityHallName ?? '',
+      managementCommitteCode: entity.managementCommitteCode ?? '',
+      communityHallId: entity.communityHallId ?? '',
+      userId: entity.userId ?? '',
+      ageInMonths: entity.ageInMonths,
+      activeAlertSignal: entity.activeAlertSignal,
+      alertSignalSchedule: entity.alertSignalSchedule,
     };
   }
 }

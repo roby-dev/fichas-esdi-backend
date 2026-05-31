@@ -193,6 +193,11 @@ export class Child {
   /**
    * Create a form-originated child (firstName + lastName required).
    * communityHallId and userId are required for form-originated children.
+   *
+   * `derived` carries the denormalized hall/committee descriptors resolved at
+   * the service layer (communityHallName, managementCommitteCode/Name). They are
+   * stored so form children share the same shape as Excel-imported children and
+   * can be queried by committee code without a join.
    */
   static create(
     documentNumber: string,
@@ -203,6 +208,11 @@ export class Child {
     communityHallId: string,
     userId: string,
     communityHall?: CommunityHall,
+    derived?: {
+      communityHallName?: string;
+      managementCommitteCode?: string;
+      managementCommitteName?: string;
+    },
   ): Child {
     const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
     return new Child(
@@ -218,6 +228,12 @@ export class Child {
       fullName,
       null,
       null,
+      undefined,
+      derived?.communityHallName,
+      undefined,
+      undefined,
+      derived?.managementCommitteCode,
+      derived?.managementCommitteName,
     );
   }
 

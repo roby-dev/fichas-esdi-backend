@@ -1,10 +1,12 @@
 import { ChildService } from './child.service';
 import type { ChildRepository } from 'src/domain/repositories/child.repository';
 import type { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
+import type { CommitteeRepository } from 'src/domain/repositories/committee.repository';
 import type { UserRepository } from 'src/domain/repositories/user.repository';
 import { RequestUserContext } from 'src/common/contexts/user-context.service';
 import { Child } from 'src/domain/entities/child.entity';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
+import { Committee } from 'src/domain/entities/committee.entity';
 import { ConflictException, NotFoundException } from 'src/domain/exceptions';
 import { CreateChildDto } from '../dtos/child/create-child.dto';
 import { AuditService } from './audit.service';
@@ -13,19 +15,27 @@ describe('ChildService.create', () => {
   let service: ChildService;
   let childRepo: jest.Mocked<ChildRepository>;
   let hallRepo: jest.Mocked<CommunityHallRepository>;
+  let committeeRepo: jest.Mocked<CommitteeRepository>;
   let userRepo: jest.Mocked<UserRepository>;
   let userContext: jest.Mocked<RequestUserContext>;
   let auditService: jest.Mocked<AuditService>;
 
   const HALL_ID = 'hallId-123';
   const USER_ID = 'userId-456';
+  const COMMITTEE_REF = 'committeeId-789';
 
   const mockHall = new CommunityHall(
     'LOC-001',
     'Salón Comunal A',
-    'committeeId-789',
+    COMMITTEE_REF,
     HALL_ID,
   );
+
+  const mockCommittee = Committee.fromPrimitives({
+    id: COMMITTEE_REF,
+    committeeId: 'C-001',
+    name: 'Comité Central',
+  });
 
   const mockDto: CreateChildDto = {
     documentNumber: '12345678',
@@ -75,6 +85,16 @@ describe('ChildService.create', () => {
       findAllByCommitteeId: jest.fn(),
     } as unknown as jest.Mocked<CommunityHallRepository>;
 
+    committeeRepo = {
+      save: jest.fn(),
+      findById: jest.fn().mockResolvedValue(mockCommittee),
+      findAll: jest.fn(),
+      findAllUnpaginated: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      findByCommitteeId: jest.fn(),
+    } as unknown as jest.Mocked<CommitteeRepository>;
+
     userRepo = {
       save: jest.fn(),
       findById: jest.fn(),
@@ -96,6 +116,7 @@ describe('ChildService.create', () => {
     service = new ChildService(
       childRepo,
       hallRepo,
+      committeeRepo,
       userRepo,
       userContext,
       auditService,
@@ -105,9 +126,19 @@ describe('ChildService.create', () => {
   describe('happy path', () => {
     beforeEach(() => {
       hallRepo.findById.mockResolvedValue(mockHall);
+      committeeRepo.findById.mockResolvedValue(mockCommittee);
       // Phase 3: global DNI check via findByDocumentNumber
       childRepo.findByDocumentNumber.mockResolvedValue(null);
       childRepo.save.mockResolvedValue(buildSavedChild());
+    });
+
+    it('should denormalize hall name and committee code/name onto the saved child', async () => {
+      await service.create(mockDto);
+
+      const savedArg: Child = childRepo.save.mock.calls[0][0];
+      expect(savedArg.communityHallName).toBe('Salón Comunal A');
+      expect(savedArg.managementCommitteCode).toBe('C-001');
+      expect(savedArg.managementCommitteName).toBe('Comité Central');
     });
 
     it('should return a ChildResponseDto with the correct data', async () => {

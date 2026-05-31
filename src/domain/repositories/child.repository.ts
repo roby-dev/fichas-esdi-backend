@@ -43,6 +43,13 @@ export interface ChildRepository {
     offset?: number,
   ): Promise<Child[]>;
   findAllByCommittee(committeeId: string): Promise<Child[]>;
+  /**
+   * Find every child whose denormalized managementCommitteCode matches the given
+   * committee code. Covers both Excel-imported and form children (the latter get
+   * the code denormalized at create/update time). Returns fully-mapped entities
+   * including fullName, gender, communityHallName and committee descriptors.
+   */
+  findAllByManagementCommitteCode(committeeCode: string): Promise<Child[]>;
   findAllGroupedByUser(): Promise<ChildrenByUser[]>;
   /**
    * Atomically inserts or updates a child record keyed by normalized DNI.

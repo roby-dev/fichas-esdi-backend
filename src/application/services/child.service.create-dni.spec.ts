@@ -7,10 +7,12 @@
 import { ChildService } from './child.service';
 import type { ChildRepository } from 'src/domain/repositories/child.repository';
 import type { CommunityHallRepository } from 'src/domain/repositories/community-hall.repository';
+import type { CommitteeRepository } from 'src/domain/repositories/committee.repository';
 import type { UserRepository } from 'src/domain/repositories/user.repository';
 import { RequestUserContext } from 'src/common/contexts/user-context.service';
 import { Child } from 'src/domain/entities/child.entity';
 import { CommunityHall } from 'src/domain/entities/community-hall.entity';
+import { Committee } from 'src/domain/entities/committee.entity';
 import { ConflictException } from 'src/domain/exceptions';
 import { CreateChildDto } from '../dtos/child/create-child.dto';
 import { AuditService } from './audit.service';
@@ -19,6 +21,7 @@ describe('ChildService.create — Phase 3 DNI behaviour', () => {
   let service: ChildService;
   let childRepo: jest.Mocked<ChildRepository>;
   let hallRepo: jest.Mocked<CommunityHallRepository>;
+  let committeeRepo: jest.Mocked<CommitteeRepository>;
   let userRepo: jest.Mocked<UserRepository>;
   let userContext: jest.Mocked<RequestUserContext>;
   let auditService: jest.Mocked<AuditService>;
@@ -32,6 +35,12 @@ describe('ChildService.create — Phase 3 DNI behaviour', () => {
     'committeeRef-999',
     HALL_ID,
   );
+
+  const mockCommittee = Committee.fromPrimitives({
+    id: 'committeeRef-999',
+    committeeId: 'C-999',
+    name: 'Comité B',
+  });
 
   const mockDto: CreateChildDto = {
     documentNumber: '12345678',
@@ -93,6 +102,16 @@ describe('ChildService.create — Phase 3 DNI behaviour', () => {
       findByEmail: jest.fn(),
     } as unknown as jest.Mocked<UserRepository>;
 
+    committeeRepo = {
+      save: jest.fn(),
+      findById: jest.fn().mockResolvedValue(mockCommittee),
+      findAll: jest.fn(),
+      findAllUnpaginated: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      findByCommitteeId: jest.fn(),
+    } as unknown as jest.Mocked<CommitteeRepository>;
+
     userContext = {
       getUserId: jest.fn().mockReturnValue(USER_ID),
     } as unknown as jest.Mocked<RequestUserContext>;
@@ -106,6 +125,7 @@ describe('ChildService.create — Phase 3 DNI behaviour', () => {
     service = new ChildService(
       childRepo,
       hallRepo,
+      committeeRepo,
       userRepo,
       userContext,
       auditService,

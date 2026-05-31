@@ -70,9 +70,17 @@ export class ChildMongoRepository implements ChildRepository {
           documentNumber: child.documentNumber,
           firstName: child.firstName,
           lastName: child.lastName,
+          fullName: child.fullName,
           birthday: child.birthday,
           admissionDate: child.admissionDate,
-          communityHallId: child.communityHallId,
+          communityHallId: child.communityHallId
+            ? new Types.ObjectId(child.communityHallId)
+            : null,
+          // Denormalized descriptors re-derived at the service layer — kept in
+          // sync so a hall change also updates the committee snapshot.
+          communityHallName: child.communityHallName,
+          managementCommitteCode: child.managementCommitteCode,
+          managementCommitteName: child.managementCommitteName,
         },
         { new: true },
       )
@@ -85,10 +93,18 @@ export class ChildMongoRepository implements ChildRepository {
       documentNumber: updated.documentNumber,
       firstName: updated.firstName,
       lastName: updated.lastName,
+      fullName: updated.fullName,
       birthday: updated.birthday,
       admissionDate: updated.admissionDate,
-      communityHallId: updated.communityHallId?._id.toString(),
-      userId: updated.userId?._id.toString(),
+      communityHallId: (updated.communityHallId as any)?._id?.toString() ??
+        (updated.communityHallId as any)?.toString(),
+      userId: (updated.userId as any)?._id?.toString() ??
+        (updated.userId as any)?.toString(),
+      communityHallName: updated.communityHallName,
+      gender: updated.gender,
+      childCode: updated.childCode,
+      managementCommitteCode: updated.managementCommitteCode,
+      managementCommitteName: updated.managementCommitteName,
     });
   }
 
@@ -257,6 +273,42 @@ export class ChildMongoRepository implements ChildRepository {
           typeof doc.communityHall === 'object'
             ? this.convertToCommunityHall(doc.communityHall)
             : undefined,
+      }),
+    );
+  }
+
+  async findAllByManagementCommitteCode(
+    committeeCode: string,
+  ): Promise<Child[]> {
+    const docs = await this.model
+      .find({ managementCommitteCode: committeeCode })
+      .lean();
+
+    // Full mapping: the alert-signals card consumes fullName, gender,
+    // communityHallName, dates and committee descriptors, so map every field.
+    return docs.map((doc) =>
+      Child.fromPrimitives({
+        id: doc._id.toString(),
+        documentNumber: doc.documentNumber,
+        firstName: doc.firstName ?? '',
+        lastName: doc.lastName ?? '',
+        fullName: doc.fullName,
+        birthday: doc.birthday,
+        admissionDate: doc.admissionDate,
+        birthdayImported: doc.birthdayImported,
+        admissionDateImported: doc.admissionDateImported,
+        communityHallId: (doc.communityHallId as any)?._id?.toString() ??
+          (doc.communityHallId as any)?.toString() ??
+          null,
+        communityHallLocalId: doc.communityHallLocalId,
+        communityHallName: doc.communityHallName,
+        userId: (doc.userId as any)?._id?.toString() ??
+          (doc.userId as any)?.toString() ??
+          null,
+        gender: doc.gender,
+        childCode: doc.childCode,
+        managementCommitteCode: doc.managementCommitteCode,
+        managementCommitteName: doc.managementCommitteName,
       }),
     );
   }
