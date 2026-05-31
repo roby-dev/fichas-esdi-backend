@@ -63,7 +63,7 @@ export class Child {
   get fullName(): string {
     return (
       this._fullName ??
-      `${this._firstName.trim()} ${this._lastName.trim()}`.trim()
+      `${(this._firstName ?? '').trim()} ${(this._lastName ?? '').trim()}`.trim()
     );
   }
 
@@ -214,7 +214,7 @@ export class Child {
       managementCommitteName?: string;
     },
   ): Child {
-    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    const fullName = `${(firstName ?? '').trim()} ${(lastName ?? '').trim()}`.trim();
     return new Child(
       documentNumber,
       firstName,
