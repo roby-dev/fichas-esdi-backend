@@ -73,8 +73,8 @@ Re-running after a successful run updates 0 rows because the target query (`comm
 
 ## Success Criteria
 
-- [ ] All 140 orphans (or all that name-match a single hall) have `communityHallId` and `communityHallLocalId` set.
-- [ ] Admin dashboard committee counts include the previously dropped children.
-- [ ] Ambiguous and unmatched names are reported, never guessed.
-- [ ] `DRY_RUN=1` logs the plan and writes nothing.
-- [ ] A second run reports 0 updated.
+- [x] All 140 orphans (or all that name-match a single hall) have `communityHallId` and `communityHallLocalId` set.
+- [x] Admin dashboard committee counts include the previously dropped children.
+- [x] Ambiguous and unmatched names are reported, never guessed.
+- [x] `DRY_RUN=1` logs the plan and writes nothing.
+- [x] A second run reports 0 updated.

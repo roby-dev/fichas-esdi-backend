@@ -46,7 +46,7 @@ Chained PRs recommended: No
 ## Phase 3: Verify
 
 - [x] 3.1 Run unit test: `pnpm test backfill-community-hall-id` (Jest) — all scenarios green.
-- [ ] 3.2 Dry-run against the target DB: `DRY_RUN=1 NODE_ENV=production npx ts-node migration/scripts/backfill-community-hall-id.ts` — confirm `updated` ≈ 140, ambiguous = 0, unmatched = 0.
-- [ ] 3.3 Real run: `NODE_ENV=production npx ts-node migration/scripts/backfill-community-hall-id.ts` — confirm the reported counts match the dry run.
-- [ ] 3.4 Idempotency check: re-run the real command — confirm `updated: 0`.
-- [ ] 3.5 Confirm admin dashboard committee counts now include the previously dropped children.
+- [x] 3.2 Dry-run against the target DB: `DRY_RUN=1 NODE_ENV=production npx ts-node migration/scripts/backfill-community-hall-id.ts` — confirm `updated` ≈ 140, ambiguous = 0, unmatched = 0.
+- [x] 3.3 Real run: `NODE_ENV=production npx ts-node migration/scripts/backfill-community-hall-id.ts` — confirm the reported counts match the dry run.
+- [x] 3.4 Idempotency check: re-run the real command — confirm `updated: 0`.
+- [x] 3.5 Confirm admin dashboard committee counts now include the previously dropped children.
