@@ -29,11 +29,11 @@ export class Child {
   admissionDate: Date;
 
   /** Date imported from Excel — stored only when it differs from the authoritative birthday */
-  @Prop({ required: false, default: null })
+  @Prop({ type: Date, required: false, default: null })
   birthdayImported?: Date | null;
 
   /** Date imported from Excel — stored only when it differs from the authoritative admissionDate */
-  @Prop({ required: false, default: null })
+  @Prop({ type: Date, required: false, default: null })
   admissionDateImported?: Date | null;
 
   @Prop({
