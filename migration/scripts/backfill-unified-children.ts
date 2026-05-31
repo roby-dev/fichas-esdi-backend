@@ -307,7 +307,10 @@ async function run(): Promise<void> {
 
 // Only run when executed directly (not when imported by tests)
 if (require.main === module) {
-  dotenv.config();
+  // Load the same env file the app uses (.env.<NODE_ENV>), falling back to .env
+  dotenv.config({
+    path: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
+  });
   run().catch((err) => {
     console.error('Migration failed:', err);
     process.exit(1);
