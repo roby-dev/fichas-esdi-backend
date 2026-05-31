@@ -67,3 +67,6 @@ CLAUDE.md
 CONTEXT.md
 
 .atl/
+
+# Local DB exports / debug dumps (may contain PII)
+/results/
