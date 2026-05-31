@@ -164,10 +164,18 @@ export class ChildMongoRepository implements ChildRepository {
         documentNumber: doc.documentNumber,
         firstName: doc.firstName,
         lastName: doc.lastName,
+        fullName: doc.fullName,
         birthday: doc.birthday,
         admissionDate: doc.admissionDate,
-        communityHallId: doc.communityHallId?._id.toString(),
-        userId: doc.userId?._id.toString(),
+        communityHallId: (doc.communityHallId as any)?._id?.toString() ??
+          (doc.communityHallId as any)?.toString() ??
+          null,
+        communityHallName: doc.communityHallName,
+        userId: (doc.userId as any)?._id?.toString() ??
+          (doc.userId as any)?.toString() ??
+          null,
+        managementCommitteCode: doc.managementCommitteCode,
+        managementCommitteName: doc.managementCommitteName,
       }),
     );
   }

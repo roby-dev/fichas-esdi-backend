@@ -36,6 +36,12 @@ export class AdminDashboardService {
       committees.map((c) => [c.id ?? '', c]),
     );
     const hallById = new Map(halls.map((h) => [h.id ?? '', h]));
+    // Excel-imported children carry no communityHallId/committee FK — only the
+    // denormalized committeeCode and hall name. Resolve via these fallbacks.
+    const committeeByCode = new Map(
+      committees.map((c) => [c.committeeId, c]),
+    );
+    const hallByName = new Map(halls.map((h) => [h.name, h]));
 
     const activeChildren = children.filter((c) => !c.isGraduated);
 
@@ -45,12 +51,27 @@ export class AdminDashboardService {
     let activeSignalsTotal = 0;
 
     for (const child of activeChildren) {
-      const hallId = child.communityHallId ?? '';
-      const hall = hallById.get(hallId);
-      hallCounts.set(hallId, (hallCounts.get(hallId) ?? 0) + 1);
+      // Resolve hall: prefer FK, fall back to denormalized name.
+      const hall =
+        (child.communityHallId
+          ? hallById.get(child.communityHallId)
+          : undefined) ??
+        (child.communityHallName
+          ? hallByName.get(child.communityHallName)
+          : undefined);
+
+      // Resolve committee: prefer the denormalized code (present on every child
+      // after backfill), fall back to the resolved hall's committeeRef.
+      const committeeId =
+        (child.managementCommitteCode
+          ? committeeByCode.get(child.managementCommitteCode)?.id
+          : undefined) ?? hall?.committeeRef;
 
       if (hall) {
-        const committeeId = hall.committeeRef;
+        hallCounts.set(hall.id ?? '', (hallCounts.get(hall.id ?? '') ?? 0) + 1);
+      }
+
+      if (committeeId) {
         committeeCounts.set(
           committeeId,
           (committeeCounts.get(committeeId) ?? 0) + 1,
