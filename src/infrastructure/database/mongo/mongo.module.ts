@@ -22,10 +22,40 @@ import {
   ImportErrorLog,
   ImportErrorLogSchema,
 } from './schemas/import-error-log.schema';
+import {
+  CaregiverMother,
+  CaregiverMotherSchema,
+} from './schemas/caregiver-mother.schema';
+import {
+  CaregiverHallAssignment,
+  CaregiverHallAssignmentSchema,
+} from './schemas/caregiver-hall-assignment.schema';
+import {
+  CaregiverScheduleVersion,
+  CaregiverScheduleVersionSchema,
+} from './schemas/caregiver-schedule-version.schema';
+import {
+  CaregiverAttendanceRecord,
+  CaregiverAttendanceRecordSchema,
+} from './schemas/caregiver-attendance-record.schema';
+import {
+  CaregiverAttendanceException,
+  CaregiverAttendanceExceptionSchema,
+} from './schemas/caregiver-attendance-exception.schema';
+import {
+  CaregiverAttendanceEvent,
+  CaregiverAttendanceEventSchema,
+} from './schemas/caregiver-attendance-event.schema';
 
 import {
   ALERT_CHILD_REPOSITORY,
   AUDIT_EVENT_REPOSITORY,
+  CAREGIVER_ATTENDANCE_EVENT_REPOSITORY,
+  CAREGIVER_ATTENDANCE_EXCEPTION_REPOSITORY,
+  CAREGIVER_ATTENDANCE_REPOSITORY,
+  CAREGIVER_HALL_ASSIGNMENT_REPOSITORY,
+  CAREGIVER_MOTHER_REPOSITORY,
+  CAREGIVER_SCHEDULE_REPOSITORY,
   CHILD_HISTORY_REPOSITORY,
   CHILD_REPOSITORY,
   COMMITTEE_MEMBERSHIP_REPOSITORY,
@@ -49,6 +79,12 @@ import { CommitteeMongoRepository } from './repositories/comittee-mongo.reposito
 import { AuditEventMongoRepository } from './repositories/audit-event-mongo.repository';
 import { ChildHistoryMongoRepository } from './repositories/child-history-mongo.repository';
 import { ImportErrorLogMongoRepository } from './repositories/import-error-log-mongo.repository';
+import { CaregiverMotherMongoRepository } from './repositories/caregiver-mother-mongo.repository';
+import { CaregiverHallAssignmentMongoRepository } from './repositories/caregiver-hall-assignment-mongo.repository';
+import { CaregiverScheduleMongoRepository } from './repositories/caregiver-schedule-mongo.repository';
+import { CaregiverAttendanceMongoRepository } from './repositories/caregiver-attendance-mongo.repository';
+import { CaregiverAttendanceExceptionMongoRepository } from './repositories/caregiver-attendance-exception-mongo.repository';
+import { CaregiverAttendanceEventMongoRepository } from './repositories/caregiver-attendance-event-mongo.repository';
 
 @Module({
   imports: [
@@ -64,6 +100,27 @@ import { ImportErrorLogMongoRepository } from './repositories/import-error-log-m
       { name: AuditEvent.name, schema: AuditEventSchema },
       { name: ChildHistory.name, schema: ChildHistorySchema },
       { name: ImportErrorLog.name, schema: ImportErrorLogSchema },
+      { name: CaregiverMother.name, schema: CaregiverMotherSchema },
+      {
+        name: CaregiverHallAssignment.name,
+        schema: CaregiverHallAssignmentSchema,
+      },
+      {
+        name: CaregiverScheduleVersion.name,
+        schema: CaregiverScheduleVersionSchema,
+      },
+      {
+        name: CaregiverAttendanceRecord.name,
+        schema: CaregiverAttendanceRecordSchema,
+      },
+      {
+        name: CaregiverAttendanceException.name,
+        schema: CaregiverAttendanceExceptionSchema,
+      },
+      {
+        name: CaregiverAttendanceEvent.name,
+        schema: CaregiverAttendanceEventSchema,
+      },
     ]),
   ],
   providers: [
@@ -111,6 +168,30 @@ import { ImportErrorLogMongoRepository } from './repositories/import-error-log-m
       provide: IMPORT_ERROR_LOG_REPOSITORY,
       useClass: ImportErrorLogMongoRepository,
     },
+    {
+      provide: CAREGIVER_MOTHER_REPOSITORY,
+      useClass: CaregiverMotherMongoRepository,
+    },
+    {
+      provide: CAREGIVER_HALL_ASSIGNMENT_REPOSITORY,
+      useClass: CaregiverHallAssignmentMongoRepository,
+    },
+    {
+      provide: CAREGIVER_SCHEDULE_REPOSITORY,
+      useClass: CaregiverScheduleMongoRepository,
+    },
+    {
+      provide: CAREGIVER_ATTENDANCE_REPOSITORY,
+      useClass: CaregiverAttendanceMongoRepository,
+    },
+    {
+      provide: CAREGIVER_ATTENDANCE_EXCEPTION_REPOSITORY,
+      useClass: CaregiverAttendanceExceptionMongoRepository,
+    },
+    {
+      provide: CAREGIVER_ATTENDANCE_EVENT_REPOSITORY,
+      useClass: CaregiverAttendanceEventMongoRepository,
+    },
   ],
   exports: [
     PERSON_REPOSITORY,
@@ -124,6 +205,12 @@ import { ImportErrorLogMongoRepository } from './repositories/import-error-log-m
     AUDIT_EVENT_REPOSITORY,
     CHILD_HISTORY_REPOSITORY,
     IMPORT_ERROR_LOG_REPOSITORY,
+    CAREGIVER_MOTHER_REPOSITORY,
+    CAREGIVER_HALL_ASSIGNMENT_REPOSITORY,
+    CAREGIVER_SCHEDULE_REPOSITORY,
+    CAREGIVER_ATTENDANCE_REPOSITORY,
+    CAREGIVER_ATTENDANCE_EXCEPTION_REPOSITORY,
+    CAREGIVER_ATTENDANCE_EVENT_REPOSITORY,
   ],
 })
 export class MongoModule {}

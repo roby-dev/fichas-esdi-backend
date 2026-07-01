@@ -14,6 +14,7 @@ import { AuditModule } from './infrastructure/modules/audit.module';
 import { SessionModule } from './infrastructure/modules/session.module';
 import { AdminDashboardModule } from './infrastructure/modules/admin-dashboard.module';
 import { AdminUsersModule } from './infrastructure/modules/admin-users.module';
+import { CaregiverAttendanceModule } from './infrastructure/modules/caregiver-attendance.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AdminUsersModule } from './infrastructure/modules/admin-users.module';
     SessionModule,
     AdminDashboardModule,
     AdminUsersModule,
+    CaregiverAttendanceModule,
   ],
 })
 export class AppModule implements NestModule {

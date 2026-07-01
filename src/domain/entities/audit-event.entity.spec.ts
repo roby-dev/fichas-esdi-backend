@@ -158,6 +158,7 @@ describe('AuditEvent Entity', () => {
         entityId: 'child-id-1',
         actorUserId: 'user-id-1',
         actorEmail: 'actor@example.com',
+        actorType: 'user' as const,
         occurredAt,
         before: { name: 'A' },
         after: { name: 'B' },

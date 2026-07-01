@@ -20,6 +20,8 @@ export interface AuditRecordInput {
   before: AuditEventSnapshot;
   after: AuditEventSnapshot;
   metadata?: Record<string, unknown>;
+  actorType?: 'user' | 'system' | 'caregiver';
+  actorIdentifier?: string;
 }
 
 @Injectable()
@@ -34,10 +36,11 @@ export class AuditService {
   async record(input: AuditRecordInput): Promise<AuditEvent | null> {
     const event = this.buildEvent(
       input,
-      this.userContext.getUserId(),
-      this.userContext.getUserEmail(),
+      input.actorIdentifier ?? this.userContext.getUserId(),
+      input.actorIdentifier ?? this.userContext.getUserEmail(),
       this.normalizeIp(this.requestInfo.getIpAddress()),
       this.requestInfo.getUserAgent(),
+      input.actorType ?? 'user',
     );
     if (!event.hasDiff) return null;
     return this.auditEventRepository.save(event);
@@ -46,13 +49,22 @@ export class AuditService {
   async recordMany(inputs: AuditRecordInput[]): Promise<AuditEvent[]> {
     if (inputs.length === 0) return [];
 
-    const userId = this.userContext.getUserId();
-    const userEmail = this.userContext.getUserEmail();
+    const defaultUserId = this.userContext.getUserId();
+    const defaultUserEmail = this.userContext.getUserEmail();
     const ipAddress = this.normalizeIp(this.requestInfo.getIpAddress());
     const userAgent = this.requestInfo.getUserAgent();
 
     const events = inputs
-      .map((input) => this.buildEvent(input, userId, userEmail, ipAddress, userAgent))
+      .map((input) =>
+        this.buildEvent(
+          input,
+          input.actorIdentifier ?? defaultUserId,
+          input.actorIdentifier ?? defaultUserEmail,
+          ipAddress,
+          userAgent,
+          input.actorType ?? 'user',
+        ),
+      )
       .filter((event) => event.hasDiff);
 
     if (events.length === 0) return [];
@@ -72,6 +84,7 @@ export class AuditService {
     actorEmail: string,
     ipAddress: string | undefined,
     userAgent: string | undefined,
+    actorType: 'user' | 'system' | 'caregiver',
   ): AuditEvent {
     return AuditEvent.create(
       input.action,
@@ -84,12 +97,11 @@ export class AuditService {
       input.metadata,
       ipAddress,
       userAgent,
+      actorType,
     );
   }
 
-  private normalizeIp(
-    ip: string | string[] | undefined,
-  ): string | undefined {
+  private normalizeIp(ip: string | string[] | undefined): string | undefined {
     if (!ip) return undefined;
     if (Array.isArray(ip)) return ip[0];
     return ip;

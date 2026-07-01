@@ -60,7 +60,7 @@ export class AuditEventMongoRepository implements AuditEventRepository {
     const query: Record<string, unknown> = {};
 
     if (filter.actorUserId) {
-      query.actorUserId = new Types.ObjectId(filter.actorUserId);
+      query.actorUserId = filter.actorUserId;
     }
     if (filter.entityType) {
       query.entityType = filter.entityType;
@@ -87,8 +87,9 @@ export class AuditEventMongoRepository implements AuditEventRepository {
       action: p.action,
       entityType: p.entityType,
       entityId: p.entityId,
-      actorUserId: new Types.ObjectId(p.actorUserId),
+      actorUserId: p.actorUserId,
       actorEmail: p.actorEmail,
+      actorType: p.actorType,
       occurredAt: p.occurredAt,
       before: p.before,
       after: p.after,
@@ -106,6 +107,7 @@ export class AuditEventMongoRepository implements AuditEventRepository {
       entityId: doc.entityId,
       actorUserId: doc.actorUserId.toString(),
       actorEmail: doc.actorEmail,
+      actorType: doc.actorType ?? 'user',
       occurredAt: doc.occurredAt,
       before: doc.before ?? null,
       after: doc.after ?? null,

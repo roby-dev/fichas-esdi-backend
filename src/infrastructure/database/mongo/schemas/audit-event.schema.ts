@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
+import { HydratedDocument, SchemaTypes } from 'mongoose';
 
 export type AuditEventDocument = HydratedDocument<AuditEvent>;
 
@@ -18,15 +18,14 @@ export class AuditEvent {
   @Prop({ required: true })
   entityId: string;
 
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'User',
-    required: true,
-  })
-  actorUserId: Types.ObjectId;
+  @Prop({ required: true })
+  actorUserId: string;
 
   @Prop({ required: true })
   actorEmail: string;
+
+  @Prop({ required: true, default: 'user' })
+  actorType: string;
 
   @Prop({ required: true })
   occurredAt: Date;

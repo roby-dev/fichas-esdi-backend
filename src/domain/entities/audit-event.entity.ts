@@ -2,6 +2,8 @@ import { nowUtc } from '../../common/utils/functions';
 
 export type AuditEventSnapshot = Record<string, unknown> | null;
 
+export type AuditEventActorType = 'user' | 'system' | 'caregiver';
+
 export class AuditEvent {
   constructor(
     private readonly _action: string,
@@ -15,6 +17,7 @@ export class AuditEvent {
     private readonly _metadata?: Record<string, unknown>,
     private readonly _ipAddress?: string,
     private readonly _userAgent?: string,
+    private readonly _actorType: AuditEventActorType = 'user',
     private readonly _id?: string,
   ) {}
 
@@ -62,6 +65,10 @@ export class AuditEvent {
     return this._userAgent;
   }
 
+  get actorType(): AuditEventActorType {
+    return this._actorType;
+  }
+
   get id(): string | undefined {
     return this._id;
   }
@@ -98,6 +105,7 @@ export class AuditEvent {
     metadata?: Record<string, unknown>,
     ipAddress?: string,
     userAgent?: string,
+    actorType: AuditEventActorType = 'user',
   ): AuditEvent {
     return new AuditEvent(
       action,
@@ -111,6 +119,7 @@ export class AuditEvent {
       metadata,
       ipAddress,
       userAgent,
+      actorType,
       undefined,
     );
   }
@@ -128,6 +137,7 @@ export class AuditEvent {
     metadata?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
+    actorType?: AuditEventActorType;
   }): AuditEvent {
     return new AuditEvent(
       data.action,
@@ -141,6 +151,7 @@ export class AuditEvent {
       data.metadata,
       data.ipAddress,
       data.userAgent,
+      data.actorType,
       data.id,
     );
   }
@@ -158,6 +169,7 @@ export class AuditEvent {
     metadata?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
+    actorType: AuditEventActorType;
   } {
     return {
       id: this._id,
@@ -172,6 +184,7 @@ export class AuditEvent {
       metadata: this._metadata,
       ipAddress: this._ipAddress,
       userAgent: this._userAgent,
+      actorType: this._actorType,
     };
   }
 }
