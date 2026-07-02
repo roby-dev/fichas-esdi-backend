@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDateString,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -40,6 +41,14 @@ export class CreateCaregiverMotherDto {
   @ApiProperty({ example: '2025-01-01', description: 'Fecha de inicio' })
   @IsDateString()
   startDate: string;
+
+  @ApiProperty({
+    example: '507f1f77bcf86cd799439011',
+    description: 'ID del local comunal para la asignación inicial',
+  })
+  @IsMongoId()
+  @IsNotEmpty()
+  communityHallId: string;
 
   @ApiPropertyOptional({ example: '2025-12-31', description: 'Fecha de baja' })
   @IsOptional()

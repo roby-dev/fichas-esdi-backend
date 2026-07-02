@@ -38,8 +38,17 @@ export class CaregiverMotherService {
 
   async create(
     dto: CreateCaregiverMotherDto,
-    _roles: string[],
+    roles: string[],
   ): Promise<CaregiverMotherResponseDto> {
+    await this.scopeService.ensureCanManageHall(dto.communityHallId, roles);
+
+    const hall = await this.hallRepository.findById(dto.communityHallId);
+    if (!hall) {
+      throw new NotFoundException(
+        `No existe un local comunal con ID ${dto.communityHallId}`,
+      );
+    }
+
     const documentType = (dto.documentType ?? 'DNI').trim().toUpperCase();
     const documentNumber = dto.documentNumber.trim();
 
@@ -65,6 +74,19 @@ export class CaregiverMotherService {
     });
 
     const saved = await this.caregiverRepository.save(caregiver);
+
+    try {
+      const assignment = CaregiverHallAssignment.create({
+        caregiverId: saved.id!,
+        communityHallId: hall.id!,
+        validFrom: new Date(dto.startDate),
+      });
+      await this.assignmentRepository.save(assignment);
+    } catch (error) {
+      await this.caregiverRepository.delete(saved.id!);
+      throw error;
+    }
+
     return CaregiverMotherResponseDto.fromDomain(saved);
   }
 

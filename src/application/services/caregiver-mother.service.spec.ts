@@ -71,6 +71,9 @@ describe('CaregiverMotherService', () => {
   describe('create', () => {
     it('creates a caregiver with default document type DNI', async () => {
       caregiverRepo.existsByIdentity.mockResolvedValue(false);
+      hallRepo.findById.mockResolvedValue(
+        new CommunityHall('LOC-001', 'Hall A', 'committee-1', HALL_ID),
+      );
       caregiverRepo.save.mockImplementation(async (c) =>
         CaregiverMother.fromPrimitives({
           ...c.toPrimitives(),
@@ -83,16 +86,36 @@ describe('CaregiverMotherService', () => {
         firstName: 'Maria',
         lastName: 'Gonzalez',
         startDate: '2025-01-01',
+        communityHallId: HALL_ID,
       };
 
       const result = await service.create(dto, ['admin']);
 
       expect(result.documentType).toBe('DNI');
+      expect(scopeService.ensureCanManageHall).toHaveBeenCalledWith(HALL_ID, [
+        'admin',
+      ]);
+      expect(hallRepo.findById).toHaveBeenCalledWith(HALL_ID);
       expect(caregiverRepo.save).toHaveBeenCalledTimes(1);
+      expect(assignmentRepo.save).toHaveBeenCalledTimes(1);
+      const assignment = assignmentRepo.save.mock.calls[0][0];
+      expect(assignment.caregiverId).toBe(CGV_ID);
+      expect(assignment.communityHallId).toBe(HALL_ID);
+      expect(assignment.validFrom).toEqual(new Date('2025-01-01'));
     });
 
-    it('throws ConflictException when identity already exists', async () => {
-      caregiverRepo.existsByIdentity.mockResolvedValue(true);
+    it('deletes the caregiver if initial assignment persistence fails', async () => {
+      caregiverRepo.existsByIdentity.mockResolvedValue(false);
+      hallRepo.findById.mockResolvedValue(
+        new CommunityHall('LOC-001', 'Hall A', 'committee-1', HALL_ID),
+      );
+      caregiverRepo.save.mockImplementation(async (c) =>
+        CaregiverMother.fromPrimitives({
+          ...c.toPrimitives(),
+          id: CGV_ID,
+        }),
+      );
+      assignmentRepo.save.mockRejectedValue(new Error('assignment failed'));
 
       await expect(
         service.create(
@@ -101,12 +124,84 @@ describe('CaregiverMotherService', () => {
             firstName: 'Maria',
             lastName: 'Gonzalez',
             startDate: '2025-01-01',
+            communityHallId: HALL_ID,
+          },
+          ['admin'],
+        ),
+      ).rejects.toThrow('assignment failed');
+
+      expect(caregiverRepo.save).toHaveBeenCalledTimes(1);
+      expect(assignmentRepo.save).toHaveBeenCalledTimes(1);
+      expect(caregiverRepo.delete).toHaveBeenCalledWith(CGV_ID);
+    });
+
+    it('validates caller scope before creating the caregiver', async () => {
+      scopeService.ensureCanManageHall.mockRejectedValue(
+        new UnauthorizedException('Fuera de alcance'),
+      );
+
+      await expect(
+        service.create(
+          {
+            documentNumber: '12345678',
+            firstName: 'Maria',
+            lastName: 'Gonzalez',
+            startDate: '2025-01-01',
+            communityHallId: HALL_ID,
+          },
+          ['AT'],
+        ),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(hallRepo.findById).not.toHaveBeenCalled();
+      expect(caregiverRepo.save).not.toHaveBeenCalled();
+      expect(assignmentRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the initial hall does not exist', async () => {
+      hallRepo.findById.mockResolvedValue(null);
+
+      await expect(
+        service.create(
+          {
+            documentNumber: '12345678',
+            firstName: 'Maria',
+            lastName: 'Gonzalez',
+            startDate: '2025-01-01',
+            communityHallId: HALL_ID,
+          },
+          ['admin'],
+        ),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(scopeService.ensureCanManageHall).toHaveBeenCalledWith(HALL_ID, [
+        'admin',
+      ]);
+      expect(caregiverRepo.save).not.toHaveBeenCalled();
+      expect(assignmentRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('throws ConflictException when identity already exists', async () => {
+      caregiverRepo.existsByIdentity.mockResolvedValue(true);
+      hallRepo.findById.mockResolvedValue(
+        new CommunityHall('LOC-001', 'Hall A', 'committee-1', HALL_ID),
+      );
+
+      await expect(
+        service.create(
+          {
+            documentNumber: '12345678',
+            firstName: 'Maria',
+            lastName: 'Gonzalez',
+            startDate: '2025-01-01',
+            communityHallId: HALL_ID,
           },
           ['admin'],
         ),
       ).rejects.toThrow(ConflictException);
 
       expect(caregiverRepo.save).not.toHaveBeenCalled();
+      expect(assignmentRepo.save).not.toHaveBeenCalled();
     });
   });
 
