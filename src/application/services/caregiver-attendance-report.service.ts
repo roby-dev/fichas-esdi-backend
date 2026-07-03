@@ -108,7 +108,7 @@ export class CaregiverAttendanceReportService {
     ) {
       const localDate = this.formatLocalDate(d);
       const schedule = this.findActiveVersion(schedules, d);
-      if (!schedule || !schedule.isWorkingDay(d)) continue;
+      const isWorkingDay = schedule?.isWorkingDay(d) ?? false;
 
       const dayHallExceptions = hallExceptions.filter(
         (e) => e.localDate === localDate && e.isAccepted(),
@@ -116,35 +116,75 @@ export class CaregiverAttendanceReportService {
       const isHallDayOff = dayHallExceptions.some(
         (e) => e.kind === 'holiday' || e.kind === 'day_off',
       );
+
+      // If it's a hall day off, skip entirely
       if (isHallDayOff) continue;
 
-      const blocks = schedule.blocksForDate(d);
+      // Collect all caregivers with assignments OR with special records for this day
       const dayAssignments = assignments.filter((a) => a.isActiveOn(d));
+      const dayCaregiverIds = new Set(dayAssignments.map((a) => a.caregiverId));
+      const dayRecords = recordsByCaregiverAndDate;
 
-      for (const assignment of dayAssignments) {
-        const caregiver = caregiverMap.get(assignment.caregiverId);
+      // If no active schedule and no working day, only show special marks
+      const orphanSpecials: { caregiverId: string; records: CaregiverAttendanceRecord[] }[] = [];
+      if (!isWorkingDay) {
+        for (const [key, recs] of dayRecords) {
+          const [cgId, recDate] = key.split(':');
+          if (recDate !== localDate) continue;
+          const specials = recs.filter((r) => r.markKind === 'special' && !r.isVoided);
+          if (specials.length > 0) {
+            orphanSpecials.push({ caregiverId: cgId, records: specials });
+            dayCaregiverIds.add(cgId);
+          }
+        }
+        if (orphanSpecials.length === 0 && dayAssignments.length === 0) continue;
+      }
+
+      const blocks = isWorkingDay ? schedule!.blocksForDate(d) : [];
+
+      for (const caregiverId of dayCaregiverIds) {
+        const caregiver = caregiverMap.get(caregiverId);
         if (!caregiver) continue;
 
         const summary = this.getOrCreateSummary(caregiverSummaries, caregiver);
         const key = `${caregiver.id}:${localDate}`;
-        const dayRecords = recordsByCaregiverAndDate.get(key) ?? [];
+        const recs = dayRecords.get(key) ?? [];
         const caregiverExcs =
           exceptionsByCaregiver.get(`${caregiver.id}:${localDate}`) ?? [];
 
-        for (const block of blocks) {
-          const outcome = this.resolveBlockOutcome(
-            block,
-            dayRecords,
-            caregiverExcs,
-            includeExpectedWithoutMarks,
-            schedule,
-            caregiver.id!,
-            localDate,
-          );
-          if (!outcome) continue;
+        // Process schedule blocks (official/tardy marks)
+        if (isWorkingDay) {
+          for (const block of blocks) {
+            const outcome = this.resolveBlockOutcome(
+              block,
+              recs,
+              caregiverExcs,
+              includeExpectedWithoutMarks,
+              schedule!,
+              caregiver.id!,
+              localDate,
+            );
+            if (!outcome) continue;
 
-          summary.outcomes.push(outcome);
-          this.incrementCounts(summary, outcome);
+            summary.outcomes.push(outcome);
+            this.incrementCounts(summary, outcome);
+          }
+        }
+
+        // Process orphan special marks (no schedule or non-working day)
+        for (const record of recs) {
+          if (record.isVoided) continue;
+          if (record.markKind === 'special') {
+            summary.outcomes.push({
+              localDate: record.localDate,
+              blockId: record.blockId,
+              blockName: record.blockId,
+              outcome: 'special',
+              entryTime: record.entryTime ?? null,
+              reason: record.reason ?? null,
+            });
+            summary.specialCount++;
+          }
         }
       }
     }
