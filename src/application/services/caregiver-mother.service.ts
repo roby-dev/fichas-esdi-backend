@@ -107,7 +107,11 @@ export class CaregiverMotherService {
       lastName: dto.lastName ?? existing.lastName,
       phone: dto.phone ?? existing.phone,
       startDate: dto.startDate ? new Date(dto.startDate) : existing.startDate,
-      endDate: dto.endDate ? new Date(dto.endDate) : existing.endDate,
+      endDate: dto.endDate !== undefined
+        ? (dto.endDate ? new Date(dto.endDate) : null)
+        : dto.status === 'active'
+          ? null
+          : existing.endDate,
       status: dto.status ?? existing.status,
     });
 
