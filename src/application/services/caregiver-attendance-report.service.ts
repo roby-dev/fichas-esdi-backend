@@ -99,6 +99,15 @@ export class CaregiverAttendanceReportService {
     const exceptionsByCaregiver =
       this.groupCaregiverExceptions(caregiverExceptions);
 
+    const blockNameMap = new Map<string, string>();
+    for (const sv of schedules) {
+      for (const block of sv.toPrimitives().blocks) {
+        if (!blockNameMap.has(block.id)) {
+          blockNameMap.set(block.id, block.name);
+        }
+      }
+    }
+
     const caregiverSummaries = new Map<string, CaregiverMonthlySummaryDto>();
 
     for (
@@ -117,15 +126,12 @@ export class CaregiverAttendanceReportService {
         (e) => e.kind === 'holiday' || e.kind === 'day_off',
       );
 
-      // If it's a hall day off, skip entirely
       if (isHallDayOff) continue;
 
-      // Collect all caregivers with assignments OR with special records for this day
       const dayAssignments = assignments.filter((a) => a.isActiveOn(d));
       const dayCaregiverIds = new Set(dayAssignments.map((a) => a.caregiverId));
       const dayRecords = recordsByCaregiverAndDate;
 
-      // If no active schedule and no working day, only show special marks
       const orphanSpecials: { caregiverId: string; records: CaregiverAttendanceRecord[] }[] = [];
       if (!isWorkingDay) {
         for (const [key, recs] of dayRecords) {
@@ -171,14 +177,13 @@ export class CaregiverAttendanceReportService {
           }
         }
 
-        // Process orphan special marks (no schedule or non-working day)
         for (const record of recs) {
           if (record.isVoided) continue;
           if (record.markKind === 'special') {
             summary.outcomes.push({
               localDate: record.localDate,
               blockId: record.blockId,
-              blockName: record.blockId,
+              blockName: blockNameMap.get(record.blockId) ?? record.blockId,
               outcome: 'special',
               entryTime: record.entryTime ?? null,
               reason: record.reason ?? null,
