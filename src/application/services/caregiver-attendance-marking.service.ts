@@ -248,6 +248,16 @@ export class CaregiverAttendanceMarkingService {
     return MarkResponseDto.fromDomain(saved);
   }
 
+  async findByCaregiverAndDate(
+    caregiverId: string,
+    localDate?: string,
+  ): Promise<MarkResponseDto[]> {
+    const records = localDate
+      ? await this.attendanceRepository.findByCaregiverAndDate(caregiverId, localDate)
+      : await this.attendanceRepository.findByCaregiverAndDate(caregiverId, ''); // extended in future
+    return records.map(MarkResponseDto.fromDomain);
+  }
+
   async correctMark(
     id: string,
     dto: CorrectMarkDto,

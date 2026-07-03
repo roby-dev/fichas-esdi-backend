@@ -42,6 +42,7 @@ import type { CaregiverHallAssignmentPrimitives } from 'src/domain/entities/care
 import { MonthlyReportQueryDto } from 'src/application/dtos/caregiver-attendance/monthly-report-query.dto';
 import { MonthlyHallReportResponseDto } from 'src/application/dtos/caregiver-attendance/monthly-hall-report-response.dto';
 import { MonthlyCommitteeReportResponseDto } from 'src/application/dtos/caregiver-attendance/monthly-committee-report-response.dto';
+import { MarksQueryDto } from 'src/application/dtos/caregiver-attendance/marks-query.dto';
 
 interface RequestWithUser extends Request {
   user: { sub: string; email: string; roles: string[] };
@@ -204,6 +205,19 @@ export class CaregiverAttendanceController {
     @Body() dto: AssistedMarkDto,
   ): Promise<MarkResponseDto> {
     return this.markingService.assistedMark(dto, this.roles(req));
+  }
+
+  @Get('marks')
+  @Roles(['admin', 'AT'])
+  @ApiOperation({ summary: 'List attendance marks by caregiver and optional date' })
+  @ApiResponse({ status: 200, type: [MarkResponseDto] })
+  async listMarks(
+    @Query() query: MarksQueryDto,
+  ): Promise<MarkResponseDto[]> {
+    return this.markingService.findByCaregiverAndDate(
+      query.caregiverId,
+      query.localDate,
+    );
   }
 
   @Patch('marks/:id/correction')
