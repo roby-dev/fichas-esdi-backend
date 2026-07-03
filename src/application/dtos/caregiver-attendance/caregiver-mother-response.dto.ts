@@ -12,8 +12,13 @@ export class CaregiverMotherResponseDto {
   @ApiProperty() startDate: Date;
   @ApiProperty({ nullable: true }) endDate: Date | null;
   @ApiProperty() status: string;
+  @ApiProperty({ nullable: true }) currentHallId: string | null;
+  @ApiProperty({ nullable: true }) currentHallName: string | null;
 
-  static fromDomain(entity: CaregiverMother): CaregiverMotherResponseDto {
+  static fromDomain(
+    entity: CaregiverMother,
+    currentHall?: { id: string; name: string } | null,
+  ): CaregiverMotherResponseDto {
     const p = entity.toPrimitives();
     return {
       id: p.id!,
@@ -26,6 +31,8 @@ export class CaregiverMotherResponseDto {
       startDate: p.startDate,
       endDate: p.endDate ?? null,
       status: p.status,
+      currentHallId: currentHall?.id ?? null,
+      currentHallName: currentHall?.name ?? null,
     };
   }
 }

@@ -23,6 +23,8 @@ import { TransferCaregiverMotherDto } from '../dtos/caregiver-attendance/transfe
 import { CaregiverAttendanceScopeService } from './caregiver-attendance-scope.service';
 import { addUtcDays } from 'src/common/utils/functions';
 
+type CurrentHall = { id: string; name: string } | null;
+
 @Injectable()
 export class CaregiverMotherService {
   constructor(
@@ -118,7 +120,11 @@ export class CaregiverMotherService {
     _roles: string[],
   ): Promise<CaregiverMotherResponseDto> {
     const caregiver = await this.findCaregiverOrThrow(id);
-    return CaregiverMotherResponseDto.fromDomain(caregiver);
+    const currentHalls = await this.enrichWithCurrentHalls([caregiver]);
+    return CaregiverMotherResponseDto.fromDomain(
+      caregiver,
+      currentHalls.get(caregiver.id!) ?? null,
+    );
   }
 
   async findAll(
@@ -131,7 +137,13 @@ export class CaregiverMotherService {
 
     if (accessibleHallIds === null) {
       const caregivers = await this.caregiverRepository.findAll(limit, offset);
-      return caregivers.map(CaregiverMotherResponseDto.fromDomain);
+      const currentHalls = await this.enrichWithCurrentHalls(caregivers);
+      return caregivers.map((caregiver) =>
+        CaregiverMotherResponseDto.fromDomain(
+          caregiver,
+          currentHalls.get(caregiver.id!) ?? null,
+        ),
+      );
     }
 
     if (accessibleHallIds.length === 0) {
@@ -150,7 +162,13 @@ export class CaregiverMotherService {
     }
 
     const caregivers = await this.caregiverRepository.findByIds(caregiverIds);
-    return caregivers.map(CaregiverMotherResponseDto.fromDomain);
+    const currentHalls = await this.enrichWithCurrentHalls(caregivers);
+    return caregivers.map((caregiver) =>
+      CaregiverMotherResponseDto.fromDomain(
+        caregiver,
+        currentHalls.get(caregiver.id!) ?? null,
+      ),
+    );
   }
 
   async transfer(
@@ -228,5 +246,47 @@ export class CaregiverMotherService {
       throw new NotFoundException(`No se encontró una cuidadora con ID ${id}`);
     }
     return caregiver;
+  }
+
+  private async enrichWithCurrentHalls(
+    caregivers: CaregiverMother[],
+  ): Promise<Map<string, CurrentHall>> {
+    const caregiverIds = caregivers
+      .map((caregiver) => caregiver.id)
+      .filter((id): id is string => Boolean(id));
+    const currentHalls = new Map<string, CurrentHall>(
+      caregiverIds.map((id) => [id, null]),
+    );
+
+    if (caregiverIds.length === 0) {
+      return currentHalls;
+    }
+
+    const assignments = await this.assignmentRepository.findCurrentByCaregiverIds(
+      caregiverIds,
+    );
+    const hallIds = Array.from(
+      new Set(assignments.map((assignment) => assignment.communityHallId)),
+    );
+
+    if (hallIds.length === 0) {
+      return currentHalls;
+    }
+
+    const halls = await this.hallRepository.findByIds(hallIds);
+    const hallsById = new Map(
+      halls
+        .filter((hall) => Boolean(hall.id))
+        .map((hall) => [hall.id!, { id: hall.id!, name: hall.name }]),
+    );
+
+    for (const assignment of assignments) {
+      const hall = hallsById.get(assignment.communityHallId);
+      if (hall) {
+        currentHalls.set(assignment.caregiverId, hall);
+      }
+    }
+
+    return currentHalls;
   }
 }

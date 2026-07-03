@@ -3,6 +3,7 @@ import { CommunityHall } from '../entities/community-hall.entity';
 export interface CommunityHallRepository {
   save(hall: CommunityHall): Promise<CommunityHall>;
   findById(id: string): Promise<CommunityHall | null>;
+  findByIds(ids: string[]): Promise<CommunityHall[]>;
   findAll(limit?: number, offset?: number): Promise<CommunityHall[]>;
   findAllUnpaginated(): Promise<CommunityHall[]>;
   update(hall: CommunityHall): Promise<CommunityHall>;

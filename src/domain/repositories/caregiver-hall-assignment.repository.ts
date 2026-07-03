@@ -9,6 +9,9 @@ export interface CaregiverHallAssignmentRepository {
     date: Date,
   ): Promise<CaregiverHallAssignment | null>;
   closeCurrentAssignment(caregiverId: string, validTo: Date): Promise<void>;
+  findCurrentByCaregiverIds(
+    ids: string[],
+  ): Promise<CaregiverHallAssignment[]>;
   findByHallIdAndDateRange(
     hallId: string,
     from: Date,

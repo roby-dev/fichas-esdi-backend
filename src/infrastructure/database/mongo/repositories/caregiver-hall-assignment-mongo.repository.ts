@@ -72,6 +72,21 @@ export class CaregiverHallAssignmentMongoRepository
     );
   }
 
+  async findCurrentByCaregiverIds(
+    ids: string[],
+  ): Promise<CaregiverHallAssignment[]> {
+    if (ids.length === 0) return [];
+
+    const docs = await this.model
+      .find({
+        caregiverId: { $in: ids.map((id) => new Types.ObjectId(id)) },
+        validTo: null,
+      })
+      .lean();
+
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
   async findByHallIdAndDateRange(
     hallId: string,
     from: Date,

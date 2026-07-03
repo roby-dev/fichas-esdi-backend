@@ -44,10 +44,12 @@ describe('CaregiverMotherService', () => {
       findActiveByCaregiverAndDate: jest.fn(),
       closeCurrentAssignment: jest.fn(),
       findByHallIds: jest.fn(),
+      findCurrentByCaregiverIds: jest.fn().mockResolvedValue([]),
     } as unknown as jest.Mocked<CaregiverHallAssignmentRepository>;
 
     hallRepo = {
       findById: jest.fn(),
+      findByIds: jest.fn().mockResolvedValue([]),
     } as unknown as jest.Mocked<CommunityHallRepository>;
 
     scopeService = {
@@ -338,7 +340,7 @@ describe('CaregiverMotherService', () => {
   });
 
   describe('findAll', () => {
-    it('returns all caregivers for admin users', async () => {
+    it('returns all caregivers for admin users with current hall metadata', async () => {
       scopeService.getAccessibleHallIds.mockResolvedValue(null);
       caregiverRepo.findAll.mockResolvedValue([
         CaregiverMother.fromPrimitives({
@@ -351,15 +353,58 @@ describe('CaregiverMotherService', () => {
           status: 'active',
         }),
       ]);
+      assignmentRepo.findCurrentByCaregiverIds.mockResolvedValue([
+        CaregiverHallAssignment.fromPrimitives({
+          id: 'assign-1',
+          caregiverId: 'cgv-1',
+          communityHallId: HALL_ID,
+          validFrom: new Date('2025-01-01'),
+          validTo: null,
+        }),
+      ]);
+      hallRepo.findByIds.mockResolvedValue([
+        new CommunityHall('LOC-001', 'Local Las Flores', 'committee-1', HALL_ID),
+      ]);
 
       const result = await service.findAll(['admin'], 10, 0);
 
       expect(result).toHaveLength(1);
+      expect(result[0].currentHallId).toBe(HALL_ID);
+      expect(result[0].currentHallName).toBe('Local Las Flores');
       expect(caregiverRepo.findAll).toHaveBeenCalledWith(10, 0);
+      expect(assignmentRepo.findCurrentByCaregiverIds).toHaveBeenCalledWith([
+        'cgv-1',
+      ]);
+      expect(hallRepo.findByIds).toHaveBeenCalledWith([HALL_ID]);
       expect(assignmentRepo.findByHallIds).not.toHaveBeenCalled();
     });
 
-    it('returns only caregivers assigned to accessible halls for AT users', async () => {
+    it('returns nullable current hall fields when a caregiver has no active assignment', async () => {
+      scopeService.getAccessibleHallIds.mockResolvedValue(null);
+      caregiverRepo.findAll.mockResolvedValue([
+        CaregiverMother.fromPrimitives({
+          id: CGV_ID,
+          documentType: 'DNI',
+          documentNumber: '12345678',
+          firstName: 'Maria',
+          lastName: 'Gonzalez',
+          startDate: new Date('2025-01-01'),
+          status: 'active',
+        }),
+      ]);
+      assignmentRepo.findCurrentByCaregiverIds.mockResolvedValue([]);
+
+      const result = await service.findAll(['admin'], 10, 0);
+
+      expect(result[0].currentHallId).toBeNull();
+      expect(result[0].currentHallName).toBeNull();
+      expect(assignmentRepo.findCurrentByCaregiverIds).toHaveBeenCalledWith([
+        CGV_ID,
+      ]);
+      expect(hallRepo.findByIds).not.toHaveBeenCalled();
+    });
+
+    it('returns only caregivers assigned to accessible halls for AT users and enriches after scope filtering', async () => {
       scopeService.getAccessibleHallIds.mockResolvedValue([HALL_ID]);
       assignmentRepo.findByHallIds.mockResolvedValue([
         CaregiverHallAssignment.fromPrimitives({
@@ -381,13 +426,31 @@ describe('CaregiverMotherService', () => {
           status: 'active',
         }),
       ]);
+      assignmentRepo.findCurrentByCaregiverIds.mockResolvedValue([
+        CaregiverHallAssignment.fromPrimitives({
+          id: 'assign-current',
+          caregiverId: CGV_ID,
+          communityHallId: HALL_ID,
+          validFrom: new Date('2025-01-01'),
+          validTo: null,
+        }),
+      ]);
+      hallRepo.findByIds.mockResolvedValue([
+        new CommunityHall('LOC-001', 'Local Las Flores', 'committee-1', HALL_ID),
+      ]);
 
       const result = await service.findAll(['AT'], 10, 0);
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(CGV_ID);
+      expect(result[0].currentHallName).toBe('Local Las Flores');
       expect(assignmentRepo.findByHallIds).toHaveBeenCalledWith([HALL_ID]);
       expect(caregiverRepo.findByIds).toHaveBeenCalledWith([CGV_ID]);
+      expect(
+        assignmentRepo.findByHallIds.mock.invocationCallOrder[0],
+      ).toBeLessThan(
+        assignmentRepo.findCurrentByCaregiverIds.mock.invocationCallOrder[0],
+      );
     });
 
     it('returns an empty list for AT users with no accessible halls', async () => {
@@ -398,6 +461,43 @@ describe('CaregiverMotherService', () => {
       expect(result).toEqual([]);
       expect(assignmentRepo.findByHallIds).not.toHaveBeenCalled();
       expect(caregiverRepo.findByIds).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findById', () => {
+    it('returns a single caregiver with current hall metadata', async () => {
+      caregiverRepo.findById.mockResolvedValue(
+        CaregiverMother.fromPrimitives({
+          id: CGV_ID,
+          documentType: 'DNI',
+          documentNumber: '12345678',
+          firstName: 'Maria',
+          lastName: 'Gonzalez',
+          startDate: new Date('2025-01-01'),
+          status: 'active',
+        }),
+      );
+      assignmentRepo.findCurrentByCaregiverIds.mockResolvedValue([
+        CaregiverHallAssignment.fromPrimitives({
+          id: 'assign-1',
+          caregiverId: CGV_ID,
+          communityHallId: HALL_ID,
+          validFrom: new Date('2025-01-01'),
+          validTo: null,
+        }),
+      ]);
+      hallRepo.findByIds.mockResolvedValue([
+        new CommunityHall('LOC-001', 'Local Las Flores', 'committee-1', HALL_ID),
+      ]);
+
+      const result = await service.findById(CGV_ID, ['admin']);
+
+      expect(result.currentHallId).toBe(HALL_ID);
+      expect(result.currentHallName).toBe('Local Las Flores');
+      expect(assignmentRepo.findCurrentByCaregiverIds).toHaveBeenCalledWith([
+        CGV_ID,
+      ]);
+      expect(hallRepo.findByIds).toHaveBeenCalledWith([HALL_ID]);
     });
   });
 

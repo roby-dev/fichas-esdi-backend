@@ -39,6 +39,17 @@ export class CommunityHallMongoRepository implements CommunityHallRepository {
     return this.toDomain(doc);
   }
 
+  async findByIds(ids: string[]): Promise<CommunityHall[]> {
+    if (ids.length === 0) return [];
+
+    const docs = await this.model
+      .find({ _id: { $in: ids.map((id) => new Types.ObjectId(id)) } })
+      .populate('committeeRef')
+      .lean();
+
+    return docs.map((doc) => this.toDomain(doc));
+  }
+
   async findAll(limit = 10, offset = 0): Promise<CommunityHall[]> {
     const docs = await this.model
       .find()
